@@ -8,22 +8,27 @@
     "dev": "nodemon server.js"
   },
   "dependencies": {
+    "@octokit/auth-app": "^8.2.0",
+    "@octokit/rest": "^22.0.1",
     "@supabase/supabase-js": "^2.39.0",
-    "express": "^4.18.2",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
-    "helmet": "^7.0.0",
+    "date-fns": "^4.4.0",
     "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.0.0",
     "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3",
-    "express-rate-limit": "^6.10.0",
-    "winston": "^3.10.0",
-    "express-validator": "^7.0.1",
     "multer": "^1.4.5-lts.1",
-    "xlsx": "^0.18.5",
-    "pdfkit": "^0.14.0",
     "nodemailer": "^6.9.7",
-    "redis": "^4.6.10"
+    "pdfkit": "^0.14.0",
+    "redis": "^4.6.10",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
+    "winston": "^3.10.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

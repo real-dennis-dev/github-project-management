@@ -6,7 +6,8 @@ const morgan = require("morgan");
 
 // Load environment variables
 dotenv.config();
-
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 // Import middleware
 const authMiddleware = require("./shared/middleware/auth.middleware");
 const validationMiddleware = require("./shared/middleware/validation.middleware");
@@ -14,15 +15,12 @@ const errorMiddleware = require("./shared/middleware/error.middleware");
 const loggingMiddleware = require("./shared/middleware/logging.middleware");
 const securityMiddleware = require("./shared/middleware/security.middleware");
 const dataMiddleware = require("./shared/middleware/data.middleware");
-
+import progressRoutes from "./modules/progress-timeline/routes/progress.routes.js";
 // Import logger
 const logger = require("./config/logger");
 
-// Import routes (to be implemented)
-// const projectRoutes = require('./modules/project-management/routes');
-// const githubRoutes = require('./modules/github-integration/routes');
-// etc.
-
+import documentationRoutes from "./modules/documentation-knowledge/routes/index.js";
+app.use("/api", progressRoutes);
 // Create Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -55,10 +53,48 @@ app.get("/health", (req, res) => {
 app.use("/api", authMiddleware.authenticate);
 app.use(loggingMiddleware.auditLog);
 
-// Mount routes
-// app.use('/api/projects', projectRoutes);
-// app.use('/api/github', githubRoutes);
-// etc.
+// Swagger setup
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Documentation & Knowledge Base API",
+      version: "1.0.0",
+      description: "API for managing project documentation and knowledge base",
+      contact: {
+        name: "API Support",
+        email: "support@example.com",
+      },
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 3000}`,
+        description: "Development server",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./src/modules/*/swagger/*.swagger.js", "./src/modules/*/routes/*.js"],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Routes
+app.use("/api", documentationRoutes);
 
 // Error handling middleware
 app.use(errorMiddleware.notFoundHandler);
