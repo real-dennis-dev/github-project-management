@@ -1,11 +1,17 @@
 // src/modules/progress-timeline/routes/progress.routes.js
-import express from "express";
-import { ProgressController } from "../controllers/progress.controller.js";
-import { ProgressMiddleware } from "../middleware/progress.middleware.js";
-import { AuthMiddleware } from "../../../common/middleware/auth.middleware.js";
-import { SecurityMiddleware } from "../../../common/middleware/security.middleware.js";
-import { DataMiddleware } from "../../../common/middleware/data.middleware.js";
+const express = require("express");
 
+const { ProgressController } = require("../controllers/progress.controller");
+const { ProgressMiddleware } = require("../middleware/progress.middleware");
+const {
+  AuthMiddleware,
+} = require("../../../common/middleware/auth.middleware");
+const {
+  SecurityMiddleware,
+} = require("../../../common/middleware/security.middleware");
+const {
+  DataMiddleware,
+} = require("../../../common/middleware/data.middleware");
 const router = express.Router();
 
 // Apply authentication to all routes
@@ -117,4 +123,4 @@ router.get(
   ProgressController.generateProgressReport
 );
 
-export default router;
+module.exports = router;

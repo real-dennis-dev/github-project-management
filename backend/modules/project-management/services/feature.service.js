@@ -1,8 +1,8 @@
-import { supabase } from "../../../common/config/supabase.js";
-import { ValidationUtils } from "../../../common/utils/validation.utils.js";
-import { featureStatus, featureDifficulty } from "../utils/project.utils.js";
+const { supabase } = require("../../../common/config/supabase");
+const { ValidationUtils } = require("../../../common/utils/validation.utils");
+const { featureStatus, featureDifficulty } = require("../utils/project.utils");
 
-export class FeatureService {
+class FeatureService {
   /**
    * Gets features for a project with filters
    * @param {string} projectId - Project UUID
@@ -310,3 +310,5 @@ export class FeatureService {
     return { valid: true };
   }
 }
+
+module.exports = { FeatureService };

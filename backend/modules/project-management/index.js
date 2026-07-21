@@ -1,7 +1,8 @@
-import express from "express";
-import projectRoutes from "./project.routes.js";
-import featureRoutes from "./feature.routes.js";
-import bugRoutes from "./bug.routes.js";
+const express = require("express");
+
+const projectRoutes = require("./project.routes");
+const featureRoutes = require("./feature.routes");
+const bugRoutes = require("./bug.routes");
 
 const router = express.Router();
 
@@ -10,4 +11,4 @@ router.use("/projects", projectRoutes);
 router.use("/", featureRoutes);
 router.use("/", bugRoutes);
 
-export default router;
+module.exports = router;

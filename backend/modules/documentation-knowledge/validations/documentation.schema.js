@@ -1,6 +1,6 @@
-import Joi from "joi";
+const Joi = require("joi");
 
-export const documentationSchemas = {
+const documentationSchemas = {
   // Documentation Schemas
   createDocumentation: Joi.object({
     title: Joi.string().required().min(3).max(255),
@@ -74,4 +74,4 @@ export const documentationSchemas = {
   }),
 };
 
-export default documentationSchemas;
+module.exports = documentationSchemas;

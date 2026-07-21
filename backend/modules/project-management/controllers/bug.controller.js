@@ -1,12 +1,14 @@
-import { BugService } from "../services/bug.service.js";
-import { ResponseUtils } from "../../../common/utils/response.utils.js";
-import { Logger } from "../../../common/config/logger.js";
+const { BugService } = require("../services/bug.service");
+const { ResponseUtils } = require("../../../common/utils/response.utils");
+const { Logger } = require("../../../common/config/logger");
 
 const bugService = new BugService();
 const response = new ResponseUtils();
 const logger = Logger;
 
-export class BugController {
+class BugController {
+  // controller methods here
+
   /**
    * GET /api/projects/:projectId/bugs
    * Get bugs for a project
@@ -220,3 +222,6 @@ export class BugController {
     }
   }
 }
+module.exports = {
+  BugController,
+};

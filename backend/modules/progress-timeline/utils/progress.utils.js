@@ -1,14 +1,15 @@
 // src/modules/progress-timeline/utils/progress.utils.js
-import {
+const {
   format,
   parseISO,
   isValid,
   differenceInDays,
   startOfMonth,
   endOfMonth,
-} from "date-fns";
+} = require("date-fns");
 
-export class ProgressUtils {
+class ProgressUtils {
+  // methods here
   /**
    * Generates chart data for timeline
    * @param {Array} data - Timeline entries
@@ -410,3 +411,4 @@ export class ProgressUtils {
     };
   }
 }
+module.exports = ProgressUtils;

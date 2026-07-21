@@ -1,9 +1,9 @@
-import { supabase } from "../../../common/config/supabase.js";
-import { ValidationUtils } from "../../../common/utils/validation.utils.js";
-import { DateUtils } from "../../../common/utils/date.utils.js";
-import { bugStatus, bugPriority } from "../utils/project.utils.js";
+const { supabase } = require("../../../common/config/supabase");
+const { ValidationUtils } = require("../../../common/utils/validation.utils");
+const { DateUtils } = require("../../../common/utils/date.utils");
+const { bugStatus, bugPriority } = require("../utils/project.utils");
 
-export class BugService {
+class BugService {
   /**
    * Gets bugs for a project with filters
    * @param {string} projectId - Project UUID
@@ -336,3 +336,4 @@ export class BugService {
     }
   }
 }
+module.exports = BugService;

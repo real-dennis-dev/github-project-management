@@ -1,9 +1,9 @@
 // src/modules/progress-timeline/controllers/progress.controller.js
-import { ProgressService } from "../services/progress.service.js";
-import { ResponseUtils } from "../../../common/utils/response.utils.js";
-import { ProgressUtils } from "../utils/progress.utils.js";
+const { ProgressService } = require("../services/progress.service");
+const { ResponseUtils } = require("../../../common/utils/response.utils");
+const { ProgressUtils } = require("../utils/progress.utils");
 
-export class ProgressController {
+class ProgressController {
   /**
    * GET /api/projects/:projectId/timeline
    * Get project timeline with filtering
@@ -262,3 +262,4 @@ export class ProgressController {
     }
   }
 }
+module.exports = { ProgressController };

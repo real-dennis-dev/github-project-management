@@ -1,13 +1,22 @@
-import express from "express";
-import { FeatureController } from "../controllers/feature.controller.js";
-import { FeatureSubtaskController } from "../controllers/feature-subtask.controller.js";
-import { FeatureMiddleware } from "../middleware/feature.middleware.js";
-import { ProjectMiddleware } from "../middleware/project.middleware.js";
-import { authMiddleware } from "../../../common/middleware/auth.middleware.js";
-import { validationMiddleware } from "../../../common/middleware/validation.middleware.js";
-import Joi from "joi";
+// Export at the top
+const express = require("express");
+const Joi = require("joi");
+
+const { FeatureController } = require("../controllers/feature.controller");
+const {
+  FeatureSubtaskController,
+} = require("../controllers/feature-subtask.controller");
+const { FeatureMiddleware } = require("../middleware/feature.middleware");
+const { ProjectMiddleware } = require("../middleware/project.middleware");
+const {
+  authMiddleware,
+} = require("../../../common/middleware/auth.middleware");
+const {
+  validationMiddleware,
+} = require("../../../common/middleware/validation.middleware");
 
 const router = express.Router();
+
 const featureController = new FeatureController();
 const subtaskController = new FeatureSubtaskController();
 const featureMiddleware = new FeatureMiddleware();
@@ -156,4 +165,4 @@ router.delete(
   subtaskController.deleteSubtask
 );
 
-export default router;
+module.exports = router;

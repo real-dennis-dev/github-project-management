@@ -1,7 +1,7 @@
-import { supabase } from "../config/supabase.js";
-import { logger } from "../config/logger.js";
+const { supabase } = require("../config/supabase");
+const { logger } = require("../config/logger");
 
-export class DatabaseUtils {
+class DatabaseUtils {
   /**
    * Basic query builder (fluent style)
    */
@@ -223,3 +223,4 @@ export class DatabaseUtils {
     );
   }
 }
+module.exports = DatabaseUtils;

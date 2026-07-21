@@ -1,6 +1,6 @@
-import db from "../../../common/config/database.js";
-import responseUtils from "../../../common/utils/response.utils.js";
-import logger from "../../../common/config/logger.js";
+const db = require("../../../common/config/database");
+const responseUtils = require("../../../common/utils/response.utils");
+const logger = require("../../../common/config/logger");
 
 class DocumentationMiddleware {
   /**
@@ -161,5 +161,4 @@ class DocumentationMiddleware {
     next();
   }
 }
-
-export default new DocumentationMiddleware();
+module.exports = new DocumentationMiddleware();

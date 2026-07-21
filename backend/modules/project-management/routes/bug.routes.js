@@ -1,9 +1,13 @@
-import express from "express";
-import { BugController } from "../controllers/bug.controller.js";
-import { ProjectMiddleware } from "../middleware/project.middleware.js";
-import { authMiddleware } from "../../../common/middleware/auth.middleware.js";
-import { validationMiddleware } from "../../../common/middleware/validation.middleware.js";
-import Joi from "joi";
+const express = require("express");
+const { BugController } = require("../controllers/bug.controller");
+const { ProjectMiddleware } = require("../middleware/project.middleware");
+const {
+  authMiddleware,
+} = require("../../../common/middleware/auth.middleware");
+const {
+  validationMiddleware,
+} = require("../../../common/middleware/validation.middleware");
+const Joi = require("joi");
 
 const router = express.Router();
 const bugController = new BugController();
@@ -116,4 +120,5 @@ router.delete(
   bugController.deleteBug
 );
 
-export default router;
+// Export
+module.exports = router;

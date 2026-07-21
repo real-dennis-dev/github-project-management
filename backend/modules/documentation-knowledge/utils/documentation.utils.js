@@ -1,6 +1,8 @@
-import logger from "../../../common/config/logger.js";
+const logger = require("../../../common/config/logger");
 
 class DocumentationUtils {
+  // your methods here
+
   /**
    * Extract tags from content
    * @param {string} content - Content to extract tags from
@@ -238,4 +240,4 @@ class DocumentationUtils {
   }
 }
 
-export default new DocumentationUtils();
+module.exports = DocumentationUtils;

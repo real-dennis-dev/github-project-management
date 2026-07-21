@@ -1,7 +1,7 @@
-import documentationService from "../services/documentation.service.js";
-import responseUtils from "../../../common/utils/response.utils.js";
-import logger from "../../../common/config/logger.js";
-import documentationSchemas from "../validations/documentation.schema.js";
+const documentationService = require("../services/documentation.service");
+const responseUtils = require("../../../common/utils/response.utils");
+const logger = require("../../../common/config/logger");
+const documentationSchemas = require("../validations/documentation.schema");
 
 class DocumentationController {
   /**
@@ -184,4 +184,4 @@ class DocumentationController {
   }
 }
 
-export default new DocumentationController();
+module.exports = DocumentationController;

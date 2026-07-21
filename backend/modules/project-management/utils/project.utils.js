@@ -1,8 +1,8 @@
-import { supabase } from "../../../common/config/supabase.js";
-import { DateUtils } from "../../../common/utils/date.utils.js";
+const { supabase } = require("../../../common/config/supabase");
+const { DateUtils } = require("../../../common/utils/date.utils");
 
 // Enum definitions
-export const projectStatus = {
+const projectStatus = {
   PLANNING: "planning",
   IN_PROGRESS: "in_progress",
   PAUSED: "paused",
@@ -10,14 +10,14 @@ export const projectStatus = {
   ARCHIVED: "archived",
 };
 
-export const projectPriority = {
+const projectPriority = {
   LOW: "low",
   MEDIUM: "medium",
   HIGH: "high",
   CRITICAL: "critical",
 };
 
-export const featureStatus = {
+const featureStatus = {
   PLANNED: "planned",
   IN_PROGRESS: "in_progress",
   COMPLETED: "completed",
@@ -25,14 +25,14 @@ export const featureStatus = {
   CANCELLED: "cancelled",
 };
 
-export const featureDifficulty = {
+const featureDifficulty = {
   EASY: "easy",
   MEDIUM: "medium",
   HARD: "hard",
   EXPERT: "expert",
 };
 
-export const bugStatus = {
+const bugStatus = {
   REPORTED: "reported",
   INVESTIGATING: "investigating",
   IN_PROGRESS: "in_progress",
@@ -41,14 +41,16 @@ export const bugStatus = {
   CLOSED: "closed",
 };
 
-export const bugPriority = {
+const bugPriority = {
   LOW: "low",
   MEDIUM: "medium",
   HIGH: "high",
   CRITICAL: "critical",
 };
 
-export class ProjectUtils {
+class ProjectUtils {
+  // class methods here
+
   /**
    * Calculates project completion from features
    * @param {string} projectId - Project UUID
@@ -274,3 +276,13 @@ export class ProjectUtils {
     return stats;
   }
 }
+
+module.exports = {
+  ProjectUtils,
+  projectStatus,
+  projectPriority,
+  featureStatus,
+  featureDifficulty,
+  bugStatus,
+  bugPriority,
+};

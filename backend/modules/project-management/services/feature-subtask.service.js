@@ -1,7 +1,7 @@
-import { supabase } from "../../../common/config/supabase.js";
-import { ValidationUtils } from "../../../common/utils/validation.utils.js";
+const { supabase } = require("../../../common/config/supabase");
+const { ValidationUtils } = require("../../../common/utils/validation.utils");
 
-export class FeatureSubtaskService {
+class FeatureSubtaskService {
   /**
    * Gets subtasks for a feature
    * @param {string} featureId - Feature UUID
@@ -254,3 +254,4 @@ export class FeatureSubtaskService {
     }
   }
 }
+module.exports = { FeatureSubtaskService };

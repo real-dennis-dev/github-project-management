@@ -1,10 +1,10 @@
 // src/modules/progress-timeline/services/progress.service.js
-import { supabase } from "../../../common/config/supabase.js";
-import { ProgressUtils } from "../utils/progress.utils.js";
-import { DatabaseUtils } from "../../../common/utils/database.utils.js";
-import { startOfMonth, endOfMonth, parseISO, isValid } from "date-fns";
+const { supabase } = require("../../../common/config/supabase");
+const { ProgressUtils } = require("../utils/progress.utils");
+const { DatabaseUtils } = require("../../../common/utils/database.utils");
+const { startOfMonth, endOfMonth, parseISO, isValid } = require("date-fns");
 
-export class ProgressService {
+class ProgressService {
   /**
    * Get project timeline with filtering
    * @param {string} projectId - Project UUID
@@ -726,3 +726,4 @@ export class ProgressService {
     }
   }
 }
+module.exports = { ProgressService };

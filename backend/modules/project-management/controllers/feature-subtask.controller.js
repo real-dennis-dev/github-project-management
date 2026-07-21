@@ -1,12 +1,16 @@
-import { FeatureSubtaskService } from "../services/feature-subtask.service.js";
-import { ResponseUtils } from "../../../common/utils/response.utils.js";
-import { Logger } from "../../../common/config/logger.js";
+const {
+  FeatureSubtaskService,
+} = require("../services/feature-subtask.service");
+const { ResponseUtils } = require("../../../common/utils/response.utils");
+const { Logger } = require("../../../common/config/logger");
 
 const subtaskService = new FeatureSubtaskService();
 const response = new ResponseUtils();
 const logger = Logger;
 
-export class FeatureSubtaskController {
+class FeatureSubtaskController {
+  // controller methods here
+
   /**
    * GET /api/features/:featureId/subtasks
    * Get subtasks for a feature
@@ -144,3 +148,7 @@ export class FeatureSubtaskController {
     }
   }
 }
+
+module.exports = {
+  FeatureSubtaskController,
+};

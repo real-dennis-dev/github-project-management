@@ -1,14 +1,12 @@
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const dotenv = require("dotenv");
+const path = require("path");
 
 // Load environment variables
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({
+  path: path.join(__dirname, "../../.env"),
+});
 
-export const config = {
+const config = {
   server: {
     port: parseInt(process.env.PORT || "3000", 10),
     env: process.env.NODE_ENV || "development",
@@ -41,10 +39,12 @@ export const config = {
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || "900000", 10),
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || "100", 10),
+
     authWindowMs: parseInt(
       process.env.RATE_LIMIT_AUTH_WINDOW_MS || "600000",
       10
     ),
+
     authMax: parseInt(process.env.RATE_LIMIT_AUTH_MAX_REQUESTS || "5", 10),
   },
 
@@ -71,6 +71,7 @@ export const config = {
   upload: {
     dir: process.env.UPLOAD_DIR || "./uploads",
     maxSize: parseInt(process.env.MAX_FILE_SIZE || "5242880", 10),
+
     allowedTypes: process.env.ALLOWED_FILE_TYPES?.split(",") || [
       "image/jpeg",
       "image/png",
@@ -86,13 +87,15 @@ export const config = {
 
   features: {
     enableGithubIntegration: process.env.ENABLE_GITHUB_INTEGRATION === "true",
+
     enableAIAssistant: process.env.ENABLE_AI_ASSISTANT === "true",
+
     enableExport: process.env.ENABLE_EXPORT === "true",
   },
 };
 
 // Validate required configuration
-export const validateConfig = () => {
+const validateConfig = () => {
   const required = [
     "supabase.url",
     "supabase.anonKey",
@@ -103,9 +106,11 @@ export const validateConfig = () => {
   const missing = required.filter((key) => {
     const parts = key.split(".");
     let value = config;
+
     for (const part of parts) {
       value = value?.[part];
     }
+
     return !value;
   });
 
@@ -116,4 +121,7 @@ export const validateConfig = () => {
   return true;
 };
 
-export default config;
+module.exports = {
+  config,
+  validateConfig,
+};

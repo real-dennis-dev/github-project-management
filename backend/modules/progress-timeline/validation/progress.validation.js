@@ -1,7 +1,7 @@
 // src/modules/progress-timeline/validation/progress.validation.js
-import Joi from "joi";
+const Joi = require("joi");
 
-export const ProgressValidation = {
+const ProgressValidation = {
   // Schema for creating timeline entry
   createTimelineEntry: Joi.object({
     month_year: Joi.date().required(),
@@ -47,4 +47,7 @@ export const ProgressValidation = {
     month: Joi.date().iso().required(),
     feature_name: Joi.string(),
   }),
+};
+module.exports = {
+  ProgressValidation,
 };

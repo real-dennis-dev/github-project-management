@@ -1,6 +1,6 @@
-import Joi from "joi";
+const Joi = require("joi");
 
-export const validationSchemas = {
+const validationSchemas = {
   // Project schemas
   project: {
     create: Joi.object({
@@ -189,4 +189,4 @@ export const validationSchemas = {
   },
 };
 
-export default validationSchemas;
+module.exports = validationSchemas;

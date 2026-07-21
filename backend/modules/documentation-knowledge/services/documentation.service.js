@@ -1,6 +1,6 @@
-import db from "../../../common/config/database.js";
-import logger from "../../../common/config/logger.js";
-import documentationUtils from "../utils/documentation.utils.js";
+const db = require("../../../common/config/database");
+const logger = require("../../../common/config/logger");
+const documentationUtils = require("../utils/documentation.utils");
 
 class DocumentationService {
   /**
@@ -299,4 +299,4 @@ class DocumentationService {
   }
 }
 
-export default new DocumentationService();
+module.exports = new DocumentationService();

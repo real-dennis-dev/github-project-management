@@ -1,9 +1,9 @@
 // src/modules/progress-timeline/middleware/progress.middleware.js
-import { ProgressValidation } from "../validation/progress.validation.js";
-import { supabase } from "../../../common/config/supabase.js";
-import { ValidationUtils } from "../../../common/utils/validation.utils.js";
+const { ProgressValidation } = require("../validation/progress.validation");
+const { supabase } = require("../../../common/config/supabase");
+const { ValidationUtils } = require("../../../common/utils/validation.utils");
 
-export class ProgressMiddleware {
+class ProgressMiddleware {
   /**
    * Validate project ID exists
    */
@@ -287,3 +287,4 @@ export class ProgressMiddleware {
     }
   }
 }
+module.exports = { ProgressMiddleware };

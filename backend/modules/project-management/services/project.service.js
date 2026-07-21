@@ -1,12 +1,12 @@
-import { supabase } from "../../../common/config/supabase.js";
-import { DatabaseUtils } from "../../../common/utils/database.utils.js";
-import { ValidationUtils } from "../../../common/utils/validation.utils.js";
-import { DateUtils } from "../../../common/utils/date.utils.js";
-import { projectStatus, projectPriority } from "../utils/project.utils.js";
+const { supabase } = require("../../../common/config/supabase");
+const { DatabaseUtils } = require("../../../common/utils/database.utils");
+const { ValidationUtils } = require("../../../common/utils/validation.utils");
+const { DateUtils } = require("../../../common/utils/date.utils");
+const { projectStatus, projectPriority } = require("../utils/project.utils");
 
 const db = new DatabaseUtils();
 
-export class ProjectService {
+class ProjectService {
   /**
    * Gets all projects with filters
    * @param {Object} params - Filter parameters
@@ -532,3 +532,4 @@ export class ProjectService {
     return stats;
   }
 }
+module.exports = { ProjectService };

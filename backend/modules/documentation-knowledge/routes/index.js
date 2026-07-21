@@ -1,10 +1,15 @@
-import express from "express";
-import documentationController from "../controllers/documentation.controller.js";
-import knowledgeBaseController from "../controllers/knowledge-base.controller.js";
-import documentationMiddleware from "../middleware/documentation.middleware.js";
-import { authenticate } from "../../../common/middleware/auth.middleware.js";
-import { validateRequest } from "../../../common/middleware/validation.middleware.js";
-import documentationSchemas from "../validations/documentation.schema.js";
+const express = require("express");
+
+const documentationController = require("../controllers/documentation.controller");
+const knowledgeBaseController = require("../controllers/knowledge-base.controller");
+const documentationMiddleware = require("../middleware/documentation.middleware");
+
+const { authenticate } = require("../../../common/middleware/auth.middleware");
+const {
+  validateRequest,
+} = require("../../../common/middleware/validation.middleware");
+
+const documentationSchemas = require("../validations/documentation.schema");
 
 const router = express.Router();
 
@@ -108,4 +113,4 @@ router.delete(
   knowledgeBaseController.deleteKnowledgeEntry
 );
 
-export default router;
+module.exports = router;

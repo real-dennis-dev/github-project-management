@@ -1,12 +1,16 @@
-import { FeatureService } from "../services/feature.service.js";
-import { ResponseUtils } from "../../../common/utils/response.utils.js";
-import { Logger } from "../../../common/config/logger.js";
+const FeatureService = require("../services/feature.service");
+const ResponseUtils = require("../../../common/utils/response.utils");
+const Logger = require("../../../common/config/logger");
 
 const featureService = new FeatureService();
 const response = new ResponseUtils();
 const logger = Logger;
 
-export class FeatureController {
+module.exports = {
+  FeatureController,
+};
+
+class FeatureController {
   /**
    * GET /api/projects/:projectId/features
    * Get features for a project

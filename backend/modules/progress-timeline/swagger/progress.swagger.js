@@ -1,5 +1,5 @@
 // src/modules/progress-timeline/swagger/progress.swagger.js
-export const progressSwagger = {
+module.exports = {
   // GET timeline
   "/api/projects/{projectId}/timeline": {
     get: {

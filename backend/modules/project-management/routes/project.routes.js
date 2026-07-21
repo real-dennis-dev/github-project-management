@@ -1,12 +1,19 @@
-import express from "express";
-import { ProjectController } from "../controllers/project.controller.js";
-import { ProjectMiddleware } from "../middleware/project.middleware.js";
-import { authMiddleware } from "../../../common/middleware/auth.middleware.js";
-import { validationMiddleware } from "../../../common/middleware/validation.middleware.js";
-import { dataMiddleware } from "../../../common/middleware/data.middleware.js";
-import Joi from "joi";
+const express = require("express");
+const { ProjectController } = require("../controllers/project.controller");
+const { ProjectMiddleware } = require("../middleware/project.middleware");
+const {
+  authMiddleware,
+} = require("../../../common/middleware/auth.middleware");
+const {
+  validationMiddleware,
+} = require("../../../common/middleware/validation.middleware");
+const {
+  dataMiddleware,
+} = require("../../../common/middleware/data.middleware");
+const Joi = require("joi");
 
 const router = express.Router();
+
 const projectController = new ProjectController();
 const projectMiddleware = new ProjectMiddleware();
 
@@ -47,6 +54,13 @@ const statusSchema = Joi.object({
     .valid("planning", "in_progress", "paused", "completed", "archived")
     .required(),
 });
+
+/**
+ * @swagger
+ * tags:
+ *   name: Projects
+ *   description: Project management APIs
+ */
 
 /**
  * @swagger
@@ -174,35 +188,6 @@ router.get(
  *         schema:
  *           type: string
  *           format: uuid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               description:
- *                 type: string
- *               status:
- *                 type: string
- *                 enum: [planning, in_progress, paused, completed, archived]
- *               priority:
- *                 type: string
- *                 enum: [low, medium, high, critical]
- *               tech_stack:
- *                 type: array
- *                 items:
- *                   type: string
- *               repository_url:
- *                 type: string
- *               start_date:
- *                 type: string
- *                 format: date
- *               target_completion_date:
- *                 type: string
- *                 format: date
  *     responses:
  *       200:
  *         description: Project updated
@@ -230,18 +215,6 @@ router.put(
  *         schema:
  *           type: string
  *           format: uuid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - status
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [planning, in_progress, paused, completed, archived]
  *     responses:
  *       200:
  *         description: Status updated
@@ -268,10 +241,6 @@ router.patch(
  *         schema:
  *           type: string
  *           format: uuid
- *       - in: query
- *         name: hardDelete
- *         schema:
- *           type: boolean
  *     responses:
  *       200:
  *         description: Project deleted
@@ -308,4 +277,4 @@ router.get(
   projectController.getProjectAnalytics
 );
 
-export default router;
+module.exports = router;

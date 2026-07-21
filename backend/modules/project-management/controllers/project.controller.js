@@ -1,12 +1,12 @@
-import { ProjectService } from "../services/project.service.js";
-import { ResponseUtils } from "../../../common/utils/response.utils.js";
-import { Logger } from "../../../common/config/logger.js";
+const { ProjectService } = require("../services/project.service");
+const { ResponseUtils } = require("../../../common/utils/response.utils");
+const { Logger } = require("../../../common/config/logger");
 
 const projectService = new ProjectService();
 const response = new ResponseUtils();
 const logger = Logger;
 
-export class ProjectController {
+class ProjectController {
   /**
    * GET /api/projects
    * Get all projects with filters
@@ -197,3 +197,7 @@ export class ProjectController {
     }
   }
 }
+
+module.exports = {
+  ProjectController,
+};
