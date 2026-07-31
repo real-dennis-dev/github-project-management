@@ -1,0 +1,1270 @@
+openapi: 3.0.0
+info:
+  title: GitHub Integration API
+  description: API for integrating GitHub repositories with projects
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: /api
+    description: Main API server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ============================================
+    # GitHub Repository Schemas
+    # ============================================
+    GitHubRepository:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        project_id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        repo_name:
+          type: string
+          example: "awesome-project"
+        repo_owner:
+          type: string
+          example: "john-doe"
+        repo_url:
+          type: string
+          format: url
+          example: "https://github.com/john-doe/awesome-project"
+        github_id:
+          type: integer
+          example: 123456789
+        default_branch:
+          type: string
+          example: "main"
+        last_synced_at:
+          type: string
+          format: date-time
+          example: "2024-01-15T10:00:00Z"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        stats:
+          type: object
+          properties:
+            commits:
+              type: integer
+              example: 150
+            branches:
+              type: integer
+              example: 8
+            pullRequests:
+              type: integer
+              example: 25
+            issues:
+              type: integer
+              example: 12
+
+    GitHubRepositoryConnect:
+      type: object
+      required:
+        - repoUrl
+      properties:
+        repoUrl:
+          type: string
+          format: url
+          example: "https://github.com/john-doe/awesome-project"
+          description: GitHub repository URL
+        defaultBranch:
+          type: string
+          example: "main"
+          description: Default branch name (defaults to 'main')
+        accessToken:
+          type: string
+          example: "ghp_xxxxxxxxxxxxx"
+          description: GitHub personal access token (optional)
+
+    GitHubRepositoryDisconnect:
+      type: object
+      properties:
+        reason:
+          type: string
+          example: "Repository migrated to new location"
+          description: Reason for disconnection (optional)
+
+    GitHubSyncRequest:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "ghp_xxxxxxxxxxxxx"
+          description: GitHub personal access token (optional, uses stored token if not provided)
+
+    # ============================================
+    # GitHub Commit Schemas
+    # ============================================
+    GitHubCommit:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        repository_id:
+          type: string
+          format: uuid
+        commit_sha:
+          type: string
+          example: "a1b2c3d4e5f67890"
+        author_name:
+          type: string
+          example: "John Doe"
+        author_email:
+          type: string
+          format: email
+          example: "john@example.com"
+        commit_message:
+          type: string
+          example: "Add new feature X"
+        committed_at:
+          type: string
+          format: date-time
+        added_lines:
+          type: integer
+          example: 100
+        removed_lines:
+          type: integer
+          example: 20
+        created_at:
+          type: string
+          format: date-time
+
+    GitHubCommitsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Commits retrieved successfully"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GitHubCommit"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 150
+            totalPages:
+              type: integer
+              example: 8
+        stats:
+          type: object
+          properties:
+            totalCommits:
+              type: integer
+              example: 150
+            uniqueAuthors:
+              type: integer
+              example: 5
+            totalAdditions:
+              type: integer
+              example: 5000
+            totalDeletions:
+              type: integer
+              example: 1200
+            mostActiveAuthor:
+              type: string
+              example: "john@example.com"
+
+    # ============================================
+    # GitHub Branch Schemas
+    # ============================================
+    GitHubBranch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        repository_id:
+          type: string
+          format: uuid
+        branch_name:
+          type: string
+          example: "feature/new-feature"
+        is_default:
+          type: boolean
+          example: false
+        last_commit_sha:
+          type: string
+          example: "a1b2c3d4e5f67890"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    GitHubBranchesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Branches retrieved successfully"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GitHubBranch"
+        count:
+          type: integer
+          example: 8
+
+    # ============================================
+    # GitHub Pull Request Schemas
+    # ============================================
+    GitHubPullRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        repository_id:
+          type: string
+          format: uuid
+        pr_number:
+          type: integer
+          example: 42
+        title:
+          type: string
+          example: "Add new feature X"
+        state:
+          type: string
+          enum: [open, closed, merged]
+          example: "open"
+        author:
+          type: string
+          example: "john-doe"
+        created_at_github:
+          type: string
+          format: date-time
+        updated_at_github:
+          type: string
+          format: date-time
+        merged_at:
+          type: string
+          format: date-time
+        additions:
+          type: integer
+          example: 150
+        deletions:
+          type: integer
+          example: 30
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    GitHubPullRequestsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Pull requests retrieved successfully"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GitHubPullRequest"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 25
+            totalPages:
+              type: integer
+              example: 2
+
+    # ============================================
+    # GitHub Issue Schemas
+    # ============================================
+    GitHubIssue:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        repository_id:
+          type: string
+          format: uuid
+        issue_number:
+          type: integer
+          example: 15
+        title:
+          type: string
+          example: "Bug: Login button not working"
+        state:
+          type: string
+          enum: [open, closed]
+          example: "open"
+        author:
+          type: string
+          example: "jane-smith"
+        created_at_github:
+          type: string
+          format: date-time
+        updated_at_github:
+          type: string
+          format: date-time
+        closed_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    GitHubIssuesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Issues retrieved successfully"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/GitHubIssue"
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 1
+            limit:
+              type: integer
+              example: 20
+            total:
+              type: integer
+              example: 12
+            totalPages:
+              type: integer
+              example: 1
+
+    # ============================================
+    # Webhook Schemas
+    # ============================================
+    WebhookSetup:
+      type: object
+      required:
+        - webhookUrl
+      properties:
+        webhookUrl:
+          type: string
+          format: url
+          example: "https://api.example.com/webhooks/github"
+          description: URL to receive webhook events
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - push
+              - pull_request
+              - issues
+              - create
+              - delete
+              - release
+              - watch
+          example: ["push", "pull_request", "issues"]
+          description: Events to listen for (defaults to all)
+        active:
+          type: boolean
+          example: true
+          description: Whether the webhook is active (defaults to true)
+        contentType:
+          type: string
+          enum: [json, form]
+          example: "json"
+          description: Content type for webhook (defaults to json)
+
+    WebhookResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Webhook setup successfully"
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 12345
+            url:
+              type: string
+              format: url
+              example: "https://api.example.com/webhooks/github"
+            events:
+              type: array
+              items:
+                type: string
+              example: ["push", "pull_request"]
+            active:
+              type: boolean
+              example: true
+
+    WebhookPayload:
+      type: object
+      additionalProperties: true
+      description: GitHub webhook payload (varies by event type)
+      example:
+        action: "opened"
+        number: 42
+        pull_request:
+          title: "Add new feature"
+          state: "open"
+        repository:
+          name: "awesome-project"
+          owner:
+            login: "john-doe"
+
+    # ============================================
+    # Repository Statistics Schemas
+    # ============================================
+    RepositoryStats:
+      type: object
+      properties:
+        repository:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            name:
+              type: string
+              example: "awesome-project"
+            owner:
+              type: string
+              example: "john-doe"
+            url:
+              type: string
+              format: url
+              example: "https://github.com/john-doe/awesome-project"
+            defaultBranch:
+              type: string
+              example: "main"
+            lastSyncedAt:
+              type: string
+              format: date-time
+        commits:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 150
+            stats:
+              type: object
+              properties:
+                totalAdditions:
+                  type: integer
+                  example: 5000
+                totalDeletions:
+                  type: integer
+                  example: 1200
+                uniqueAuthors:
+                  type: integer
+                  example: 5
+                mostActiveAuthor:
+                  type: string
+                  example: "john@example.com"
+                averageCommitSize:
+                  type: integer
+                  example: 85
+                commitsByAuthor:
+                  type: object
+                  additionalProperties:
+                    type: integer
+        branches:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 8
+        pullRequests:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 25
+            open:
+              type: integer
+              example: 5
+            closed:
+              type: integer
+              example: 15
+            merged:
+              type: integer
+              example: 5
+        issues:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 12
+            open:
+              type: integer
+              example: 3
+            closed:
+              type: integer
+              example: 9
+
+    RepositoryStatsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Repository statistics retrieved successfully"
+        data:
+          $ref: "#/components/schemas/RepositoryStats"
+
+    # ============================================
+    # Error Response Schemas
+    # ============================================
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Repository not found"
+        statusCode:
+          type: integer
+          example: 404
+
+    ValidationError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "repoUrl"
+              message:
+                type: string
+                example: "Invalid repository URL"
+
+  parameters:
+    projectIdParam:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Project UUID
+    repositoryIdParam:
+      name: repositoryId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Repository UUID
+    featureIdParam:
+      name: featureId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Feature UUID
+
+    # Pagination Parameters
+    pageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 1
+        minimum: 1
+      description: Page number for pagination
+    limitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+      description: Number of items per page
+
+    # Filter Parameters
+    sinceParam:
+      name: since
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Filter by date (items after this date)
+    untilParam:
+      name: until
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Filter by date (items before this date)
+    authorParam:
+      name: author
+      in: query
+      schema:
+        type: string
+      description: Filter by author username/email
+    stateParam:
+      name: state
+      in: query
+      schema:
+        type: string
+        enum: [open, closed, all]
+      description: Filter by state
+
+# ============================================
+# PATHS
+# ============================================
+paths:
+  # ============================================
+  # Repository Endpoints
+  # ============================================
+  /projects/{projectId}/repositories:
+    get:
+      summary: Get all GitHub repositories for a project
+      description: Retrieves all connected GitHub repositories for a specific project
+      tags:
+        - GitHub Integration
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/projectIdParam"
+      responses:
+        200:
+          description: Successfully retrieved repositories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/GitHubRepository"
+                  count:
+                    type: integer
+                    example: 3
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      summary: Connect a GitHub repository
+      description: Connects a GitHub repository to a project
+      tags:
+        - GitHub Integration
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/projectIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GitHubRepositoryConnect"
+      responses:
+        201:
+          description: Repository connected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Repository connected successfully"
+                  data:
+                    $ref: "#/components/schemas/GitHubRepository"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Project not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Repository already connected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /repositories/{repositoryId}:
+    delete:
+      summary: Disconnect a GitHub repository
+      description: Disconnects a GitHub repository from a project
+      tags:
+        - GitHub Integration
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+      responses:
+        200:
+          description: Repository disconnected successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Repository disconnected successfully"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /repositories/{repositoryId}/sync:
+    post:
+      summary: Sync a GitHub repository
+      description: Syncs all data from a GitHub repository (commits, branches, PRs, issues)
+      tags:
+        - GitHub Integration
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GitHubSyncRequest"
+      responses:
+        200:
+          description: Repository synced successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Repository synced successfully"
+                  data:
+                    type: object
+                    properties:
+                      commitsAdded:
+                        type: integer
+                        example: 10
+                      branchesAdded:
+                        type: integer
+                        example: 2
+                      pullRequestsAdded:
+                        type: integer
+                        example: 3
+                      issuesAdded:
+                        type: integer
+                        example: 5
+                      lastSyncedAt:
+                        type: string
+                        format: date-time
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        429:
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # Commit Endpoints
+  # ============================================
+  /repositories/{repositoryId}/commits:
+    get:
+      summary: Get commits from a repository
+      description: Retrieves commits from a GitHub repository with pagination and filtering
+      tags:
+        - GitHub Integration
+        - Commits
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+        - $ref: "#/components/parameters/pageParam"
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/sinceParam"
+        - $ref: "#/components/parameters/untilParam"
+        - $ref: "#/components/parameters/authorParam"
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search term in commit message
+      responses:
+        200:
+          description: Commits retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitHubCommitsResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # Branch Endpoints
+  # ============================================
+  /repositories/{repositoryId}/branches:
+    get:
+      summary: Get branches from a repository
+      description: Retrieves all branches from a GitHub repository
+      tags:
+        - GitHub Integration
+        - Branches
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+      responses:
+        200:
+          description: Branches retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitHubBranchesResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # Pull Request Endpoints
+  # ============================================
+  /repositories/{repositoryId}/pull-requests:
+    get:
+      summary: Get pull requests from a repository
+      description: Retrieves pull requests from a GitHub repository with pagination and filtering
+      tags:
+        - GitHub Integration
+        - Pull Requests
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+        - $ref: "#/components/parameters/pageParam"
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/stateParam"
+        - $ref: "#/components/parameters/sinceParam"
+        - $ref: "#/components/parameters/untilParam"
+        - name: author
+          in: query
+          schema:
+            type: string
+          description: Filter by PR author
+      responses:
+        200:
+          description: Pull requests retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitHubPullRequestsResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # Issue Endpoints
+  # ============================================
+  /repositories/{repositoryId}/issues:
+    get:
+      summary: Get issues from a repository
+      description: Retrieves issues from a GitHub repository with pagination and filtering
+      tags:
+        - GitHub Integration
+        - Issues
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+        - $ref: "#/components/parameters/pageParam"
+        - $ref: "#/components/parameters/limitParam"
+        - $ref: "#/components/parameters/stateParam"
+        - $ref: "#/components/parameters/sinceParam"
+        - $ref: "#/components/parameters/untilParam"
+        - name: author
+          in: query
+          schema:
+            type: string
+          description: Filter by issue author
+      responses:
+        200:
+          description: Issues retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GitHubIssuesResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # Webhook Endpoints
+  # ============================================
+  /repositories/{repositoryId}/webhook:
+    post:
+      summary: Setup GitHub webhook
+      description: Sets up a webhook for a GitHub repository to receive events
+      tags:
+        - GitHub Integration
+        - Webhooks
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookSetup"
+      responses:
+        200:
+          description: Webhook setup successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WebhookResponse"
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationError"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        409:
+          description: Webhook already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /webhooks/github:
+    post:
+      summary: GitHub webhook endpoint
+      description: Endpoint for GitHub to send webhook events to
+      tags:
+        - GitHub Integration
+        - Webhooks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WebhookPayload"
+      responses:
+        200:
+          description: Webhook received successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Webhook received"
+                  deliveryId:
+                    type: string
+                    example: "123456789"
+        401:
+          description: Invalid webhook signature
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Failed to process webhook
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # Statistics Endpoints
+  # ============================================
+  /repositories/{repositoryId}/stats:
+    get:
+      summary: Get repository statistics
+      description: Retrieves comprehensive statistics for a GitHub repository
+      tags:
+        - GitHub Integration
+        - Statistics
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/repositoryIdParam"
+      responses:
+        200:
+          description: Repository statistics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RepositoryStatsResponse"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        403:
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        404:
+          description: Repository not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+# ============================================
+# TAGS
+# ============================================
+tags:
+  - name: GitHub Integration
+    description: GitHub repository integration endpoints
+  - name: Commits
+    description: GitHub commit operations
+  - name: Branches
+    description: GitHub branch operations
+  - name: Pull Requests
+    description: GitHub pull request operations
+  - name: Issues
+    description: GitHub issue operations
+  - name: Webhooks
+    description: GitHub webhook management
+  - name: Statistics
+    description: Repository statistics and analytics

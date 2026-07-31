@@ -3,6 +3,7 @@ const logger = require("../../../common/config/logger");
 const GitHubService = require("../services/github.service");
 const ResponseUtils = require("../../../common/utils/response.utils");
 const GitHubUtils = require("../utils/github.utils");
+const AuthMiddleware = require("../../../common/middleware/auth.middleware");
 
 /**
  * GitHub Controller - Handles HTTP requests for GitHub integration
@@ -23,6 +24,23 @@ class GitHubController {
   async getRepositories(req, res) {
     try {
       const { projectId } = req.params;
+      const userId = req.user?.id;
+
+      // Check if user has access to project
+      const { data: project, error: projectError } = await supabase
+        .from("projects")
+        .select("id, owner_id")
+        .eq("id", projectId)
+        .single();
+
+      if (projectError || !project) {
+        return this.response.sendError(res, "Project not found", 404);
+      }
+
+      // Check if user is project owner or has access
+      if (project.owner_id !== userId && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const { data, error } = await supabase
         .from("github_repositories")
@@ -73,12 +91,33 @@ class GitHubController {
     try {
       const { projectId } = req.params;
       const { repoUrl, defaultBranch, accessToken } = req.body;
+      const userId = req.user?.id;
+
+      // Verify project access
+      const { data: project, error: projectError } = await supabase
+        .from("projects")
+        .select("id, owner_id")
+        .eq("id", projectId)
+        .single();
+
+      if (projectError || !project) {
+        return this.response.sendError(res, "Project not found", 404);
+      }
+
+      if (project.owner_id !== userId && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.connectRepository(projectId, {
         repoUrl,
         defaultBranch,
         accessToken,
       });
+
+      // Log activity
+      logger.info(
+        `Repository connected to project ${projectId} by user ${userId}`
+      );
 
       return this.response.sendSuccess(
         res,
@@ -103,8 +142,27 @@ class GitHubController {
   async disconnectRepository(req, res) {
     try {
       const { repositoryId } = req.params;
+      const userId = req.user?.id;
+
+      // Verify repository ownership
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.disconnectRepository(repositoryId);
+
+      logger.info(`Repository ${repositoryId} disconnected by user ${userId}`);
 
       return this.response.sendSuccess(res, result);
     } catch (error) {
@@ -123,11 +181,30 @@ class GitHubController {
     try {
       const { repositoryId } = req.params;
       const { accessToken } = req.body;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.syncRepository(
         repositoryId,
         accessToken
       );
+
+      logger.info(`Repository ${repositoryId} synced by user ${userId}`);
 
       return this.response.sendSuccess(res, result);
     } catch (error) {
@@ -146,6 +223,23 @@ class GitHubController {
     try {
       const { repositoryId } = req.params;
       const filters = req.query;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.getCommits(repositoryId, filters);
 
@@ -172,6 +266,23 @@ class GitHubController {
   async getBranches(req, res) {
     try {
       const { repositoryId } = req.params;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const branches = await this.service.getBranches(repositoryId);
 
@@ -195,6 +306,23 @@ class GitHubController {
     try {
       const { repositoryId } = req.params;
       const filters = req.query;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.getPullRequests(repositoryId, filters);
 
@@ -221,6 +349,23 @@ class GitHubController {
     try {
       const { repositoryId } = req.params;
       const filters = req.query;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.getIssues(repositoryId, filters);
 
@@ -247,6 +392,23 @@ class GitHubController {
     try {
       const { repositoryId } = req.params;
       const { webhookUrl, events, active, contentType } = req.body;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       const result = await this.service.setupWebhook(repositoryId, {
         webhookUrl,
@@ -254,6 +416,10 @@ class GitHubController {
         active,
         contentType,
       });
+
+      logger.info(
+        `Webhook setup for repository ${repositoryId} by user ${userId}`
+      );
 
       return this.response.sendSuccess(res, result);
     } catch (error) {
@@ -273,6 +439,21 @@ class GitHubController {
       const payload = req.body;
       const eventType = req.headers["x-github-event"];
       const deliveryId = req.headers["x-github-delivery"];
+      const signature = req.headers["x-hub-signature-256"];
+
+      // Validate webhook signature if configured
+      // const isValid = await this.service.validateWebhookSignature(
+      //   signature,
+      //   JSON.stringify(payload),
+      //   process.env.GITHUB_WEBHOOK_SECRET
+      // );
+
+      // if (!isValid) {
+      //   return res.status(401).json({
+      //     success: false,
+      //     error: "Invalid webhook signature"
+      //   });
+      // }
 
       // Process webhook asynchronously
       setImmediate(async () => {
@@ -307,15 +488,32 @@ class GitHubController {
   async getRepositoryStats(req, res) {
     try {
       const { repositoryId } = req.params;
+      const userId = req.user?.id;
+
+      // Verify repository access
+      const { data: repo, error: repoError } = await supabase
+        .from("github_repositories")
+        .select("id, project_id, projects(owner_id)")
+        .eq("id", repositoryId)
+        .single();
+
+      if (repoError || !repo) {
+        return this.response.sendError(res, "Repository not found", 404);
+      }
+
+      const isOwner = repo.projects?.owner_id === userId;
+      if (!isOwner && req.user?.role !== "admin") {
+        return this.response.sendError(res, "Access denied", 403);
+      }
 
       // Get repository info
-      const { data: repo, error: repoError } = await supabase
+      const { data: repoData, error: repoDataError } = await supabase
         .from("github_repositories")
         .select("*")
         .eq("id", repositoryId)
         .single();
 
-      if (repoError || !repo) {
+      if (repoDataError || !repoData) {
         throw new Error("Repository not found");
       }
 
@@ -362,12 +560,12 @@ class GitHubController {
       return this.response.sendSuccess(res, {
         data: {
           repository: {
-            id: repo.id,
-            name: repo.repo_name,
-            owner: repo.repo_owner,
-            url: repo.repo_url,
-            defaultBranch: repo.default_branch,
-            lastSyncedAt: repo.last_synced_at,
+            id: repoData.id,
+            name: repoData.repo_name,
+            owner: repoData.repo_owner,
+            url: repoData.repo_url,
+            defaultBranch: repoData.default_branch,
+            lastSyncedAt: repoData.last_synced_at,
           },
           commits: {
             total: commits.count || 0,
