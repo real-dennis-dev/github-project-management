@@ -1,12 +1,8 @@
 const express = require("express");
 const { BugController } = require("../controllers/bug.controller");
 const { ProjectMiddleware } = require("../middleware/project.middleware");
-const {
-  authMiddleware,
-} = require("../../../common/middleware/auth.middleware");
-const {
-  validationMiddleware,
-} = require("../../../common/middleware/validation.middleware");
+const AuthMiddleware = require("../../../common/middleware/auth.middleware");
+const ValidationMiddleware = require("../../../common/middleware/validation.middleware");
 const Joi = require("joi");
 
 const router = express.Router();
@@ -70,53 +66,53 @@ const resolveSchema = Joi.object({
 // Bug routes
 router.get(
   "/projects/:projectId/bugs",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   bugController.getBugs
 );
 
 router.post(
   "/projects/:projectId/bugs",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
-  validationMiddleware.validateRequest(bugSchema),
+  ValidationMiddleware.validateRequest(bugSchema),
   bugController.createBug
 );
 
-router.get("/bugs/:id", authMiddleware.authenticate, bugController.getBugById);
+router.get("/bugs/:id", AuthMiddleware.authenticate, bugController.getBugById);
 
 router.put(
   "/bugs/:id",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(updateBugSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(updateBugSchema),
   bugController.updateBug
 );
 
 router.patch(
   "/bugs/:id/status",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(statusSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(statusSchema),
   bugController.updateBugStatus
 );
 
 router.patch(
   "/bugs/:id/assign",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(assignSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(assignSchema),
   bugController.assignBug
 );
 
 router.patch(
   "/bugs/:id/resolve",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(resolveSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(resolveSchema),
   bugController.resolveBug
 );
 
 router.delete(
   "/bugs/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   bugController.deleteBug
 );
 

@@ -8,12 +8,8 @@ const {
 } = require("../controllers/feature-subtask.controller");
 const { FeatureMiddleware } = require("../middleware/feature.middleware");
 const { ProjectMiddleware } = require("../middleware/project.middleware");
-const {
-  authMiddleware,
-} = require("../../../common/middleware/auth.middleware");
-const {
-  validationMiddleware,
-} = require("../../../common/middleware/validation.middleware");
+const AuthMiddleware = require("../../../common/middleware/auth.middleware");
+const ValidationMiddleware = require("../../../common/middleware/validation.middleware");
 
 const router = express.Router();
 
@@ -74,48 +70,48 @@ const reorderSchema = Joi.object({
 // Feature routes
 router.get(
   "/projects/:projectId/features",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   featureController.getFeatures
 );
 
 router.post(
   "/projects/:projectId/features",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
-  validationMiddleware.validateRequest(featureSchema),
+  ValidationMiddleware.validateRequest(featureSchema),
   featureController.createFeature
 );
 
 router.get(
   "/features/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   featureMiddleware.validateFeatureId,
   featureController.getFeatureById
 );
 
 router.put(
   "/features/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   featureMiddleware.validateFeatureId,
   featureMiddleware.checkFeatureOwnership,
-  validationMiddleware.validateRequest(updateFeatureSchema),
+  ValidationMiddleware.validateRequest(updateFeatureSchema),
   featureController.updateFeature
 );
 
 router.patch(
   "/features/:id/status",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   featureMiddleware.validateFeatureId,
   featureMiddleware.checkFeatureOwnership,
-  validationMiddleware.validateRequest(statusSchema),
+  ValidationMiddleware.validateRequest(statusSchema),
   featureController.updateFeatureStatus
 );
 
 router.delete(
   "/features/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   featureMiddleware.validateFeatureId,
   featureMiddleware.checkFeatureOwnership,
   featureController.deleteFeature
@@ -123,45 +119,45 @@ router.delete(
 
 router.post(
   "/features/reorder",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(reorderSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(reorderSchema),
   featureController.reorderFeatures
 );
 
 // Subtask routes
 router.get(
   "/features/:featureId/subtasks",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   featureMiddleware.validateFeatureId,
   subtaskController.getSubtasks
 );
 
 router.post(
   "/features/:featureId/subtasks",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   featureMiddleware.validateFeatureId,
   featureMiddleware.checkFeatureOwnership,
-  validationMiddleware.validateRequest(subtaskSchema),
+  ValidationMiddleware.validateRequest(subtaskSchema),
   featureMiddleware.validateSubtaskData,
   subtaskController.createSubtask
 );
 
 router.put(
   "/subtasks/:id",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(updateSubtaskSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(updateSubtaskSchema),
   subtaskController.updateSubtask
 );
 
 router.patch(
   "/subtasks/:id/toggle",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   subtaskController.toggleSubtaskCompletion
 );
 
 router.delete(
   "/subtasks/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   subtaskController.deleteSubtask
 );
 

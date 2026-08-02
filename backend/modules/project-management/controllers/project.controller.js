@@ -1,9 +1,9 @@
 const { ProjectService } = require("../services/project.service");
-const { ResponseUtils } = require("../../../common/utils/response.utils");
+const ResponseUtils = require("../../../common/utils/response.utils");
 const { Logger } = require("../../../common/config/logger");
 
 const projectService = new ProjectService();
-const response = new ResponseUtils();
+const response = ResponseUtils;
 const logger = Logger;
 
 class ProjectController {

@@ -3,18 +3,9 @@ const router = express.Router();
 const GitHubController = require("../controllers/github.controller");
 const GitHubMiddleware = require("../middleware/github.middleware");
 const GitHubValidation = require("../validations/github.validation");
-const {
-  validateRequest,
-  validateQuery,
-  validateParams,
-} = require("../../../common/middleware/validation.middleware");
-const {
-  authenticate,
-  authorize,
-} = require("../../../common/middleware/auth.middleware");
-const {
-  rateLimiter,
-} = require("../../../common/middleware/security.middleware");
+const ValidationMiddleware = require("../../../common/middleware/validation.middleware");
+const AuthMiddleware = require("../../../common/middleware/auth.middleware");
+const SecurityMiddleware = require("../../../common/middleware/security.middleware");
 
 const controller = new GitHubController();
 const middleware = new GitHubMiddleware();
@@ -26,8 +17,8 @@ const middleware = new GitHubMiddleware();
  */
 router.get(
   "/projects/:projectId/repositories",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     projectId: GitHubValidation.repositoryId,
   }),
   controller.getRepositories.bind(controller)
@@ -40,12 +31,12 @@ router.get(
  */
 router.post(
   "/projects/:projectId/repositories",
-  authenticate,
-  rateLimiter,
-  validateParams({
+  AuthMiddleware.authenticate,
+  SecurityMiddleware.rateLimiter,
+  ValidationMiddleware.validateParams({
     projectId: GitHubValidation.repositoryId,
   }),
-  validateRequest(GitHubValidation.connectRepository),
+  ValidationMiddleware.validateRequest(GitHubValidation.connectRepository),
   controller.connectRepository.bind(controller)
 );
 
@@ -56,8 +47,8 @@ router.post(
  */
 router.delete(
   "/repositories/:repositoryId",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
   middleware.validateRepositoryId.bind(middleware),
@@ -71,8 +62,8 @@ router.delete(
  */
 router.post(
   "/repositories/:repositoryId/sync",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
   middleware.validateRepositoryId.bind(middleware),
@@ -86,11 +77,11 @@ router.post(
  */
 router.get(
   "/repositories/:repositoryId/commits",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
-  validateQuery(GitHubValidation.getCommits),
+  ValidationMiddleware.validateQuery(GitHubValidation.getCommits),
   middleware.validateRepositoryId.bind(middleware),
   controller.getCommits.bind(controller)
 );
@@ -102,8 +93,8 @@ router.get(
  */
 router.get(
   "/repositories/:repositoryId/branches",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
   middleware.validateRepositoryId.bind(middleware),
@@ -117,11 +108,11 @@ router.get(
  */
 router.get(
   "/repositories/:repositoryId/pull-requests",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
-  validateQuery(GitHubValidation.getPullRequests),
+  ValidationMiddleware.validateQuery(GitHubValidation.getPullRequests),
   middleware.validateRepositoryId.bind(middleware),
   controller.getPullRequests.bind(controller)
 );
@@ -133,11 +124,11 @@ router.get(
  */
 router.get(
   "/repositories/:repositoryId/issues",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
-  validateQuery(GitHubValidation.getIssues),
+  ValidationMiddleware.validateQuery(GitHubValidation.getIssues),
   middleware.validateRepositoryId.bind(middleware),
   controller.getIssues.bind(controller)
 );
@@ -149,11 +140,11 @@ router.get(
  */
 router.post(
   "/repositories/:repositoryId/webhook",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
-  validateRequest(GitHubValidation.setupWebhook),
+  ValidationMiddleware.validateRequest(GitHubValidation.setupWebhook),
   middleware.validateRepositoryId.bind(middleware),
   controller.setupWebhook.bind(controller)
 );
@@ -165,8 +156,8 @@ router.post(
  */
 router.get(
   "/repositories/:repositoryId/stats",
-  authenticate,
-  validateParams({
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateParams({
     repositoryId: GitHubValidation.repositoryId,
   }),
   middleware.validateRepositoryId.bind(middleware),

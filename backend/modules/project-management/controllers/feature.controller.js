@@ -1,14 +1,10 @@
-const FeatureService = require("../services/feature.service");
+const { FeatureService } = require("../services/feature.service");
 const ResponseUtils = require("../../../common/utils/response.utils");
 const Logger = require("../../../common/config/logger");
 
 const featureService = new FeatureService();
-const response = new ResponseUtils();
+const response = ResponseUtils;
 const logger = Logger;
-
-module.exports = {
-  FeatureController,
-};
 
 class FeatureController {
   /**
@@ -211,3 +207,6 @@ class FeatureController {
     }
   }
 }
+module.exports = {
+  FeatureController,
+};

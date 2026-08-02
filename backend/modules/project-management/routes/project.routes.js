@@ -1,15 +1,9 @@
 const express = require("express");
 const { ProjectController } = require("../controllers/project.controller");
 const { ProjectMiddleware } = require("../middleware/project.middleware");
-const {
-  authMiddleware,
-} = require("../../../common/middleware/auth.middleware");
-const {
-  validationMiddleware,
-} = require("../../../common/middleware/validation.middleware");
-const {
-  dataMiddleware,
-} = require("../../../common/middleware/data.middleware");
+const AuthMiddleware = require("../../../common/middleware/auth.middleware");
+const ValidationMiddleware = require("../../../common/middleware/validation.middleware");
+const DataMiddleware = require("../../../common/middleware/data.middleware");
 const Joi = require("joi");
 
 const router = express.Router();
@@ -93,10 +87,10 @@ const statusSchema = Joi.object({
  */
 router.get(
   "/",
-  authMiddleware.authenticate,
-  dataMiddleware.pagination,
-  dataMiddleware.filterParser,
-  dataMiddleware.sortParser,
+  AuthMiddleware.authenticate,
+  DataMiddleware.pagination,
+  DataMiddleware.filterParser,
+  DataMiddleware.sortParser,
   projectController.getAllProjects
 );
 
@@ -143,8 +137,8 @@ router.get(
  */
 router.post(
   "/",
-  authMiddleware.authenticate,
-  validationMiddleware.validateRequest(projectSchema),
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateRequest(projectSchema),
   projectMiddleware.sanitizeProjectData,
   projectController.createProject
 );
@@ -170,7 +164,7 @@ router.post(
  */
 router.get(
   "/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectById
 );
@@ -194,10 +188,10 @@ router.get(
  */
 router.put(
   "/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
-  validationMiddleware.validateRequest(updateProjectSchema),
+  ValidationMiddleware.validateRequest(updateProjectSchema),
   projectMiddleware.sanitizeProjectData,
   projectController.updateProject
 );
@@ -221,10 +215,10 @@ router.put(
  */
 router.patch(
   "/:id/status",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
-  validationMiddleware.validateRequest(statusSchema),
+  ValidationMiddleware.validateRequest(statusSchema),
   projectController.updateProjectStatus
 );
 
@@ -247,7 +241,7 @@ router.patch(
  */
 router.delete(
   "/:id",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
   projectController.deleteProject
@@ -272,7 +266,7 @@ router.delete(
  */
 router.get(
   "/:id/analytics",
-  authMiddleware.authenticate,
+  AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectAnalytics
 );

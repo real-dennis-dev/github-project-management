@@ -9,19 +9,31 @@ const swaggerJsdoc = require("swagger-jsdoc");
 dotenv.config();
 
 // Import middleware
-const authMiddleware = require("./shared/middleware/auth.middleware");
-const validationMiddleware = require("./shared/middleware/validation.middleware");
-const errorMiddleware = require("./shared/middleware/error.middleware");
-const loggingMiddleware = require("./shared/middleware/logging.middleware");
-const securityMiddleware = require("./shared/middleware/security.middleware");
-const dataMiddleware = require("./shared/middleware/data.middleware");
+const authMiddleware = require("./common/middleware/auth.middleware");
+const validationMiddleware = require("./common/middleware/validation.middleware");
+const errorMiddleware = require("./common/middleware/error.middleware");
+const loggingMiddleware = require("./common/middleware/logging.middleware");
+const securityMiddleware = require("./common/middleware/security.middleware");
+const dataMiddleware = require("./common/middleware/data.middleware");
 
 // Routes
+
+// const AIAssistantRoutes = require("./modules/ai-assistant/routes/ai-assistant.routes");
+const dailyJournalRoutes = require("./modules/daily-journal/routes/daily-journal.routes");
+const decisionRisksRoutes = require("./modules/decisions-risks/routes/decision-risks.routes");
+const documentationRoutes = require("./modules/documentation-knowledge/routes/documentation-knowledge");
+const expensesRoutes = require("./modules/expenses/routes/expense.routes");
+const githubIntegrationRoutes = require("./modules/github-integration/routes/github-integration.routes");
 const progressRoutes = require("./modules/progress-timeline/routes/progress.routes");
-const documentationRoutes = require("./modules/documentation-knowledge/routes");
+const bugRoutes = require("./modules/project-management/routes/bug.routes");
+const featureRoutes = require("./modules/project-management/routes/feature.routes");
+const projectRoutes = require("./modules/project-management/routes/project.routes");
+const releaseMilestoneRoutes = require("./modules/releases-milestones/routes/release-milestone.routes");
+const techDebtRoutes = require("./modules/tech-debt/routes/tech-debt.routes");
+const visionBoardRoutes = require("./modules/vision-board/routes/vision-board");
 
 // Logger
-const logger = require("./config/logger");
+const logger = require("./common/config/logger");
 
 // Create Express app
 const app = express();
@@ -132,9 +144,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // API Routes
 // =======================
 
-app.use("/api", progressRoutes);
+// app.use("/api", progressRoutes);
 
-app.use("/api", documentationRoutes);
+// app.use("/api", documentationRoutes);
 
 // =======================
 // Error Handling

@@ -1,14 +1,10 @@
 const { supabase } = require("../../../common/config/supabase");
-const { ResponseUtils } = require("../../../common/utils/response.utils");
+const ResponseUtils = require("../../../common/utils/response.utils");
 const { ValidationUtils } = require("../../../common/utils/validation.utils");
 const { Logger } = require("../../../common/config/logger");
 
-const response = new ResponseUtils();
+const response = ResponseUtils;
 const logger = Logger;
-
-module.exports = {
-  ProjectMiddleware,
-};
 
 class ProjectMiddleware {
   // your middleware methods here
@@ -209,3 +205,6 @@ class ProjectMiddleware {
     }
   }
 }
+module.exports = {
+  ProjectMiddleware,
+};

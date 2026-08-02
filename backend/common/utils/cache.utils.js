@@ -1,5 +1,5 @@
 const redisClient = require("../config/redis"); // adjust path if needed
-const logger = require("./logger"); // adjust path if needed
+const logger = require("../config/logger"); // adjust path if needed
 
 class CacheUtils {
   constructor() {

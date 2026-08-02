@@ -1,6 +1,6 @@
 const Redis = require("ioredis");
 const NodeCache = require("node-cache");
-const logger = require("../utils/logger"); // adjust path if needed
+const logger = require("./logger"); // adjust path if needed
 const dotenv = require("dotenv");
 
 dotenv.config();

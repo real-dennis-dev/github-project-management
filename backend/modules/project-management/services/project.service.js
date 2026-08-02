@@ -1,5 +1,5 @@
 const { supabase } = require("../../../common/config/supabase");
-const { DatabaseUtils } = require("../../../common/utils/database.utils");
+const DatabaseUtils = require("../../../common/utils/database.utils");
 const { ValidationUtils } = require("../../../common/utils/validation.utils");
 const { DateUtils } = require("../../../common/utils/date.utils");
 const { projectStatus, projectPriority } = require("../utils/project.utils");

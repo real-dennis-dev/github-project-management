@@ -1,4 +1,4 @@
-const logger = require("../../config/logger");
+const logger = require("../config/logger");
 
 class ErrorMiddleware {
   // Global error handler

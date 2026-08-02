@@ -184,4 +184,4 @@ class DocumentationController {
   }
 }
 
-module.exports = DocumentationController;
+module.exports = new DocumentationController();

@@ -3,15 +3,9 @@ const express = require("express");
 
 const { ProgressController } = require("../controllers/progress.controller");
 const { ProgressMiddleware } = require("../middleware/progress.middleware");
-const {
-  AuthMiddleware,
-} = require("../../../common/middleware/auth.middleware");
-const {
-  SecurityMiddleware,
-} = require("../../../common/middleware/security.middleware");
-const {
-  DataMiddleware,
-} = require("../../../common/middleware/data.middleware");
+const AuthMiddleware = require("../../../common/middleware/auth.middleware");
+const SecurityMiddleware = require("../../../common/middleware/security.middleware");
+const DataMiddleware = require("../../../common/middleware/data.middleware");
 const router = express.Router();
 
 // Apply authentication to all routes
