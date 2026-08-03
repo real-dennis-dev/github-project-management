@@ -1,61 +1,47 @@
 import axios from "axios";
 
-// Create axios instance with base configuration
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || "http://localhost:5000/api",
-  timeout: 30000,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000/api",
+  withCredentials: true, // Send HttpOnly cookies automatically
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Important: Send cookies with requests
 });
 
-// Request interceptor to add token
+// Request Interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Get token from cookie (handled automatically with withCredentials)
-    // No need to manually add token as it's in the cookie
+    // Add any request modifications here
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle token refresh
+// Response Interceptor
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If unauthorized and not a refresh request
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't try to refresh if the refresh endpoint itself failed
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/auth/refresh-token")
+    ) {
       originalRequest._retry = true;
 
       try {
-        // Attempt to refresh token
         const response = await axiosInstance.post("/auth/refresh-token");
 
-        if (response.data.success) {
-          // Retry original request
+        if (response.data?.success) {
           return axiosInstance(originalRequest);
         }
       } catch (refreshError) {
-        // Refresh failed - redirect to login
-        window.dispatchEvent(new CustomEvent("auth:logout"));
-        window.location.href = "/login";
+        // Tell the app to log the user out
+        window.dispatchEvent(new Event("auth:logout"));
         return Promise.reject(refreshError);
       }
-    }
-
-    // Handle logout on other auth errors
-    if (
-      error.response?.status === 401 &&
-      !originalRequest.url.includes("/auth/validate")
-    ) {
-      window.dispatchEvent(new CustomEvent("auth:logout"));
     }
 
     return Promise.reject(error);

@@ -1,0 +1,392 @@
+openapi: 3.0.0
+info:
+  title: Authentication API
+  description: Multi-provider authentication with session management
+  version: 1.0.0
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          example: Password123!
+        rememberMe:
+          type: boolean
+          default: false
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - confirmPassword
+        - fullName
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        confirmPassword:
+          type: string
+          format: password
+        fullName:
+          type: string
+        username:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            user:
+              $ref: "#/components/schemas/User"
+            requires2FA:
+              type: boolean
+            sessions:
+              type: array
+              items:
+                $ref: "#/components/schemas/Session"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        fullName:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+          enum: [user, admin, project_manager]
+        avatar:
+          type: string
+        provider:
+          type: string
+          enum: [email, google, github]
+        emailVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    Session:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        deviceName:
+          type: string
+        ipAddress:
+          type: string
+        userAgent:
+          type: string
+        lastActive:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        isCurrent:
+          type: boolean
+
+    OAuthRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+          enum: [google, github]
+        code:
+          type: string
+        redirectUri:
+          type: string
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+
+paths:
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        401:
+          description: Invalid credentials
+        403:
+          description: Account locked or email not verified
+
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        201:
+          description: Registration successful
+        400:
+          description: Validation error
+        409:
+          description: User already exists
+
+  /api/auth/google:
+    post:
+      tags: [Auth]
+      summary: Login with Google
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OAuthRequest"
+      responses:
+        200:
+          description: Google login successful
+
+  /api/auth/github:
+    post:
+      tags: [Auth]
+      summary: Login with GitHub
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OAuthRequest"
+      responses:
+        200:
+          description: GitHub login successful
+
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout from current session
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Logged out successfully
+
+  /api/auth/logout/all:
+    post:
+      tags: [Auth]
+      summary: Logout from all sessions
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Logged out from all sessions
+
+  /api/auth/logout/session/{sessionId}:
+    post:
+      tags: [Auth]
+      summary: Logout from specific session
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Session terminated
+
+  /api/auth/sessions:
+    get:
+      tags: [Auth]
+      summary: Get all active sessions
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: List of active sessions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Session"
+
+  /api/auth/validate:
+    get:
+      tags: [Auth]
+      summary: Validate current session
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Session valid
+
+  /api/auth/refresh-token:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Token refreshed
+
+  /api/auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Verify email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+      responses:
+        200:
+          description: Email verified
+
+  /api/auth/resend-verification:
+    post:
+      tags: [Auth]
+      summary: Resend verification email
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Verification email sent
+
+  /api/auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Request password reset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        200:
+          description: Reset link sent
+
+  /api/auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+                - confirmPassword
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+                  format: password
+                confirmPassword:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: Password reset successful
+
+  /api/auth/change-password:
+    post:
+      tags: [Auth]
+      summary: Change password (authenticated)
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+                - confirmPassword
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+                confirmPassword:
+                  type: string
+                  format: password
+      responses:
+        200:
+          description: Password changed successfully

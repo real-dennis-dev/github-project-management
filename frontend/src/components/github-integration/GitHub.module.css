@@ -1,0 +1,89 @@
+/* src/components/github-integration/GitHub.module.css */
+
+/* Additional GitHub-specific styles */
+.github-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.github-card {
+  transition: all 0.2s ease;
+}
+
+.github-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.github-stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.github-stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.github-stat-card.commits::before {
+  background-color: var(--color-primary-500);
+}
+
+.github-stat-card.branches::before {
+  background-color: var(--color-info);
+}
+
+.github-stat-card.prs::before {
+  background-color: var(--color-success);
+}
+
+.github-stat-card.issues::before {
+  background-color: var(--color-error);
+}
+
+.github-repo-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-neutral-200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.github-commit-hash {
+  font-family: "Courier New", monospace;
+  font-size: 0.75rem;
+  color: var(--color-neutral-400);
+  background: var(--color-neutral-100);
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+}
+
+.github-branch-name {
+  font-family: "Courier New", monospace;
+  font-size: 0.875rem;
+}
+
+/* Dark mode overrides */
+.dark .github-commit-hash {
+  background: var(--color-neutral-800);
+  color: var(--color-neutral-400);
+}
+
+.dark .github-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .github-container {
+    padding: 1rem;
+  }
+}

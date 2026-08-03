@@ -7,15 +7,17 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import axiosInstance from "../utils/axiosInstance";
+import authService from "../services/AuthService";
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
+
   if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
+
   return context;
 };
 
@@ -23,29 +25,37 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sessions, setSessions] = useState([]);
 
-  // Validate session on mount
-  useEffect(() => {
-    const validateSession = async () => {
-      try {
-        const response = await axiosInstance.get("/auth/validate");
-        if (response.data?.data) {
-          setUser(response.data.data);
-        }
-      } catch (err) {
-        // Session invalid or expired
+  /**
+   * Validate existing session on application startup
+   */
+  const validateSession = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const res = await authService.validateSession();
+
+      if (res?.data) {
+        setUser(res.data);
+      } else {
         setUser(null);
-        // Don't redirect here - let the app handle it
-      } finally {
-        setLoading(false);
+        setSessions([]);
       }
-    };
+    } catch (err) {
+      setUser(null);
+      setSessions([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     validateSession();
 
-    // Listen for logout events
     const handleLogout = () => {
-      logout();
+      setUser(null);
+      setSessions([]);
     };
 
     window.addEventListener("auth:logout", handleLogout);
@@ -53,82 +63,66 @@ export const AuthProvider = ({ children }) => {
     return () => {
       window.removeEventListener("auth:logout", handleLogout);
     };
-  }, []);
+  }, [validateSession]);
 
-  const login = useCallback(async (credentials) => {
-    setLoading(true);
-    setError(null);
+  /**
+   * Fetch active sessions
+   */
+  const getSessions = useCallback(async () => {
     try {
-      const response = await axiosInstance.post("/auth/login", credentials);
+      const res = await authService.getSessions();
 
-      if (response.data?.success) {
-        const { user, requires2FA } = response.data.data;
+      const list = res?.data || [];
 
-        if (requires2FA) {
-          // Handle 2FA flow
-          return { requires2FA, data: response.data.data };
-        }
+      setSessions(list);
 
-        setUser(user);
-        return { success: true, user };
-      }
-
-      throw new Error("Login failed");
+      return list;
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || "Login failed. Please try again.";
-      setError(errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      setLoading(false);
+      console.error("Error fetching sessions:", err);
+      return [];
     }
   }, []);
 
-  const logout = useCallback(async () => {
-    setLoading(true);
-    try {
-      await axiosInstance.post("/auth/logout");
-    } catch (err) {
-      console.error("Logout error:", err);
-    } finally {
-      setUser(null);
-      setLoading(false);
-      // Clear any cached data
-    }
-  }, []);
-
+  /**
+   * Refresh access token
+   */
   const refreshToken = useCallback(async () => {
     try {
-      const response = await axiosInstance.post("/auth/refresh-token");
-      return response.data;
+      return await authService.refreshToken();
     } catch (err) {
-      // If refresh fails, logout
-      await logout();
+      setUser(null);
+      setSessions([]);
       throw err;
     }
-  }, [logout]);
+  }, []);
 
+  /**
+   * Permission helper
+   */
   const hasPermission = useCallback(
     (permission) => {
       if (!user) return false;
-      // Implement your permission logic here
+
+      if (user.role === "admin") return true;
+
       return true;
     },
     [user]
   );
 
-  const isAuthenticated = !!user;
-
   const value = {
     user,
     loading,
     error,
-    login,
-    logout,
+    sessions,
+
     refreshToken,
+
     hasPermission,
-    isAuthenticated,
+    isAuthenticated: !!user,
     setUser,
+    setError,
+    getSessions,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

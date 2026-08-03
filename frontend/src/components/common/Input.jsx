@@ -1,4 +1,3 @@
-// Input.jsx
 export const Input = ({
   label,
   error,
@@ -6,6 +5,7 @@ export const Input = ({
   className = "",
   id,
   fullWidth = true,
+  rightElement,
   ...props
 }) => {
   const baseStyles =
@@ -16,21 +16,35 @@ export const Input = ({
       {label && (
         <label
           htmlFor={id}
-          className="mb-1.5 block text-sm font-weight-medium text-neutral-700"
+          className="mb-1.5 block text-sm font-medium text-neutral-700"
         >
           {label}
         </label>
       )}
-      <input
-        id={id}
-        className={`
-          ${baseStyles}
-          ${fullWidth ? "w-full" : ""}
-          ${error ? "border-error focus:border-error focus:ring-error/20" : ""}
-        `}
-        {...props}
-      />
+
+      <div className="relative">
+        <input
+          id={id}
+          className={`
+            ${baseStyles}
+            ${fullWidth ? "w-full" : ""}
+            ${rightElement ? "pr-10" : ""}
+            ${
+              error ? "border-error focus:border-error focus:ring-error/20" : ""
+            }
+          `}
+          {...props}
+        />
+
+        {rightElement && (
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            {rightElement}
+          </div>
+        )}
+      </div>
+
       {error && <p className="mt-1 text-sm text-error">{error}</p>}
+
       {helper && !error && (
         <p className="mt-1 text-sm text-neutral-500">{helper}</p>
       )}

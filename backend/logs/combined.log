@@ -50,3 +50,232 @@
 {"level":"info","message":"Environment: development","service":"project-management-api","timestamp":"2026-08-02T05:23:43.077Z"}
 {"level":"info","message":"Server running on port 3000","service":"project-management-api","timestamp":"2026-08-02T05:29:34.583Z"}
 {"level":"info","message":"Environment: development","service":"project-management-api","timestamp":"2026-08-02T05:29:34.587Z"}
+{"level":"info","message":"======================================","service":"project-management-api","timestamp":"2026-08-03T10:04:26.715Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:04:26.721Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:04:26.722Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:04:26.723Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:04:26.723Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:04:26.724Z"}
+{"level":"info","message":"======================================","service":"project-management-api","timestamp":"2026-08-03T10:04:26.725Z"}
+{"level":"info","message":"======================================","service":"project-management-api","timestamp":"2026-08-03T10:05:55.721Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:05:55.725Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:05:55.726Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:05:55.727Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:05:55.728Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:05:55.729Z"}
+{"level":"info","message":"======================================","service":"project-management-api","timestamp":"2026-08-03T10:05:55.730Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:06:22.096Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:06:22.101Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:06:22.102Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:06:22.103Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:06:22.103Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:08:01.303Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:08:01.308Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:08:01.309Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:08:01.309Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:08:01.310Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:09:05.937Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:09:05.941Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:09:05.941Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:09:05.942Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:09:05.942Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:10:36.017Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:10:36.024Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:10:36.024Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:10:36.025Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:10:36.025Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:12:16.039Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:12:16.044Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:12:16.044Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:12:16.046Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:12:16.047Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:13:46.798Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:13:46.803Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:13:46.804Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:13:46.804Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:13:46.805Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:15:37.866Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:15:37.871Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:15:37.871Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:15:37.872Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:15:37.873Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:21:53.461Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:21:53.471Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:21:53.472Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:21:53.474Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:21:53.475Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:22:38.184Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:22:38.190Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:22:38.190Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:22:38.191Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:22:38.191Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:25:49.509Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:25:49.514Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:25:49.515Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:25:49.515Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:25:49.515Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:30:11.554Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:30:11.559Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:30:11.560Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:30:11.560Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:30:11.561Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:32:19.712Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:32:19.716Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:32:19.717Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:32:19.718Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:32:19.719Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:35:55.975Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:35:55.978Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:35:55.979Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:35:55.980Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:35:55.980Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:40:20.782Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:40:20.788Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:40:20.789Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:40:20.789Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:40:20.790Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:41:02.749Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:41:02.753Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:41:02.754Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:41:02.754Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:41:02.756Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:42:37.305Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:42:37.309Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:42:37.309Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:42:37.310Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:42:37.311Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T10:53:04.658Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T10:53:04.661Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T10:53:04.662Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T10:53:04.662Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T10:53:04.663Z"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T10:55:18.998Z","url":"/api/auth/validate","userAgent":"vscode-restclient"}
+{"duration":"32ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":401,"timestamp":"2026-08-03T10:55:19.029Z","url":"/validate"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T11:04:39.992Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T11:04:39.999Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T11:04:40.000Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T11:04:40.003Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T11:04:40.004Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T11:04:45.022Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T11:04:45.034Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T11:04:45.035Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T11:04:45.035Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T11:04:45.035Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T11:52:13.475Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T11:52:13.479Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T11:52:13.479Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T11:52:13.480Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T11:52:13.481Z"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:53:30.661Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"14ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":200,"timestamp":"2026-08-03T11:53:30.674Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:53:30.679Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:53:30.682Z","url":"/state"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T11:54:33.998Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T11:54:34.002Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T11:54:34.003Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T11:54:34.003Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T11:54:34.004Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T11:55:55.193Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T11:55:55.197Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T11:55:55.197Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T11:55:55.198Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T11:55:55.199Z"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:56:05.794Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"14ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:56:05.807Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:56:05.810Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"9ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:56:05.819Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:57:32.978Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"31ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:57:33.009Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:57:33.081Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"8ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:57:33.090Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:58:35.650Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:58:35.653Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:58:35.656Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:58:35.660Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:58:54.713Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:58:54.715Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:58:54.718Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"9ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:58:54.727Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:59:43.600Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:59:43.602Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:59:43.605Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:59:43.607Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:59:50.524Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:59:50.525Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:59:50.527Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:59:50.529Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:59:58.623Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:59:58.624Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T11:59:58.626Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T11:59:58.627Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:02:48.941Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"49ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:02:48.990Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:02:49.108Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"53ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:02:49.161Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:03:09.532Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:03:09.535Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:03:09.539Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:03:09.541Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:03:14.266Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:03:14.267Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:03:14.270Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:03:14.273Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:04:03.914Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:04:03.916Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:04:03.917Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:04:03.918Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:04:50.983Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:04:50.985Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:04:50.987Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:04:50.989Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:12:13.091Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:12:13.092Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:12:13.097Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:12:13.098Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:15:00.135Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:15:00.136Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:15:00.137Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:15:00.139Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:15:07.253Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:15:07.254Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:15:07.257Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"8ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:15:07.265Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:16:43.841Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:16:43.844Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:16:43.857Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"13ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:16:43.870Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:16:48.178Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:16:48.179Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:16:48.181Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"3ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:16:48.184Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:16:54.202Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:16:54.203Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:16:54.209Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:16:54.211Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:17:37.802Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:17:37.804Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:17:37.805Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:17:37.807Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:17:41.490Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:17:41.491Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:17:41.495Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:17:41.497Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:20:51.152Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"1ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:20:51.153Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:20:51.156Z","url":"/api/auth/state","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"2ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":304,"timestamp":"2026-08-03T12:20:51.158Z","url":"/state"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:33:26.527Z","url":"/api/auth/validate","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"168ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":401,"timestamp":"2026-08-03T12:33:26.694Z","url":"/validate"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"POST","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:33:26.856Z","url":"/api/auth/refresh-token","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"data":{"error":"Refresh token required","success":false},"level":"info","message":"Audit log:","method":"POST","service":"project-management-api","statusCode":400,"timestamp":"2026-08-03T12:33:26.989Z","url":"/refresh-token","user":"anonymous"}
+{"duration":"193ms","level":"info","message":"Request completed:","method":"POST","service":"project-management-api","statusCode":400,"timestamp":"2026-08-03T12:33:27.049Z","url":"/refresh-token"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"GET","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:33:27.128Z","url":"/api/auth/validate","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"duration":"83ms","level":"info","message":"Request completed:","method":"GET","service":"project-management-api","statusCode":401,"timestamp":"2026-08-03T12:33:27.211Z","url":"/validate"}
+{"body":{},"ip":"127.0.0.1","level":"info","message":"Request received:","method":"POST","params":{},"query":{},"service":"project-management-api","timestamp":"2026-08-03T12:33:27.283Z","url":"/api/auth/refresh-token","userAgent":"Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Mobile Safari/537.36"}
+{"data":{"error":"Refresh token required","success":false},"level":"info","message":"Audit log:","method":"POST","service":"project-management-api","statusCode":400,"timestamp":"2026-08-03T12:33:27.374Z","url":"/refresh-token","user":"anonymous"}
+{"duration":"209ms","level":"info","message":"Request completed:","method":"POST","service":"project-management-api","statusCode":400,"timestamp":"2026-08-03T12:33:27.492Z","url":"/refresh-token"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-03T12:34:16.736Z"}
+{"level":"info","message":"Environment : development","service":"project-management-api","timestamp":"2026-08-03T12:34:16.740Z"}
+{"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-03T12:34:16.740Z"}
+{"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-03T12:34:16.741Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-03T12:34:16.741Z"}

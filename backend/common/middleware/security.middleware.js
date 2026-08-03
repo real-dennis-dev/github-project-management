@@ -1,7 +1,9 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
 const cors = require("cors");
-
+console.log(process.env.ALLOWED_ORIGINS);
 class SecurityMiddleware {
   // Rate limiting by IP
   rateLimiter() {
@@ -69,6 +71,7 @@ class SecurityMiddleware {
   }
 
   // Handles CORS
+
   corsHandler() {
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(",") || ["*"];
 

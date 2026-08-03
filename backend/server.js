@@ -1,168 +1,59 @@
-const express = require("express");
 const dotenv = require("dotenv");
-
-// Swagger
-const swaggerUi = require("swagger-ui-express");
-const swaggerJsdoc = require("swagger-jsdoc");
-
-// Load environment variables
 dotenv.config();
 
-// Import middleware
-const authMiddleware = require("./common/middleware/auth.middleware");
-const validationMiddleware = require("./common/middleware/validation.middleware");
-const errorMiddleware = require("./common/middleware/error.middleware");
-const loggingMiddleware = require("./common/middleware/logging.middleware");
-const securityMiddleware = require("./common/middleware/security.middleware");
-const dataMiddleware = require("./common/middleware/data.middleware");
-
-// Routes
-
-// const AIAssistantRoutes = require("./modules/ai-assistant/routes/ai-assistant.routes");
-const dailyJournalRoutes = require("./modules/daily-journal/routes/daily-journal.routes");
-const decisionRisksRoutes = require("./modules/decisions-risks/routes/decision-risks.routes");
-const documentationRoutes = require("./modules/documentation-knowledge/routes/documentation-knowledge");
-const expensesRoutes = require("./modules/expenses/routes/expense.routes");
-const githubIntegrationRoutes = require("./modules/github-integration/routes/github-integration.routes");
-const progressRoutes = require("./modules/progress-timeline/routes/progress.routes");
-const bugRoutes = require("./modules/project-management/routes/bug.routes");
-const featureRoutes = require("./modules/project-management/routes/feature.routes");
-const projectRoutes = require("./modules/project-management/routes/project.routes");
-const releaseMilestoneRoutes = require("./modules/releases-milestones/routes/release-milestone.routes");
-const techDebtRoutes = require("./modules/tech-debt/routes/tech-debt.routes");
-const visionBoardRoutes = require("./modules/vision-board/routes/vision-board");
-
-// Logger
+const app = require("./app");
 const logger = require("./common/config/logger");
 
-// Create Express app
-const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
 
-// =======================
-// Global Middleware
-// =======================
+const server = app.listen(PORT, HOST, () => {
+  logger.info("🚀 Server started successfully");
+  logger.info(`Environment : ${process.env.NODE_ENV || "development"}`);
+  logger.info(`Host        : ${HOST}`);
+  logger.info(`Port        : ${PORT}`);
+  logger.info(`URL         : http://localhost:${PORT}`);
+});
 
-app.use(securityMiddleware.helmetSecurity());
-app.use(securityMiddleware.corsHandler());
+/**
+ * Graceful shutdown
+ */
+const shutdown = (signal) => {
+  logger.warn(`${signal} received. Shutting down server...`);
 
-app.use(
-  express.json({
-    limit: "10mb",
-  })
-);
+  server.close(() => {
+    logger.info("HTTP server closed.");
+    process.exit(0);
+  });
 
-app.use(
-  express.urlencoded({
-    extended: true,
-    limit: "10mb",
-  })
-);
+  // Force shutdown after 10 seconds
+  setTimeout(() => {
+    logger.error("Forced shutdown.");
+    process.exit(1);
+  }, 10000);
+};
 
-// Custom logging
-app.use(loggingMiddleware.logRequest);
-app.use(loggingMiddleware.logPerformance);
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-// Security middleware
-app.use(securityMiddleware.sanitizeInput);
-app.use(securityMiddleware.rateLimiter());
-
-// Data middleware
-app.use(dataMiddleware.filterParser);
-app.use(dataMiddleware.sortParser);
-
-// =======================
-// Public Routes
-// =======================
-
-app.get("/health", (req, res) => {
-  res.json({
-    status: "OK",
-    timestamp: new Date().toISOString(),
+/**
+ * Handle unhandled promise rejections
+ */
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled Promise Rejection", {
+    reason,
+    promise,
   });
 });
 
-// =======================
-// Protected Routes
-// =======================
+/**
+ * Handle uncaught exceptions
+ */
+process.on("uncaughtException", (error) => {
+  logger.error("Uncaught Exception", {
+    message: error.message,
+    stack: error.stack,
+  });
 
-app.use("/api", authMiddleware.authenticate);
-
-app.use(loggingMiddleware.auditLog);
-
-// =======================
-// Swagger Documentation
-// =======================
-
-const swaggerOptions = {
-  definition: {
-    openapi: "3.0.0",
-
-    info: {
-      title: "Documentation & Knowledge Base API",
-      version: "1.0.0",
-      description: "API for managing project documentation and knowledge base",
-
-      contact: {
-        name: "API Support",
-        email: "support@example.com",
-      },
-    },
-
-    servers: [
-      {
-        url: `http://localhost:${process.env.PORT || 3000}`,
-        description: "Development server",
-      },
-    ],
-
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
-  },
-
-  apis: ["./src/modules/*/swagger/*.swagger.js", "./src/modules/*/routes/*.js"],
-};
-
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// =======================
-// API Routes
-// =======================
-
-// app.use("/api", progressRoutes);
-
-// app.use("/api", documentationRoutes);
-
-// =======================
-// Error Handling
-// =======================
-
-app.use(errorMiddleware.notFoundHandler);
-
-app.use(errorMiddleware.errorHandler);
-
-// =======================
-// Start Server
-// =======================
-
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
+  process.exit(1);
 });
-
-module.exports = app;
