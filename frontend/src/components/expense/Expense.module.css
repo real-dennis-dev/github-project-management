@@ -1,0 +1,59 @@
+/* src/components/expense/Expense.module.css */
+
+/* Additional expense-specific styles */
+.expense-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.expense-card {
+  transition: all 0.2s ease;
+}
+
+.expense-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.expense-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.expense-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.expense-recurring-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Dark mode overrides */
+.dark .expense-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .expense-container {
+    padding: 1rem;
+  }
+
+  .expense-table-mobile {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

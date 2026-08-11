@@ -1,28 +1,58 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-import { AuthProvider } from "./context/AuthContext";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext"; // adjust path if needed
 
 import AuthRoutes from "./routes/AuthRoutes";
-// import GitHubRoutes from "./routes/GitHubRoutes";
 
-// import Home from "./pages/Home";
+import LandingPage from "./components/LandingPage";
+import DashboardLayout from "./components/DashboardLayout";
+import DashboardHome from "./components/DashboardHome";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import GuestRoute from "./routes/GuestRoute";
+import NotFound from "./components/NotFound";
 
 function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          {/* Home */}
-          {/* <Route path="/" element={<Home />} /> */}
+    <Routes>
+      {/* Public / Guest */}
+      <Route
+        path="/"
+        element={
+          <GuestRoute>
+            <LandingPage />
+          </GuestRoute>
+        }
+      />
 
-          {/* Authentication */}
-          <Route path="/*" element={<AuthRoutes />} />
+      {/* Auth pages (login, register, etc.) */}
+      <Route path="/*" element={<AuthRoutes />} />
 
-          {/* GitHub OAuth */}
-          {/* <Route path="/github/*" element={<GitHubRoutes />} /> */}
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      {/* Protected Dashboard */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<DashboardHome />} />
+        {/* Add more nested routes later */}
+        {/* <Route path="settings" element={<Settings />} /> */}
+      </Route>
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 
