@@ -337,3 +337,10 @@
 {"level":"info","message":"Host        : 0.0.0.0","service":"project-management-api","timestamp":"2026-08-12T08:32:24.038Z"}
 {"level":"info","message":"Port        : 3000","service":"project-management-api","timestamp":"2026-08-12T08:32:24.039Z"}
 {"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-12T08:32:24.040Z"}
+{"level":"info","message":"Checking Supabase connection...","service":"project-management-api","timestamp":"2026-08-12T08:33:17.602Z"}
+{"level":"info","message":"Supabase connection established successfully.","service":"project-management-api","timestamp":"2026-08-12T08:33:19.247Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-12T08:33:19.255Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-12T08:33:19.256Z"}
+{"level":"info","message":"Supabase connection established successfully.","service":"project-management-api","timestamp":"2026-08-12T08:37:34.427Z"}
+{"level":"info","message":"🚀 Server started successfully","service":"project-management-api","timestamp":"2026-08-12T08:37:34.436Z"}
+{"level":"info","message":"URL         : http://localhost:3000","service":"project-management-api","timestamp":"2026-08-12T08:37:34.437Z"}

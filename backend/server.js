@@ -13,8 +13,6 @@ const HOST = process.env.HOST || "0.0.0.0";
  */
 const checkSupabaseConnection = async () => {
   try {
-    logger.info("Checking Supabase connection...");
-
     const { error } = await supabase
       .from("user_profiles")
       .select("id")

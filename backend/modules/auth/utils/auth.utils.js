@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const { randomBytes } = require("crypto");
 const { supabase } = require("../../../common/config/supabase");
 const logger = require("../../../common/config/logger");
 
@@ -217,7 +218,7 @@ class AuthUtils {
    */
   async generateVerificationToken(email) {
     try {
-      const token = crypto.randomBytes(32).toString("hex");
+      const token = randomBytes(32).toString("hex");
 
       // Store token in database
       const { error } = await supabase.from("email_verifications").insert([

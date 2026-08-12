@@ -1,3 +1,0 @@
-### Validate session
-GET http://localhost:3000/api/auth/validate
-Origin: http://localhost:5175

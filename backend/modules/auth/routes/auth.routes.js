@@ -109,6 +109,19 @@ router.post(
  */
 router.post("/refresh-token", AuthController.refreshToken.bind(AuthController));
 
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get current user
+ *     description: Returns the authenticated user if a valid session exists, otherwise returns null for guests.
+ *     tags: [Auth]
+ */
+router.get(
+  "/me",
+  AuthMiddleware.optionalAuth,
+  AuthController.getCurrentUser.bind(AuthController)
+);
 // ============================================
 // PROTECTED ROUTES
 // ============================================

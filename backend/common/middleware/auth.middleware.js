@@ -14,115 +14,143 @@ class AuthMiddleware {
    */
   async authenticate(req, res, next) {
     try {
-      let token = null;
+      const accessToken = req.cookies?.access_token;
+      const refreshToken = req.cookies?.refresh_token;
+      const sessionId = req.cookies?.session_id;
 
-      // Check cookie first
-      if (req.cookies && req.cookies.access_token) {
-        token = req.cookies.access_token;
-      }
-      // Then check Authorization header
-      else if (req.headers.authorization) {
-        const authHeader = req.headers.authorization;
-        if (authHeader.startsWith("Bearer ")) {
-          token = authHeader.substring(7);
-        }
-      }
-
-      if (!token) {
+      // --------------------------------------------------
+      // No authentication cookies at all
+      // --------------------------------------------------
+      if (!accessToken && !refreshToken && !sessionId) {
         return res.status(401).json({
           success: false,
-          error: "No access token provided",
+          error: "Authentication required",
         });
       }
 
-      try {
-        // Verify token
-        const decoded = TokenUtils.verifyAccessToken(token);
+      // --------------------------------------------------
+      // 1. Try the short-lived access token first
+      // --------------------------------------------------
+      if (accessToken) {
+        try {
+          const decoded = TokenUtils.verifyAccessToken(accessToken);
 
-        // Get user from database
-        const user = await AuthUtils.getUserById(decoded.sub);
-        if (!user) {
-          throw new Error("User not found");
-        }
+          const user = await AuthUtils.getUserById(decoded.sub);
 
-        // Check if account is locked
-        if (user.account_locked) {
-          return res.status(403).json({
-            success: false,
-            error: "Account is locked",
-          });
-        }
+          if (!user) {
+            return res.status(401).json({
+              success: false,
+              error: "User not found",
+            });
+          }
 
-        // Set user in request
-        req.user = {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          fullName: user.full_name,
-          username: user.username,
-          provider: user.provider,
-          avatar: user.avatar,
-          emailVerified: user.email_verified,
-        };
+          if (user.account_locked) {
+            return res.status(403).json({
+              success: false,
+              error: "Account is locked",
+            });
+          }
 
-        // Get session from cookie if available
-        if (req.cookies && req.cookies.session_id) {
-          req.sessionId = req.cookies.session_id;
-        }
+          req.user = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            fullName: user.full_name,
+            username: user.username,
+            provider: user.provider,
+            avatar: user.avatar,
+            emailVerified: user.email_verified,
+          };
 
-        next();
-      } catch (error) {
-        // If token is expired, try to refresh
-        if (error.message === "Access token expired") {
-          const refreshToken = req.cookies?.refresh_token;
-          if (refreshToken) {
-            try {
-              // Refresh token
-              const result = await SessionService.refreshAccessToken(
-                refreshToken
-              );
+          req.sessionId = sessionId || null;
 
-              // Set new cookies
-              this.setAuthCookies(res, {
-                access_token: result.accessToken,
-                refresh_token: result.refreshToken,
-                session_id: result.sessionId,
-              });
+          return next();
+        } catch (error) {
+          // Access token expired is expected.
+          // Do NOT immediately return 401.
+          //
+          // Fall through to session validation below.
+          if (error.message !== "Access token expired") {
+            logger.warn("Invalid access token:", error.message);
 
-              // Get user and continue
-              const decoded = TokenUtils.verifyAccessToken(result.accessToken);
-              const user = await AuthUtils.getUserById(decoded.sub);
-
-              req.user = {
-                id: user.id,
-                email: user.email,
-                role: user.role,
-                fullName: user.full_name,
-                username: user.username,
-                provider: user.provider,
-                avatar: user.avatar,
-                emailVerified: user.email_verified,
-              };
-              req.sessionId = result.sessionId;
-
-              next();
-              return;
-            } catch (refreshError) {
-              return res.status(401).json({
-                success: false,
-                error: "Session expired. Please login again.",
-              });
-            }
+            // The access token is invalid/tampered with.
+            // We can still attempt authentication through
+            // the refresh/session cookies.
           }
         }
-
-        throw error;
       }
+
+      // --------------------------------------------------
+      // 2. Access token is expired/missing/invalid.
+      //    Fall back to refresh token + session ID.
+      // --------------------------------------------------
+      if (!refreshToken || !sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "Session required",
+        });
+      }
+
+      // --------------------------------------------------
+      // 3. Validate the existing session.
+      //
+      // IMPORTANT:
+      // This does NOT refresh the access token.
+      // It only verifies that the existing session is valid.
+      // --------------------------------------------------
+      const result = await SessionService.validateSession(refreshToken);
+
+      if (!result.session) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid session",
+        });
+      }
+
+      // Make sure the browser's session_id matches
+      // the session associated with the refresh token.
+      if (result.session.id !== sessionId) {
+        return res.status(401).json({
+          success: false,
+          error: "Invalid session",
+        });
+      }
+
+      const user = result.user;
+
+      if (!user) {
+        return res.status(401).json({
+          success: false,
+          error: "User not found",
+        });
+      }
+
+      if (user.account_locked) {
+        return res.status(403).json({
+          success: false,
+          error: "Account is locked",
+        });
+      }
+
+      // --------------------------------------------------
+      // 4. Authenticate using the validated session.
+      // --------------------------------------------------
+      req.user = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        fullName: user.full_name,
+        username: user.username,
+        provider: user.provider,
+        avatar: user.avatar,
+        emailVerified: user.email_verified,
+      };
+
+      req.sessionId = sessionId;
+
+      return next();
     } catch (error) {
       logger.error("Authentication error:", error);
-
-      // Clear cookies if invalid
-      this.clearAuthCookies(res);
 
       return res.status(401).json({
         success: false,
@@ -137,22 +165,46 @@ class AuthMiddleware {
    * @param {Object} res - Express response
    * @param {Function} next - Next middleware
    */
+  /**
+   * Optional authentication.
+   *
+   * Authentication sources:
+   * 1. access_token cookie
+   * 2. refresh_token + session_id cookies
+   *
+   * This middleware NEVER:
+   * - Reads Authorization headers
+   * - Returns 401
+   * - Refreshes access tokens
+   * - Sets authentication cookies
+   *
+   * Guests are allowed through with req.user = null.
+   */
   async optionalAuth(req, res, next) {
     try {
-      let token = null;
+      // Always initialize this so controllers can safely use req.user
+      req.user = null;
+      req.session = null;
+      req.sessionId = null;
 
-      if (req.cookies && req.cookies.access_token) {
-        token = req.cookies.access_token;
-      } else if (req.headers.authorization) {
-        const authHeader = req.headers.authorization;
-        if (authHeader.startsWith("Bearer ")) {
-          token = authHeader.substring(7);
-        }
-      }
+      const accessToken = req.cookies?.access_token;
+      const refreshToken = req.cookies?.refresh_token;
+      const sessionId = req.cookies?.session_id;
 
-      if (token) {
+      /*
+       * ---------------------------------------------------------
+       * 1. Try access token first
+       * ---------------------------------------------------------
+       *
+       * If it is valid, authenticate immediately.
+       *
+       * If it is expired/invalid, DO NOT refresh here.
+       * We simply fall through to refresh_token + session_id.
+       */
+      if (accessToken) {
         try {
-          const decoded = TokenUtils.verifyAccessToken(token);
+          const decoded = TokenUtils.verifyAccessToken(accessToken);
+
           const user = await AuthUtils.getUserById(decoded.sub);
 
           if (user && !user.account_locked) {
@@ -166,15 +218,102 @@ class AuthMiddleware {
               avatar: user.avatar,
               emailVerified: user.email_verified,
             };
+
+            // Session ID is useful to the rest of the application
+            if (sessionId) {
+              req.sessionId = sessionId;
+            }
+
+            return next();
           }
         } catch (error) {
-          // Silently ignore token errors for optional auth
+          /*
+           * Access token can be expired because it only lives
+           * for 15 minutes.
+           *
+           * DO NOT refresh it here.
+           *
+           * Fall through to refresh-token/session validation.
+           */
         }
       }
 
-      next();
+      /*
+       * ---------------------------------------------------------
+       * 2. Access token unavailable/expired
+       * ---------------------------------------------------------
+       *
+       * Use refresh_token + session_id.
+       *
+       * This does NOT issue a new access token.
+       * It only verifies that the existing session is valid
+       * and identifies the user.
+       */
+      if (refreshToken && sessionId) {
+        try {
+          const result = await SessionService.validateSession(refreshToken);
+
+          /*
+           * Make sure the refresh token actually belongs
+           * to the session represented by the session_id cookie.
+           */
+          if (
+            result?.session &&
+            result.session.id === sessionId &&
+            result.user &&
+            !result.user.account_locked
+          ) {
+            req.session = result.session;
+            req.sessionId = result.session.id;
+
+            req.user = {
+              id: result.user.id,
+              email: result.user.email,
+              role: result.user.role,
+              fullName: result.user.full_name,
+              username: result.user.username,
+              provider: result.user.provider,
+              avatar: result.user.avatar,
+              emailVerified: result.user.email_verified,
+            };
+
+            return next();
+          }
+        } catch (error) {
+          /*
+           * Invalid/expired refresh token or session.
+           *
+           * Since this is OPTIONAL authentication,
+           * do nothing and continue as a guest.
+           */
+        }
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * 3. Guest
+       * ---------------------------------------------------------
+       *
+       * No valid authentication was found.
+       * That is completely valid for optional authentication.
+       */
+      req.user = null;
+      req.session = null;
+      req.sessionId = null;
+
+      return next();
     } catch (error) {
-      next();
+      /*
+       * Optional authentication should NEVER prevent the
+       * underlying route from executing.
+       */
+      logger.error("Optional authentication error:", error);
+
+      req.user = null;
+      req.session = null;
+      req.sessionId = null;
+
+      return next();
     }
   }
 

@@ -103,7 +103,14 @@ class AuthService {
     const response = await axiosInstance.get("/auth/sessions");
     return response.data;
   }
-
+  /**
+   * Get current authenticated user (or null for guests)
+   * @returns {Promise<Object>}
+   */
+  async getCurrentUser() {
+    const response = await axiosInstance.get("/auth/me");
+    return response.data;
+  }
   /**
    * Validate current session
    * @returns {Promise<Object>} - Validation response

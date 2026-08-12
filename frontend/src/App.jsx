@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext"; // adjust path if needed
+import { useAuth } from "./context/AuthContext"; // adjust path if needed
 
 import AuthRoutes from "./routes/AuthRoutes";
 
@@ -7,7 +7,7 @@ import LandingPage from "./components/LandingPage";
 import DashboardLayout from "./components/DashboardLayout";
 import DashboardHome from "./components/DashboardHome";
 import ProtectedRoute from "./routes/ProtectedRoute";
-import GuestRoute from "./routes/GuestRoute";
+import PublicRoute from "./routes/PublicRoute";
 import NotFound from "./components/NotFound";
 
 function App() {
@@ -24,14 +24,7 @@ function App() {
   return (
     <Routes>
       {/* Public / Guest */}
-      <Route
-        path="/"
-        element={
-          <GuestRoute>
-            <LandingPage />
-          </GuestRoute>
-        }
-      />
+      <Route path="/" element={<LandingPage />} />
 
       {/* Auth pages (login, register, etc.) */}
       <Route path="/*" element={<AuthRoutes />} />

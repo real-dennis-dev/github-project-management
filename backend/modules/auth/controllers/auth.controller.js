@@ -214,6 +214,34 @@ class AuthController {
       return ResponseUtils.sendError(res, error.message, 400);
     }
   }
+  /**
+   * Get current authenticated user
+   * Can also be accessed by guests.
+   *
+   * @route GET /api/auth/me
+   * @access Public / Optional Auth
+   */
+  async getCurrentUser(req, res) {
+    try {
+      // optionalAuth middleware puts the user on req.user
+      // when a valid authenticated session exists.
+      const user = req.user || null;
+
+      return ResponseUtils.sendSuccess(
+        res,
+        user,
+        user ? "Current user retrieved successfully" : "No authenticated user"
+      );
+    } catch (error) {
+      logger.error("Get current user error:", error);
+
+      return ResponseUtils.sendError(
+        res,
+        "Unable to retrieve current user",
+        500
+      );
+    }
+  }
 
   /**
    * Get all user sessions

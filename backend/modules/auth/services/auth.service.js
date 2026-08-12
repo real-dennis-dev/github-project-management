@@ -29,9 +29,9 @@ class AuthService {
       }
 
       // Check if email is verified
-      if (!user.email_verified) {
-        throw new Error("Please verify your email before logging in");
-      }
+      // if (!user.email_verified) {
+      //   throw new Error("Please verify your email before logging in");
+      // }
 
       // Check if account is locked
       if (user.account_locked) {

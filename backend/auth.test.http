@@ -1,0 +1,406 @@
+@baseUrl = http://localhost:3000/api/auth
+
+# =========================================================
+# AUTH TEST VARIABLES
+# =========================================================
+
+@email = test1@example.com
+@password = Password123!
+@newPassword = NewPassword123!
+@fullName = Test User
+@username = tes1tuser
+
+# Replace these after obtaining them from your application
+@verificationToken = YOUR_VERIFICATION_TOKEN
+@resetToken = YOUR_RESET_TOKEN
+@sessionId = YOUR_SESSION_UUID
+
+# =========================================================
+# 1. REGISTER
+# =========================================================
+
+### Register a new user
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "confirmPassword": "{{password}}",
+  "fullName": "{{fullName}}",
+  "username": "{{username}}"
+}
+
+
+# =========================================================
+# 2. LOGIN
+# =========================================================
+
+### Login
+# Expected:
+# - 200 on success
+# - access_token cookie should be returned
+# - refresh_token cookie may also be returned depending on implementation
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "rememberMe": false
+}
+
+
+### Login with remember me
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}",
+  "rememberMe": true
+}
+
+
+# =========================================================
+# 3. AUTH STATE
+# =========================================================
+
+### Get authentication state
+# Works for both authenticated and guest users
+GET {{baseUrl}}/state
+
+
+### Validate current session
+# Requires access_token cookie when user is authenticated
+GET {{baseUrl}}/validate
+
+
+# =========================================================
+# 4. REFRESH TOKEN
+# =========================================================
+
+### Refresh access token
+# The refresh token cookie should be sent automatically
+POST {{baseUrl}}/refresh-token
+
+
+# =========================================================
+# 5. EMAIL VERIFICATION
+# =========================================================
+
+### Verify email
+POST {{baseUrl}}/verify-email
+Content-Type: application/json
+
+{
+  "token": "{{verificationToken}}"
+}
+
+
+# =========================================================
+# 6. FORGOT PASSWORD
+# =========================================================
+
+### Request password reset
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+
+# =========================================================
+# 7. RESET PASSWORD
+# =========================================================
+
+### Reset password
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "{{resetToken}}",
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
+}
+
+
+# =========================================================
+# 8. CHANGE PASSWORD
+# =========================================================
+
+### Change password
+# Requires authentication
+POST {{baseUrl}}/change-password
+Content-Type: application/json
+
+{
+  "currentPassword": "{{password}}",
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
+}
+
+
+# =========================================================
+# 9. GOOGLE OAUTH
+# =========================================================
+
+### Google login
+# code and redirectUri depend on your Google OAuth configuration
+POST {{baseUrl}}/google
+Content-Type: application/json
+
+{
+  "provider": "google",
+  "code": "YOUR_GOOGLE_AUTHORIZATION_CODE",
+  "redirectUri": "http://localhost:5173/auth/google/callback"
+}
+
+
+# =========================================================
+# 10. GITHUB OAUTH
+# =========================================================
+
+### GitHub login
+POST {{baseUrl}}/github
+Content-Type: application/json
+
+{
+  "provider": "github",
+  "code": "YOUR_GITHUB_AUTHORIZATION_CODE",
+  "redirectUri": "http://localhost:5173/auth/github/callback"
+}
+
+
+# =========================================================
+# 11. GET ALL SESSIONS
+# =========================================================
+
+### Get active sessions
+# Requires authentication
+GET {{baseUrl}}/sessions
+
+
+# =========================================================
+# 12. LOGOUT CURRENT SESSION
+# =========================================================
+
+### Logout current session
+# Requires authentication
+POST {{baseUrl}}/logout
+
+
+# =========================================================
+# 13. LOGOUT ALL SESSIONS
+# =========================================================
+
+### Logout from all sessions
+# Requires authentication
+POST {{baseUrl}}/logout/all
+
+
+# =========================================================
+# 14. LOGOUT SPECIFIC SESSION
+# =========================================================
+
+### Logout specific session
+# Requires authentication
+POST {{baseUrl}}/logout/session/{{sessionId}}
+
+
+# =========================================================
+# 15. VALIDATION TESTS
+# =========================================================
+
+### Register - missing email
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "password": "{{password}}",
+  "confirmPassword": "{{password}}",
+  "fullName": "{{fullName}}",
+  "username": "{{username}}"
+}
+
+
+### Register - invalid email
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "not-an-email",
+  "password": "{{password}}",
+  "confirmPassword": "{{password}}",
+  "fullName": "{{fullName}}",
+  "username": "{{username}}"
+}
+
+
+### Register - weak password
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "weak-password@example.com",
+  "password": "123",
+  "confirmPassword": "123",
+  "fullName": "{{fullName}}",
+  "username": "weakpassword"
+}
+
+
+### Register - password mismatch
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "mismatch@example.com",
+  "password": "{{password}}",
+  "confirmPassword": "DifferentPassword123!",
+  "fullName": "{{fullName}}",
+  "username": "mismatch"
+}
+
+
+### Login - wrong password
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "WrongPassword123!",
+  "rememberMe": false
+}
+
+
+### Login - nonexistent user
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "doesnotexist@example.com",
+  "password": "{{password}}",
+  "rememberMe": false
+}
+
+
+# =========================================================
+# 16. UNAUTHENTICATED ACCESS TESTS
+# =========================================================
+
+### Sessions without authentication
+# Expected: 401
+GET {{baseUrl}}/sessions
+
+
+### Change password without authentication
+# Expected: 401
+POST {{baseUrl}}/change-password
+Content-Type: application/json
+
+{
+  "currentPassword": "{{password}}",
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
+}
+
+
+### Logout without authentication
+# Expected: 401
+POST {{baseUrl}}/logout
+
+
+### Logout all without authentication
+# Expected: 401
+POST {{baseUrl}}/logout/all
+
+
+### Logout specific session without authentication
+# Expected: 401
+POST {{baseUrl}}/logout/session/{{sessionId}}
+
+
+# =========================================================
+# 17. INVALID TOKEN TESTS
+# =========================================================
+
+### Verify email with invalid token
+POST {{baseUrl}}/verify-email
+Content-Type: application/json
+
+{
+  "token": "invalid-verification-token"
+}
+
+
+### Reset password with invalid token
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{
+  "token": "invalid-reset-token",
+  "newPassword": "{{newPassword}}",
+  "confirmPassword": "{{newPassword}}"
+}
+
+
+# =========================================================
+# 18. EMPTY / MALFORMED REQUEST TESTS
+# =========================================================
+
+### Empty login body
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{}
+
+
+### Empty register body
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{}
+
+
+### Empty forgot-password body
+POST {{baseUrl}}/forgot-password
+Content-Type: application/json
+
+{}
+
+
+### Empty reset-password body
+POST {{baseUrl}}/reset-password
+Content-Type: application/json
+
+{}
+
+
+### Empty change-password body
+POST {{baseUrl}}/change-password
+Content-Type: application/json
+
+{}
+
+
+# =========================================================
+# 19. REFRESH TOKEN WITHOUT TOKEN
+# =========================================================
+
+### Refresh without refresh token
+# Expected: 401 or appropriate authentication error
+POST {{baseUrl}}/refresh-token
+
+
+# =========================================================
+# 20. FINAL SESSION CHECK
+# =========================================================
+
+### Check authentication state after logout
+GET {{baseUrl}}/state
+
+
+### Validate session after logout
+GET {{baseUrl}}/validate

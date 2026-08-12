@@ -76,6 +76,7 @@ const Login = () => {
     try {
       await login(formData);
     } catch (err) {
+      console.log(err);
       // Error is handled by the hook
     }
   };

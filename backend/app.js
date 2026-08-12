@@ -1,6 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
-
+const cookieParser = require("cookie-parser");
 // Swagger
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
@@ -44,7 +44,7 @@ const app = express();
 
 app.use(securityMiddleware.helmetSecurity());
 app.use(securityMiddleware.corsHandler());
-
+app.use(cookieParser());
 app.use(
   express.json({
     limit: "10mb",

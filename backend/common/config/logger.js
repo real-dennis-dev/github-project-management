@@ -32,14 +32,14 @@ const logger = winston.createLogger({
       format: consoleFormat,
     }),
     // Write to file - errors
-    new winston.transports.File({
-      filename: path.join(logDir, "error.log"),
-      level: "error",
-    }),
-    // Write to file - all logs
-    new winston.transports.File({
-      filename: path.join(logDir, "combined.log"),
-    }),
+    // new winston.transports.File({
+    //   filename: path.join(logDir, "error.log"),
+    //   level: "error",
+    // }),
+    // // Write to file - all logs
+    // new winston.transports.File({
+    //   filename: path.join(logDir, "combined.log"),
+    // }),
   ],
 });
 
