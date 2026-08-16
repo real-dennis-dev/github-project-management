@@ -1,79 +1,70 @@
+// services/httpClient.js
 import axios from "axios";
 import { Platform } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { API_CONFIG } from "../config/apiConfig";
+import authStore from "./authStore";
 
 /**
- * HTTP Client with interceptors for authentication and error handling
- * @param {Object} config - Configuration object
- * @param {string} config.baseURL - Base URL for API
- * @param {Object} config.headers - Default headers
- * @param {number} config.timeout - Request timeout in ms
- * @returns {Object} Axios instance with methods
+ * HTTP Client with cookie and auth support
+ * @param {Object} config - { baseURL, headers, timeout }
+ * @returns {Object} axios instance with interceptors
  */
-const httpClient = (baseURL = API_CONFIG.baseURL, options = {}) => {
+const httpClient = (baseURL, options = {}) => {
   const instance = axios.create({
     baseURL,
-    timeout: options.timeout || API_CONFIG.timeout || 30000,
+    timeout: options.timeout || 30000,
     headers: {
       "Content-Type": "application/json",
-      Accept: "application/json",
       ...options.headers,
     },
+    withCredentials: true, // Important for cookies
   });
 
-  // Request interceptor to add auth token
+  // Request interceptor - Add auth token
   instance.interceptors.request.use(
     async (config) => {
-      try {
-        const token = await AsyncStorage.getItem("@auth_token");
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+      // For mobile apps, we might need to manually add token
+      // if cookies aren't automatically handled
+      if (Platform.OS !== "web") {
+        const authData = await authStore.getAuthData();
+        if (authData?.tokens?.accessToken) {
+          config.headers.Authorization = `Bearer ${authData.tokens.accessToken}`;
         }
-        // Add platform info
-        config.headers["X-Platform"] = Platform.OS;
-        config.headers["X-App-Version"] = API_CONFIG.appVersion || "1.0.0";
-        return config;
-      } catch (error) {
-        return config;
       }
+      return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
-  // Response interceptor for error handling
+  // Response interceptor - Handle token refresh
   instance.interceptors.response.use(
-    (response) => {
-      return response;
-    },
+    (response) => response,
     async (error) => {
       const originalRequest = error.config;
 
-      // Handle token refresh for 401 errors
+      // If unauthorized and we haven't tried refreshing yet
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
+
         try {
-          const refreshToken = await AsyncStorage.getItem("@refresh_token");
-          if (refreshToken) {
-            const response = await axios.post(`${baseURL}/auth/refresh`, {
-              refreshToken,
-            });
-            const { token, refreshToken: newRefreshToken } = response.data;
-            await AsyncStorage.setItem("@auth_token", token);
-            await AsyncStorage.setItem("@refresh_token", newRefreshToken);
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return instance(originalRequest);
+          // Try to refresh token
+          const authData = await authStore.getAuthData();
+          if (authData?.tokens?.refreshToken) {
+            // Call refresh endpoint (your backend should handle this)
+            const response = await instance.post("/api/auth/refresh-token");
+
+            // Update stored tokens
+            if (response.data.success) {
+              authData.tokens = response.data.data.tokens;
+              await authStore.saveAuthData(authData);
+
+              // Retry original request
+              return instance(originalRequest);
+            }
           }
         } catch (refreshError) {
-          // Logout user if refresh fails
-          await AsyncStorage.multiRemove([
-            "@auth_token",
-            "@refresh_token",
-            "@user",
-          ]);
-          // Navigate to login screen (will be handled by navigation context)
+          // Refresh failed, logout user
+          await authStore.clearAuthData();
+          // You might want to trigger a logout event here
         }
       }
 
@@ -81,44 +72,14 @@ const httpClient = (baseURL = API_CONFIG.baseURL, options = {}) => {
     }
   );
 
-  // Wrapper methods with error handling
-  const get = (url, params = {}, headers = {}) => {
-    return instance.get(url, { params, headers });
-  };
-
-  const post = (url, data = {}, headers = {}) => {
-    return instance.post(url, data, { headers });
-  };
-
-  const put = (url, data = {}, headers = {}) => {
-    return instance.put(url, data, { headers });
-  };
-
-  const patch = (url, data = {}, headers = {}) => {
-    return instance.patch(url, data, { headers });
-  };
-
-  const del = (url, params = {}, headers = {}) => {
-    return instance.delete(url, { params, headers });
-  };
-
-  const request = (config) => {
-    return instance.request(config);
-  };
-
   return {
-    instance,
-    get,
-    post,
-    put,
-    patch,
-    delete: del,
-    request,
+    get: (url, config) => instance.get(url, config),
+    post: (url, data, config) => instance.post(url, data, config),
+    put: (url, data, config) => instance.put(url, data, config),
+    patch: (url, data, config) => instance.patch(url, data, config),
+    delete: (url, config) => instance.delete(url, config),
+    request: (config) => instance.request(config),
   };
 };
 
-// Export a singleton instance with default config
-const defaultClient = httpClient();
-
-export default defaultClient;
-export { httpClient };
+export default httpClient;

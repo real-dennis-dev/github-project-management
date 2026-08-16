@@ -1,31 +1,25 @@
+// navigation/AuthNavigator.jsx
 import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useTheme } from "../context/ThemeContext";
+import { createStackNavigator } from "@react-navigation/stack";
+import {
+  LoginScreen,
+  RegisterScreen,
+  ForgotPasswordScreen,
+  ResetPasswordScreen,
+  SessionsScreen,
+} from "../screens/auth";
 
-// Import auth screens
-import LoginScreen from "../screens/auth/LoginScreen";
-import RegisterScreen from "../screens/auth/RegisterScreen";
-import ForgotPasswordScreen from "../screens/auth/ForgotPasswordScreen";
-import ResetPasswordScreen from "../screens/auth/ResetPasswordScreen";
+const Stack = createStackNavigator();
 
-const Stack = createNativeStackNavigator();
-
-/**
- * Auth Navigator
- * @returns {React.ReactElement}
- */
 const AuthNavigator = () => {
-  const { theme } = useTheme();
-
   return (
     <Stack.Navigator
       screenOptions={{
+        headerShown: true,
         headerStyle: {
-          backgroundColor: theme.colors.surface,
+          backgroundColor: "#ffffff",
         },
-        headerTintColor: theme.colors.text,
-        headerShadowVisible: false,
-        headerBackTitleVisible: false,
+        headerTintColor: "#0a0a0a",
         headerTitleStyle: {
           fontWeight: "600",
         },
@@ -39,17 +33,22 @@ const AuthNavigator = () => {
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
-        options={{ title: "Create Account" }}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="ForgotPassword"
         component={ForgotPasswordScreen}
-        options={{ title: "Forgot Password" }}
+        options={{ title: "Reset Password" }}
       />
       <Stack.Screen
         name="ResetPassword"
         component={ResetPasswordScreen}
-        options={{ title: "Reset Password" }}
+        options={{ title: "Set New Password" }}
+      />
+      <Stack.Screen
+        name="Sessions"
+        component={SessionsScreen}
+        options={{ title: "Active Sessions" }}
       />
     </Stack.Navigator>
   );

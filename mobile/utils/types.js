@@ -6,16 +6,80 @@
 
 /**
  * @typedef {Object} User
- * @property {string} id - User ID
+ * @property {string} id - UUID
  * @property {string} email - User email
  * @property {string} firstName - First name
  * @property {string} lastName - Last name
- * @property {string} avatar - Avatar URL
- * @property {string} role - User role
+ * @property {string} role - 'user' | 'admin' | 'project_manager'
+ * @property {string} avatar
+ * @property {string} provider - 'email' | 'google' | 'github'
+ * @property {boolean} emailVerified
+ * @property {string} createdAt - ISO date string
  * @property {string} createdAt - Creation date
  * @property {string} updatedAt - Last update date
  */
+/**
+ * @typedef {Object} Tokens
+ * @property {string} accessToken
+ * @property {string} refreshToken
+ */
 
+/**
+ * @typedef {Object} AuthData
+ * @property {User} user
+ * @property {Tokens} tokens
+ * @property {string} sessionId
+ */
+
+/**
+ * @typedef {Object} LoginCredentials
+ * @property {string} email
+ * @property {string} password
+ * @property {boolean} rememberMe
+ */
+
+/**
+ * @typedef {Object} RegisterData
+ * @property {string} email
+ * @property {string} password
+ * @property {string} confirmPassword
+ * @property {string} fullName
+ * @property {string} username
+ */
+
+/**
+ * @typedef {Object} ChangePasswordData
+ * @property {string} currentPassword
+ * @property {string} newPassword
+ * @property {string} confirmPassword
+ */
+
+/**
+ * @typedef {Object} ResetPasswordData
+ * @property {string} token
+ * @property {string} newPassword
+ * @property {string} confirmPassword
+ */
+
+/**
+ * @typedef {Object} OAuthData
+ * @property {string} provider - 'google' | 'github'
+ * @property {string} code
+ * @property {string} redirectUri
+ */
+
+// Export type definitions for JSDoc
+export const Types = {
+  User: {},
+  Session: {},
+  Tokens: {},
+  AuthData: {},
+  LoginCredentials: {},
+  RegisterData: {},
+  ChangePasswordData: {},
+  ResetPasswordData: {},
+  OAuthData: {},
+};
 /**
  * @typedef {Object} Project
  * @property {string} id - Project ID

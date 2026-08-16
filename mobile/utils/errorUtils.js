@@ -208,6 +208,23 @@ const errorUtils = {
       status: error?.response?.status || null,
     };
   },
+  /**
+   * Check if error is authentication related
+   * @param {Error} error - Axios error object
+   * @returns {boolean}
+   */
+  isAuthError: (error) => {
+    return error.response?.status === 401 || error.response?.status === 403;
+  },
+
+  /**
+   * Check if error is network related
+   * @param {Error} error - Axios error object
+   * @returns {boolean}
+   */
+  isNetworkError: (error) => {
+    return !error.response && error.request;
+  },
 
   /**
    * Create error boundary handler
