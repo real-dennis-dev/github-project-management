@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import expenseService from "./ExpenseService";
+import expenseService from "../services/ExpenseService";
 import {
   DEFAULT_PAGINATION,
   DEFAULT_FILTERS,

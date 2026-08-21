@@ -1,6 +1,6 @@
 // src/components/expense/ExpenseService.js
 
-import axiosInstance from "../../utils/axiosInstance";
+import axiosInstance from "./axiosInstance";
 
 const API_BASE = "/api";
 

@@ -1,0 +1,127 @@
+/* src/components/project-management/Project.module.css */
+
+/* Container */
+.project-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Cards */
+.project-card {
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 0.75rem;
+  background: var(--color-neutral-100);
+  overflow: hidden;
+}
+
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark mode card */
+.dark .project-card {
+  background: var(--color-neutral-900);
+  border-color: var(--color-neutral-800);
+}
+
+.dark .project-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* Board columns */
+.board-column {
+  min-height: 400px;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  background: var(--color-neutral-50);
+}
+
+.dark .board-column {
+  background: var(--color-neutral-800);
+}
+
+/* Board card */
+.board-card {
+  background: var(--color-neutral-100);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  cursor: grab;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-neutral-200);
+}
+
+.board-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dark .board-card {
+  background: var(--color-neutral-900);
+  border-color: var(--color-neutral-700);
+}
+
+.board-card:active {
+  cursor: grabbing;
+}
+
+/* Status colors */
+.status-planning {
+  border-left: 4px solid var(--color-neutral-400);
+}
+.status-in_progress {
+  border-left: 4px solid var(--color-info);
+}
+.status-paused {
+  border-left: 4px solid var(--color-warning);
+}
+.status-completed {
+  border-left: 4px solid var(--color-success);
+}
+.status-archived {
+  border-left: 4px solid var(--color-neutral-500);
+}
+
+/* Priority colors */
+.priority-low {
+  border-left: 4px solid var(--color-success);
+}
+.priority-medium {
+  border-left: 4px solid var(--color-warning);
+}
+.priority-high {
+  border-left: 4px solid var(--color-error);
+}
+.priority-critical {
+  border-left: 4px solid var(--color-error);
+}
+
+/* Tech stack tags */
+.tech-tag {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-neutral-200);
+  color: var(--color-neutral-700);
+}
+
+.dark .tech-tag {
+  background: var(--color-neutral-800);
+  color: var(--color-neutral-300);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .project-container {
+    padding: 1rem;
+  }
+
+  .board-column {
+    min-height: 200px;
+  }
+}

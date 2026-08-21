@@ -1,54 +1,139 @@
-import { Outlet, Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+// src/components/DashboardLayout.jsx
 
-export default function DashboardLayout() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+import React from "react";
+import { Outlet, NavLink, useLocation } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHome,
+  faProjectDiagram,
+  faCode,
+  faBook,
+  faClipboardList,
+  faChartLine,
+  faCog,
+  faUsers,
+  faWallet,
+  faBug,
+  faRocket,
+  faChevronLeft,
+  faChevronRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { FaGithub } from "react-icons/fa";
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
-  const handleLogout = async () => {
-    await logout();
-    navigate("/");
+const DashboardLayout = () => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
+  const location = useLocation();
+
+  const sidebarLinks = [
+    { to: "/dashboard", label: "Dashboard", icon: faHome },
+    { to: "/projects", label: "Projects", icon: faProjectDiagram },
+    { to: "/github", label: "GitHub", icon: FaGithub },
+    { to: "/journal", label: "Journal", icon: faBook },
+    { to: "/expenses", label: "Expenses", icon: faWallet },
+    { to: "/tech-debt", label: "Tech Debt", icon: faBug },
+    { to: "/releases", label: "Releases", icon: faRocket },
+  ];
+
+  const bottomLinks = [
+    { to: "/team", label: "Team", icon: faUsers },
+    { to: "/settings", label: "Settings", icon: faCog },
+  ];
+
+  const isActive = (path) => {
+    return (
+      location.pathname === path || location.pathname.startsWith(path + "/")
+    );
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
-        <div className="p-6 text-xl font-bold text-indigo-700">YourApp</div>
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+      <Navbar />
 
-        <nav className="flex-1 px-4 space-y-1">
-          <Link
-            to="/dashboard"
-            className="block px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 font-medium"
-          >
-            Overview
-          </Link>
-          {/* Add more links later */}
-        </nav>
+      <div className="flex pt-16">
+        {/* Sidebar */}
+        <aside
+          className={`fixed left-0 top-16 bottom-0 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 transition-all duration-300 z-30 ${
+            isSidebarCollapsed ? "w-16" : "w-64"
+          } overflow-y-auto`}
+        >
+          <div className="flex flex-col h-full">
+            {/* Toggle Button */}
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className="absolute -right-3 top-4 w-6 h-6 bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-full flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors shadow-sm"
+            >
+              <FontAwesomeIcon
+                icon={isSidebarCollapsed ? faChevronRight : faChevronLeft}
+                className="w-3 h-3 text-neutral-500"
+              />
+            </button>
 
-        <div className="p-4 border-t border-slate-200">
-          <div className="text-sm text-slate-600 mb-2 truncate">
-            {user?.email || user?.name || "User"}
+            {/* Main Navigation */}
+            <nav className="flex-1 py-4 px-2 space-y-1">
+              {sidebarLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive: active }) =>
+                    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
+                        : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    } ${isSidebarCollapsed ? "justify-center" : ""}`
+                  }
+                  title={isSidebarCollapsed ? link.label : ""}
+                >
+                  <FontAwesomeIcon
+                    icon={link.icon}
+                    className="w-5 h-5 flex-shrink-0"
+                  />
+                  {!isSidebarCollapsed && <span>{link.label}</span>}
+                </NavLink>
+              ))}
+            </nav>
+
+            {/* Bottom Navigation */}
+            <div className="py-4 px-2 border-t border-neutral-200 dark:border-neutral-800 space-y-1">
+              {bottomLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive: active }) =>
+                    `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      active
+                        ? "bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400"
+                        : "text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    } ${isSidebarCollapsed ? "justify-center" : ""}`
+                  }
+                  title={isSidebarCollapsed ? link.label : ""}
+                >
+                  <FontAwesomeIcon
+                    icon={link.icon}
+                    className="w-5 h-5 flex-shrink-0"
+                  />
+                  {!isSidebarCollapsed && <span>{link.label}</span>}
+                </NavLink>
+              ))}
+            </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg"
-          >
-            Log out
-          </button>
-        </div>
-      </aside>
+        </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        <header className="bg-white border-b border-slate-200 px-8 py-4">
-          <h1 className="text-xl font-semibold text-slate-800">Dashboard</h1>
-        </header>
-
-        <div className="p-8">
-          <Outlet />
-        </div>
-      </main>
+        {/* Main Content */}
+        <main
+          className={`flex-1 transition-all duration-300 ${
+            isSidebarCollapsed ? "ml-16" : "ml-64"
+          }`}
+        >
+          <div className="min-h-[calc(100vh-8rem)] p-4 sm:p-6">
+            <Outlet />
+          </div>
+          <Footer />
+        </main>
+      </div>
     </div>
   );
-}
+};
+
+export default DashboardLayout;

@@ -11,15 +11,17 @@ export { Badge } from "./Badge";
 export { Alert } from "./Alert";
 export { Toast } from "./Toast";
 export { Modal } from "./Modal";
-
+export { default as Select } from "./Select";
 export { Breadcrumb } from "./Breadcrumb";
 export { Dropdown } from "./Dropdown";
 export { DropdownItem } from "./DropdownItem";
 export { Pagination } from "./Pagination";
 export { Table } from "./Table";
-
+export { default as Card } from "./Card";
 export { SearchBar } from "./SearchBar";
-
+// src/components/common/index.js
+export { default as Tabs } from "./Tabs";
+export { default as Tab } from "./Tab";
 export { LoadingSpinner } from "./LoadingSpinner";
 export { SkeletonLoader } from "./SkeletonLoader";
 export { ProgressBar } from "./ProgressBar";

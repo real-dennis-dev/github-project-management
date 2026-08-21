@@ -1,0 +1,101 @@
+/* src/components/tech-debt/TechDebt.module.css */
+
+/* Additional tech-debt-specific styles */
+.tech-debt-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.tech-debt-card {
+  transition: all 0.2s ease;
+}
+
+.tech-debt-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Priority badges */
+.priority-critical {
+  background-color: #dc262620;
+  color: #dc2626;
+}
+
+.priority-high {
+  background-color: #ea580c20;
+  color: #ea580c;
+}
+
+.priority-medium {
+  background-color: #f59e0b20;
+  color: #f59e0b;
+}
+
+.priority-low {
+  background-color: #10b98120;
+  color: #10b981;
+}
+
+/* Status badges */
+.status-identified {
+  background-color: #6b728020;
+  color: #6b7280;
+}
+
+.status-planned {
+  background-color: #3b82f620;
+  color: #3b82f6;
+}
+
+.status-in_progress {
+  background-color: #f59e0b20;
+  color: #f59e0b;
+}
+
+.status-resolved {
+  background-color: #10b98120;
+  color: #10b981;
+}
+
+.status-ignored {
+  background-color: #6b728020;
+  color: #6b7280;
+}
+
+/* Score circle animation */
+.score-circle {
+  transition: all 0.5s ease;
+}
+
+.score-circle-animate {
+  animation: scorePulse 2s ease-in-out infinite;
+}
+
+@keyframes scorePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Dark mode overrides */
+.dark .tech-debt-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .tech-debt-container {
+    padding: 1rem;
+  }
+
+  .tech-debt-table-mobile {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

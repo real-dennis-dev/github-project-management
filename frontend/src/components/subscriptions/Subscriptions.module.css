@@ -1,0 +1,102 @@
+/* src/components/subscriptions/Subscriptions.module.css */
+
+/* Additional subscriptions-specific styles */
+.subscriptions-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.subscriptions-card {
+  transition: all 0.2s ease;
+}
+
+.subscriptions-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Status indicator dots */
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-dot.planned {
+  background-color: var(--color-info);
+}
+.status-dot.in_progress {
+  background-color: var(--color-warning);
+}
+.status-dot.testing {
+  background-color: var(--color-secondary-400);
+}
+.status-dot.released {
+  background-color: var(--color-success);
+}
+.status-dot.cancelled {
+  background-color: var(--color-error);
+}
+.status-dot.not_started {
+  background-color: var(--color-neutral-400);
+}
+.status-dot.completed {
+  background-color: var(--color-success);
+}
+.status-dot.delayed {
+  background-color: var(--color-error);
+}
+
+/* Version badge */
+.version-badge {
+  font-family: "Courier New", monospace;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  background: var(--color-primary-50);
+  color: var(--color-primary-600);
+  font-size: 0.875rem;
+}
+
+.dark .version-badge {
+  background: var(--color-primary-900/30);
+  color: var(--color-primary-400);
+}
+
+/* Progress bar container */
+.progress-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-container .progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode overrides */
+.dark .subscriptions-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .subscriptions-container {
+    padding: 1rem;
+  }
+
+  .subscriptions-table-mobile {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
