@@ -1,4 +1,5 @@
 // ThemeToggle.jsx
+import React from "react";
 export const ThemeToggle = ({ className = "", size = "md" }) => {
   const [isDark, setIsDark] = React.useState(() => {
     if (typeof window !== "undefined") {

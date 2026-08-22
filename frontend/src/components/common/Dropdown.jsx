@@ -1,4 +1,5 @@
-// Dropdown.jsx
+import React from "react";
+
 export const Dropdown = ({
   trigger,
   children,
@@ -14,8 +15,12 @@ export const Dropdown = ({
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const alignClasses = {
@@ -25,13 +30,15 @@ export const Dropdown = ({
 
   return (
     <div className={`relative inline-block ${className}`} ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+      <div onClick={() => setIsOpen((prev) => !prev)}>{trigger}</div>
+
       {isOpen && (
         <div
           className={`
-          absolute z-50 mt-2 min-w-[200px] rounded-lg border border-neutral-300 bg-neutral-100 py-1 shadow-lg
-          ${alignClasses[align]}
-        `}
+            absolute z-50 mt-2 min-w-[200px] rounded-lg
+            border border-neutral-300 bg-neutral-100 py-1 shadow-lg
+            ${alignClasses[align]}
+          `}
         >
           {children}
         </div>

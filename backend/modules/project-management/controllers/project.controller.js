@@ -1,10 +1,9 @@
 const { ProjectService } = require("../services/project.service");
 const ResponseUtils = require("../../../common/utils/response.utils");
-const { Logger } = require("../../../common/config/logger");
+const logger = require("../../../common/config/logger");
 
 const projectService = new ProjectService();
 const response = ResponseUtils;
-const logger = Logger;
 
 class ProjectController {
   /**
@@ -42,7 +41,12 @@ class ProjectController {
         }
       );
     } catch (error) {
+      console.error("ERROR IN getAllProjects:");
+      console.error(error);
+      console.error("MESSAGE:", error.message);
+      console.error("STACK:", error.stack);
       logger.error("Error in getAllProjects:", error);
+
       next(error);
     }
   }

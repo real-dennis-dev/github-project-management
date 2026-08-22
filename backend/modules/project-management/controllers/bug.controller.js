@@ -1,10 +1,9 @@
 const BugService = require("../services/bug.service");
 const ResponseUtils = require("../../../common/utils/response.utils");
-const { Logger } = require("../../../common/config/logger");
+const logger = require("../../../common/config/logger");
 
 const bugService = new BugService();
 const response = ResponseUtils;
-const logger = Logger;
 
 class BugController {
   // controller methods here

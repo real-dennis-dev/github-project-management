@@ -41,9 +41,9 @@ const App = () => {
   }
 
   return (
-    <Routes>
-      <div className="flex flex-col min-h-screen">
-        <div className="flex-grow">
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-grow">
+        <Routes>
           {/* Public Routes */}
           <Route
             path="/"
@@ -67,7 +67,6 @@ const App = () => {
             }
           >
             <Route index element={<DashboardHome />} />
-            {/* Additional dashboard routes can be added here */}
           </Route>
 
           {/* Protected Module Routes */}
@@ -205,10 +204,10 @@ const App = () => {
 
           {/* 404 - Not Found */}
           <Route path="*" element={<NotFound />} />
-        </div>
-        <Footer />
+        </Routes>
       </div>
-    </Routes>
+      <Footer />
+    </div>
   );
 };
 

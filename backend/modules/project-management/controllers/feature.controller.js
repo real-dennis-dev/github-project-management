@@ -1,10 +1,9 @@
 const { FeatureService } = require("../services/feature.service");
 const ResponseUtils = require("../../../common/utils/response.utils");
-const Logger = require("../../../common/config/logger");
+const logger = require("../../../common/config/logger");
 
 const featureService = new FeatureService();
 const response = ResponseUtils;
-const logger = Logger;
 
 class FeatureController {
   /**

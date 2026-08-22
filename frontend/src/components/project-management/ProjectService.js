@@ -2,8 +2,6 @@
 
 import axiosInstance from "../../services/axiosInstance";
 
-const API_BASE = "/api";
-
 /**
  * Project Management Service - Handles all project-related API calls
  */
@@ -25,7 +23,7 @@ class ProjectService {
    * @returns {Promise} Projects list response
    */
   async getProjects(params = {}) {
-    const response = await axiosInstance.get(`${API_BASE}/projects`, {
+    const response = await axiosInstance.get(`/projects`, {
       params,
     });
     return response.data;
@@ -37,9 +35,7 @@ class ProjectService {
    * @returns {Promise} Project response
    */
   async getProjectById(projectId) {
-    const response = await axiosInstance.get(
-      `${API_BASE}/projects/${projectId}`
-    );
+    const response = await axiosInstance.get(`/projects/${projectId}`);
     return response.data;
   }
 
@@ -58,10 +54,7 @@ class ProjectService {
    * @returns {Promise} Created project response
    */
   async createProject(projectData) {
-    const response = await axiosInstance.post(
-      `${API_BASE}/projects`,
-      projectData
-    );
+    const response = await axiosInstance.post(`/projects`, projectData);
     return response.data;
   }
 
@@ -73,7 +66,7 @@ class ProjectService {
    */
   async updateProject(projectId, projectData) {
     const response = await axiosInstance.put(
-      `${API_BASE}/projects/${projectId}`,
+      `/projects/${projectId}`,
       projectData
     );
     return response.data;
@@ -85,9 +78,7 @@ class ProjectService {
    * @returns {Promise} Delete response
    */
   async deleteProject(projectId) {
-    const response = await axiosInstance.delete(
-      `${API_BASE}/projects/${projectId}`
-    );
+    const response = await axiosInstance.delete(`/projects/${projectId}`);
     return response.data;
   }
 
@@ -106,7 +97,7 @@ class ProjectService {
    */
   async getFeatures(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${API_BASE}/projects/${projectId}/features`,
+      `/projects/${projectId}/features`,
       { params }
     );
     return response.data;
@@ -118,9 +109,7 @@ class ProjectService {
    * @returns {Promise} Feature response
    */
   async getFeatureById(featureId) {
-    const response = await axiosInstance.get(
-      `${API_BASE}/features/${featureId}`
-    );
+    const response = await axiosInstance.get(`/features/${featureId}`);
     return response.data;
   }
 
@@ -137,7 +126,7 @@ class ProjectService {
    */
   async createFeature(projectId, featureData) {
     const response = await axiosInstance.post(
-      `${API_BASE}/projects/${projectId}/features`,
+      `/projects/${projectId}/features`,
       featureData
     );
     return response.data;
@@ -151,7 +140,7 @@ class ProjectService {
    */
   async updateFeature(featureId, featureData) {
     const response = await axiosInstance.put(
-      `${API_BASE}/features/${featureId}`,
+      `/features/${featureId}`,
       featureData
     );
     return response.data;
@@ -163,9 +152,7 @@ class ProjectService {
    * @returns {Promise} Delete response
    */
   async deleteFeature(featureId) {
-    const response = await axiosInstance.delete(
-      `${API_BASE}/features/${featureId}`
-    );
+    const response = await axiosInstance.delete(`/features/${featureId}`);
     return response.data;
   }
 
@@ -177,7 +164,7 @@ class ProjectService {
    */
   async reorderFeatures(projectId, featureOrders) {
     const response = await axiosInstance.post(
-      `${API_BASE}/projects/${projectId}/features/reorder`,
+      `/projects/${projectId}/features/reorder`,
       { features: featureOrders }
     );
     return response.data;
@@ -193,9 +180,7 @@ class ProjectService {
    * @returns {Promise} Subtasks list response
    */
   async getSubtasks(featureId) {
-    const response = await axiosInstance.get(
-      `${API_BASE}/features/${featureId}/subtasks`
-    );
+    const response = await axiosInstance.get(`/features/${featureId}/subtasks`);
     return response.data;
   }
 
@@ -209,7 +194,7 @@ class ProjectService {
    */
   async createSubtask(featureId, subtaskData) {
     const response = await axiosInstance.post(
-      `${API_BASE}/features/${featureId}/subtasks`,
+      `/features/${featureId}/subtasks`,
       subtaskData
     );
     return response.data;
@@ -223,7 +208,7 @@ class ProjectService {
    */
   async updateSubtask(subtaskId, subtaskData) {
     const response = await axiosInstance.put(
-      `${API_BASE}/subtasks/${subtaskId}`,
+      `/subtasks/${subtaskId}`,
       subtaskData
     );
     return response.data;
@@ -235,9 +220,7 @@ class ProjectService {
    * @returns {Promise} Delete response
    */
   async deleteSubtask(subtaskId) {
-    const response = await axiosInstance.delete(
-      `${API_BASE}/subtasks/${subtaskId}`
-    );
+    const response = await axiosInstance.delete(`/subtasks/${subtaskId}`);
     return response.data;
   }
 
@@ -249,7 +232,7 @@ class ProjectService {
    */
   async reorderSubtasks(featureId, subtaskOrders) {
     const response = await axiosInstance.post(
-      `${API_BASE}/features/${featureId}/subtasks/reorder`,
+      `/features/${featureId}/subtasks/reorder`,
       { subtasks: subtaskOrders }
     );
     return response.data;
@@ -269,10 +252,9 @@ class ProjectService {
    * @returns {Promise} Bugs list response
    */
   async getBugs(projectId, params = {}) {
-    const response = await axiosInstance.get(
-      `${API_BASE}/projects/${projectId}/bugs`,
-      { params }
-    );
+    const response = await axiosInstance.get(`/projects/${projectId}/bugs`, {
+      params,
+    });
     return response.data;
   }
 
@@ -282,7 +264,7 @@ class ProjectService {
    * @returns {Promise} Bug response
    */
   async getBugById(bugId) {
-    const response = await axiosInstance.get(`${API_BASE}/bugs/${bugId}`);
+    const response = await axiosInstance.get(`/bugs/${bugId}`);
     return response.data;
   }
 
@@ -301,7 +283,7 @@ class ProjectService {
    */
   async createBug(projectId, bugData) {
     const response = await axiosInstance.post(
-      `${API_BASE}/projects/${projectId}/bugs`,
+      `/projects/${projectId}/bugs`,
       bugData
     );
     return response.data;
@@ -314,10 +296,7 @@ class ProjectService {
    * @returns {Promise} Updated bug response
    */
   async updateBug(bugId, bugData) {
-    const response = await axiosInstance.put(
-      `${API_BASE}/bugs/${bugId}`,
-      bugData
-    );
+    const response = await axiosInstance.put(`/bugs/${bugId}`, bugData);
     return response.data;
   }
 
@@ -327,7 +306,7 @@ class ProjectService {
    * @returns {Promise} Delete response
    */
   async deleteBug(bugId) {
-    const response = await axiosInstance.delete(`${API_BASE}/bugs/${bugId}`);
+    const response = await axiosInstance.delete(`/bugs/${bugId}`);
     return response.data;
   }
 
@@ -342,7 +321,7 @@ class ProjectService {
    */
   async getProjectStatistics(projectId) {
     const response = await axiosInstance.get(
-      `${API_BASE}/projects/${projectId}/statistics`
+      `/projects/${projectId}/statistics`
     );
     return response.data;
   }
@@ -354,7 +333,7 @@ class ProjectService {
    */
   async getProjectDashboard(projectId) {
     const response = await axiosInstance.get(
-      `${API_BASE}/projects/${projectId}/dashboard`
+      `/projects/${projectId}/dashboard`
     );
     return response.data;
   }

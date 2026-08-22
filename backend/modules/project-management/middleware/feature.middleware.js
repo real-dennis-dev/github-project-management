@@ -1,10 +1,9 @@
 const { supabase } = require("../../../common/config/supabase");
 const ResponseUtils = require("../../../common/utils/response.utils");
 const { ValidationUtils } = require("../../../common/utils/validation.utils");
-const { Logger } = require("../../../common/config/logger");
+const logger = require("../../../common/config/logger");
 
 const response = ResponseUtils;
-const logger = Logger;
 
 class FeatureMiddleware {
   // methods here

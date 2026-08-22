@@ -15,6 +15,7 @@ import {
   Alert,
   IconWrapper,
 } from "../common";
+
 import useExpenses from "./useExpenses";
 import {
   CATEGORIES,
@@ -23,7 +24,16 @@ import {
   getCategoryIcon,
   getCategoryColor,
 } from "./ExpenseConstants";
-
+import {
+  Plus,
+  Download,
+  Trash2,
+  Edit,
+  Search,
+  Settings,
+  User,
+  ChevronDown,
+} from "lucide-react";
 const ExpenseList = () => {
   const {
     expenses,
@@ -217,7 +227,7 @@ const ExpenseList = () => {
           <Dropdown
             trigger={
               <Button variant="outline" size="sm">
-                <IconWrapper icon="📥" size="sm" />
+                <IconWrapper icon={ChevronDown} size="sm" />
                 Export
               </Button>
             }
@@ -231,7 +241,7 @@ const ExpenseList = () => {
             </DropdownItem>
           </Dropdown>
           <Button variant="primary" onClick={navigateToNew}>
-            <IconWrapper icon="➕" size="sm" />
+            <IconWrapper icon={Plus} size="sm" />
             Add Expense
           </Button>
         </div>
@@ -367,7 +377,7 @@ const ExpenseList = () => {
           description="Start tracking your project expenses by adding your first expense."
           action={
             <Button variant="primary" onClick={navigateToNew}>
-              <IconWrapper icon="➕" size="sm" />
+              <IconWrapper icon={Plus} size="sm" />
               Add Expense
             </Button>
           }

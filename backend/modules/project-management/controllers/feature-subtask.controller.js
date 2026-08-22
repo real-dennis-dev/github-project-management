@@ -2,11 +2,10 @@ const {
   FeatureSubtaskService,
 } = require("../services/feature-subtask.service");
 const ResponseUtils = require("../../../common/utils/response.utils");
-const { Logger } = require("../../../common/config/logger");
+const logger = require("../../../common/config/logger");
 
 const subtaskService = new FeatureSubtaskService();
 const response = ResponseUtils;
-const logger = Logger;
 
 class FeatureSubtaskController {
   // controller methods here
