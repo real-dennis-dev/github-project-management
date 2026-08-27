@@ -81,4 +81,7 @@ class StringUtils {
   }
 }
 
-module.exports = new StringUtils();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

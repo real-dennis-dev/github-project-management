@@ -72,3 +72,7 @@ class LoggingMiddleware {
 }
 
 module.exports = new LoggingMiddleware();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

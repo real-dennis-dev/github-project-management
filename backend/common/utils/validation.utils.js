@@ -97,4 +97,7 @@ class ValidationUtils {
   }
 }
 
-module.exports = new ValidationUtils();
+const validationUtils = new ValidationUtils();
+
+module.exports = validationUtils;
+module.exports.ValidationUtils = validationUtils;

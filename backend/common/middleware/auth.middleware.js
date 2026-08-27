@@ -479,3 +479,7 @@ class AuthMiddleware {
 }
 
 module.exports = new AuthMiddleware();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

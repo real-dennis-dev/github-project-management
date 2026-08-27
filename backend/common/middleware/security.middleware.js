@@ -118,3 +118,7 @@ class SecurityMiddleware {
 }
 
 module.exports = new SecurityMiddleware();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

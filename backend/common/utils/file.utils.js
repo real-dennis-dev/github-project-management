@@ -124,3 +124,7 @@ class FileUtils {
 }
 
 module.exports = new FileUtils();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

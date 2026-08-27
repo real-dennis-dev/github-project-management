@@ -86,3 +86,7 @@ class ResponseUtils {
 }
 
 module.exports = new ResponseUtils();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

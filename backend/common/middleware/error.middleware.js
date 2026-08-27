@@ -67,3 +67,7 @@ class ErrorMiddleware {
 }
 
 module.exports = new ErrorMiddleware();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;

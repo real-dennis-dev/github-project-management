@@ -68,11 +68,9 @@ class ExportUtils {
         doc.moveDown();
 
         // Add date
-        doc
-          .fontSize(10)
-          .text(`Generated: ${new Date().toLocaleString()}`, {
-            align: "right",
-          });
+        doc.fontSize(10).text(`Generated: ${new Date().toLocaleString()}`, {
+          align: "right",
+        });
         doc.moveDown();
 
         // Add data as table
@@ -141,3 +139,7 @@ class ExportUtils {
 }
 
 module.exports = new ExportUtils();
+const stringUtils = new StringUtils();
+
+module.exports = stringUtils;
+module.exports.stringUtils = stringUtils;
