@@ -338,4 +338,7 @@ Period Ends: ${
   }
 }
 
-module.exports = new SubscriptionUtils();
+const subscriptionUtils = new SubscriptionUtils();
+
+module.exports = subscriptionUtils;
+module.exports.subscriptionUtils = subscriptionUtils;

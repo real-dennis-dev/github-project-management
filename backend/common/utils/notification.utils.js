@@ -113,9 +113,7 @@ class NotificationUtils {
   }
 }
 
-module.exports = new NotificationUtils();
+const notificationUtils = new NotificationUtils();
 
-const stringUtils = new StringUtils();
-
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = notificationUtils;
+module.exports.notificationUtils = notificationUtils;

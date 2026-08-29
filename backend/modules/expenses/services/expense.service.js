@@ -577,4 +577,7 @@ class ExpenseService {
   }
 }
 
-module.exports = new ExpenseService();
+const expenseService = new ExpenseService();
+
+module.exports = expenseService;
+module.exports.expenseService = expenseService;

@@ -215,4 +215,8 @@ class SubscriptionNotificationService {
   }
 }
 
-module.exports = new SubscriptionNotificationService();
+const subscriptionNotificationService = new SubscriptionNotificationService();
+
+module.exports = subscriptionNotificationService;
+module.exports.subscriptionNotificationService =
+  subscriptionNotificationService;

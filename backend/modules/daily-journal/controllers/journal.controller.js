@@ -373,4 +373,7 @@ class JournalController {
   }
 }
 
-module.exports = new JournalController();
+const journalController = new JournalController();
+
+module.exports = journalController;
+module.exports.journalController = journalController;

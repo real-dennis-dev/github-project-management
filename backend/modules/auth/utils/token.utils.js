@@ -243,4 +243,7 @@ class TokenUtils {
   }
 }
 
-module.exports = new TokenUtils();
+const tokenUtils = new TokenUtils();
+
+module.exports = tokenUtils;
+module.exports.tokenUtils = tokenUtils;

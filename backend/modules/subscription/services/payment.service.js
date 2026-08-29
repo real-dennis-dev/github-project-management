@@ -364,4 +364,7 @@ class PaymentService {
   }
 }
 
-module.exports = new PaymentService();
+const paymentService = new PaymentService();
+
+module.exports = paymentService;
+module.exports.paymentService = paymentService;

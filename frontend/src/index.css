@@ -9,7 +9,7 @@
      Primary - Burnt Orange
   ============================================ */
 
-  --color-primary-400: #fb923c; /* orange-400 */
+  --color-primary-400: #f97316; /* warm orange */
   --color-primary-500: #ea580c; /* burnt orange */
   --color-primary-600: #c2410c; /* deep burnt orange */
 
@@ -17,33 +17,33 @@
      Secondary - Copper / Dark Orange
   ============================================ */
 
-  --color-secondary-400: #f97316;
+  --color-secondary-400: #ea580c;
   --color-secondary-500: #c2410c;
   --color-secondary-600: #9a3412;
 
   /* ============================================
-     Accent - Warm Cream
+     Accent - Muted Amber / Copper Highlights
   ============================================ */
 
-  --color-accent-100: #ffedd5;
-  --color-accent-200: #fed7aa;
-  --color-accent-400: #fb923c;
+  --color-accent-100: #7c2d12;
+  --color-accent-200: #9a3412;
+  --color-accent-400: #ea580c;
 
   /* ============================================
-     Neutral - White / Black Range
+     Neutral - Dark Charcoal to Silver Range
   ============================================ */
 
-  --color-neutral-50: #fafafa;
-  --color-neutral-100: #ffffff;
-  --color-neutral-200: #f5f5f5;
-  --color-neutral-300: #e5e5e5;
-  --color-neutral-400: #a3a3a3;
-  --color-neutral-500: #737373;
-  --color-neutral-600: #525252;
-  --color-neutral-700: #404040;
-  --color-neutral-800: #262626;
-  --color-neutral-900: #171717;
-  --color-neutral-950: #0a0a0a;
+  --color-neutral-50:  #090a0f; /* ultra dark obsidian base */
+  --color-neutral-100: #0f1117; /* dark surface background */
+  --color-neutral-200: #1a1d24; /* dark container surface */
+  --color-neutral-300: #2a2e39; /* subtle borders / dark cards */
+  --color-neutral-400: #4b5262; /* muted dark grey elements */
+  --color-neutral-500: #717d96; /* mid-tone slate grey */
+  --color-neutral-600: #94a3b8; /* muted silver text */
+  --color-neutral-700: #cbd5e1; /* bright silver text */
+  --color-neutral-800: #e2e8f0; /* light metallic silver */
+  --color-neutral-900: #f1f5f9; /* pure silver white */
+  --color-neutral-950: #ffffff; /* pure white text highlight */
 
   /* ============================================
      Semantic Colors
@@ -58,8 +58,8 @@
      Brand Colors
   ============================================ */
 
-  --color-brand-black: #0a0a0a;
-  --color-brand-white: #ffffff;
+  --color-brand-black: #0f1117;
+  --color-brand-white: #e2e8f0;
   --color-brand-orange: #ea580c;
   --color-brand-orange-dark: #9a3412;
 
@@ -94,7 +94,6 @@
   --font-weight-medium: 500;
   --font-weight-bold: 700;
 }
-
 /* ============================================
    Responsive CSS Variables
 ============================================ */

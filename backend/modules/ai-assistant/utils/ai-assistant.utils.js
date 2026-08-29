@@ -741,4 +741,7 @@ class AIUtils {
   }
 }
 
-module.exports = new AIUtils();
+const aIUtils = new AIUtils();
+
+module.exports = aIUtils;
+module.exports.aIUtils = aIUtils;

@@ -726,4 +726,8 @@ class ProgressService {
     }
   }
 }
-module.exports = { ProgressService };
+
+const progressService = new ProgressService();
+
+module.exports = progressService;
+module.exports.progressService = progressService;

@@ -471,4 +471,7 @@ class RiskService {
   }
 }
 
-module.exports = new RiskService();
+const riskService = new RiskService();
+
+module.exports = riskService;
+module.exports.riskService = riskService;

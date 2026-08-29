@@ -86,8 +86,7 @@ class DataMiddleware {
   }
 }
 
-module.exports = new DataMiddleware();
-const stringUtils = new StringUtils();
+const dataMiddleware = new DataMiddleware();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = dataMiddleware;
+module.exports.dataMiddleware = dataMiddleware;

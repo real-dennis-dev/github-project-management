@@ -240,4 +240,7 @@ class DocumentationUtils {
   }
 }
 
-module.exports = DocumentationUtils;
+const documentationUtils = new DocumentationUtils();
+
+module.exports = documentationUtils;
+module.exports.documentationUtils = documentationUtils;

@@ -397,4 +397,7 @@ class AuthUtils {
   }
 }
 
-module.exports = new AuthUtils();
+const authUtils = new AuthUtils();
+
+module.exports = authUtils;
+module.exports.authUtils = authUtils;

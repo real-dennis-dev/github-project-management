@@ -1,503 +1,370 @@
-// src/components/expense/useExpenses.js
-
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import expenseService from "../services/ExpenseService";
+// src/hooks/useExpenses.js
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useExpenseStore } from "../store/expenseStore";
+import expenseService from "../services/expenseService";
 import {
-  DEFAULT_PAGINATION,
-  DEFAULT_FILTERS,
-} from "../components/expense/ExpenseConstants";
+  createExpenseSchema,
+  updateExpenseSchema,
+  expenseFiltersSchema,
+  validateForm,
+} from "../utils/expenseValidation";
 
-/**
- * Custom hook for expense management
- */
 export const useExpenses = () => {
-  const { projectId } = useParams();
-  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const store = useExpenseStore();
 
-  // State
-  const [expenses, setExpenses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [pagination, setPagination] = useState(DEFAULT_PAGINATION);
-  const [filters, setFilters] = useState(DEFAULT_FILTERS);
-  const [sortBy, setSortBy] = useState("expense_date");
-  const [sortOrder, setSortOrder] = useState("DESC");
-  const [statistics, setStatistics] = useState(null);
-  const [summary, setSummary] = useState(null);
-  const [categoryData, setCategoryData] = useState([]);
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [totalExpenses, setTotalExpenses] = useState(null);
+  // Query Keys
+  const EXPENSE_KEYS = {
+    all: ["expenses"],
+    list: (projectId, params) => ["expenses", "list", projectId, params],
+    detail: (id) => ["expenses", "detail", id],
+    summary: (projectId, params) => ["expenses", "summary", projectId, params],
+    categories: (projectId, params) => [
+      "expenses",
+      "categories",
+      projectId,
+      params,
+    ],
+    monthly: (projectId, params) => ["expenses", "monthly", projectId, params],
+    statistics: (projectId) => ["expenses", "statistics", projectId],
+    total: (projectId, params) => ["expenses", "total", projectId, params],
+  };
 
-  /**
-   * Fetch expenses with current filters and pagination
-   */
-  const fetchExpenses = useCallback(async () => {
-    if (!projectId) return;
+  // ============ Queries ============
 
-    setLoading(true);
-    setError(null);
-
-    try {
-      const params = {
-        ...filters,
-        page: pagination.page,
-        limit: pagination.limit,
-        sortBy,
-        sortOrder,
-      };
-
-      // Remove empty filters
-      Object.keys(params).forEach((key) => {
-        if (
-          params[key] === "" ||
-          params[key] === null ||
-          params[key] === undefined
-        ) {
-          delete params[key];
-        }
-      });
-
-      const response = await expenseService.getExpenses(projectId, params);
-
-      if (response.success) {
-        setExpenses(response.data || []);
-        if (response.meta) {
-          setPagination((prev) => ({
-            ...prev,
-            ...response.meta.pagination,
-          }));
-          if (response.meta.statistics) {
-            setStatistics(response.meta.statistics);
+  // Get expenses query
+  const getExpensesQuery = (projectId, params = {}) => {
+    const validatedParams = expenseFiltersSchema.cast(params);
+    return useQuery({
+      queryKey: EXPENSE_KEYS.list(projectId, validatedParams),
+      queryFn: () => expenseService.getExpenses(projectId, validatedParams),
+      enabled: !!projectId,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setExpenses(response.data, response.meta);
+          if (response.meta?.statistics) {
+            store.setStatistics(response.meta.statistics);
           }
         }
-      } else {
-        throw new Error(response.message || "Failed to fetch expenses");
-      }
-    } catch (err) {
-      setError(err.message || "An error occurred while fetching expenses");
-      setExpenses([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [
-    projectId,
-    filters,
-    pagination.page,
-    pagination.limit,
-    sortBy,
-    sortOrder,
-  ]);
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch expenses");
+      },
+    });
+  };
 
-  /**
-   * Fetch expense summary
-   */
-  const fetchSummary = useCallback(
-    async (year) => {
-      if (!projectId) return;
-
-      try {
-        const response = await expenseService.getExpenseSummary(
-          projectId,
-          year
-        );
+  // Get single expense query
+  const getExpenseQuery = (expenseId) => {
+    return useQuery({
+      queryKey: EXPENSE_KEYS.detail(expenseId),
+      queryFn: () => expenseService.getExpense(expenseId),
+      enabled: !!expenseId,
+      onSuccess: (response) => {
         if (response.success) {
-          setSummary(response.data);
+          store.setCurrentExpense(response.data);
         }
-      } catch (err) {
-        console.error("Failed to fetch summary:", err);
-      }
-    },
-    [projectId]
-  );
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch expense");
+      },
+    });
+  };
 
-  /**
-   * Fetch category breakdown
-   */
-  const fetchCategoryData = useCallback(
-    async (fromDate, toDate) => {
-      if (!projectId) return;
-
-      try {
-        const params = {};
-        if (fromDate) params.fromDate = fromDate;
-        if (toDate) params.toDate = toDate;
-
-        const response = await expenseService.getExpensesByCategory(
-          projectId,
-          params
-        );
+  // Get summary query
+  const getSummaryQuery = (projectId, params = {}) => {
+    return useQuery({
+      queryKey: EXPENSE_KEYS.summary(projectId, params),
+      queryFn: () => expenseService.getSummary(projectId, params),
+      enabled: !!projectId,
+      onSuccess: (response) => {
         if (response.success) {
-          setCategoryData(response.data || []);
+          store.setSummary(response.data);
         }
-      } catch (err) {
-        console.error("Failed to fetch category data:", err);
-      }
-    },
-    [projectId]
-  );
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch summary");
+      },
+    });
+  };
 
-  /**
-   * Fetch monthly expenses
-   */
-  const fetchMonthlyData = useCallback(
-    async (year) => {
-      if (!projectId) return;
-
-      try {
-        const response = await expenseService.getMonthlyExpenses(
-          projectId,
-          year
-        );
+  // Get categories query
+  const getCategoriesQuery = (projectId, params = {}) => {
+    return useQuery({
+      queryKey: EXPENSE_KEYS.categories(projectId, params),
+      queryFn: () => expenseService.getCategories(projectId, params),
+      enabled: !!projectId,
+      onSuccess: (response) => {
         if (response.success) {
-          setMonthlyData(response.data || []);
+          store.setCategories(response.data);
         }
-      } catch (err) {
-        console.error("Failed to fetch monthly data:", err);
-      }
-    },
-    [projectId]
-  );
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch categories");
+      },
+    });
+  };
 
-  /**
-   * Fetch total expenses
-   */
-  const fetchTotalExpenses = useCallback(
-    async (fromDate, toDate) => {
-      if (!projectId) return;
-
-      try {
-        const params = {};
-        if (fromDate) params.fromDate = fromDate;
-        if (toDate) params.toDate = toDate;
-
-        const response = await expenseService.getTotalExpenses(
-          projectId,
-          params
-        );
+  // Get monthly query
+  const getMonthlyQuery = (projectId, params = {}) => {
+    return useQuery({
+      queryKey: EXPENSE_KEYS.monthly(projectId, params),
+      queryFn: () => expenseService.getMonthly(projectId, params),
+      enabled: !!projectId,
+      onSuccess: (response) => {
         if (response.success) {
-          setTotalExpenses(response.data);
+          store.setMonthlyData(response.data);
         }
-      } catch (err) {
-        console.error("Failed to fetch total expenses:", err);
-      }
-    },
-    [projectId]
-  );
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch monthly data");
+      },
+    });
+  };
 
-  /**
-   * Create a new expense
-   */
-  const createExpense = useCallback(
-    async (expenseData) => {
-      if (!projectId) {
-        throw new Error("Project ID is required");
-      }
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await expenseService.createExpense(
-          projectId,
-          expenseData
-        );
-
+  // Get statistics query
+  const getStatisticsQuery = (projectId) => {
+    return useQuery({
+      queryKey: EXPENSE_KEYS.statistics(projectId),
+      queryFn: () => expenseService.getStatistics(projectId),
+      enabled: !!projectId,
+      onSuccess: (response) => {
         if (response.success) {
-          await fetchExpenses();
-          return response.data;
-        } else {
-          throw new Error(response.message || "Failed to create expense");
+          store.setStatistics(response.data);
         }
-      } catch (err) {
-        setError(err.message || "An error occurred while creating the expense");
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [projectId, fetchExpenses]
-  );
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch statistics");
+      },
+    });
+  };
 
-  /**
-   * Update an expense
-   */
-  const updateExpense = useCallback(
-    async (expenseId, expenseData) => {
-      setLoading(true);
-      setError(null);
+  // Get total query
+  const getTotalQuery = (projectId, params = {}) => {
+    return useQuery({
+      queryKey: EXPENSE_KEYS.total(projectId, params),
+      queryFn: () => expenseService.getTotal(projectId, params),
+      enabled: !!projectId,
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch total");
+      },
+    });
+  };
 
-      try {
-        const response = await expenseService.updateExpense(
-          expenseId,
-          expenseData
-        );
+  // ============ Mutations ============
 
-        if (response.success) {
-          await fetchExpenses();
-          return response.data;
-        } else {
-          throw new Error(response.message || "Failed to update expense");
+  // Create expense mutation
+  const createExpenseMutation = useMutation({
+    mutationFn: ({ projectId, data }) => {
+      return validateForm(createExpenseSchema, data).then((validation) => {
+        if (!validation.isValid) {
+          throw new Error(JSON.stringify(validation.errors));
         }
-      } catch (err) {
-        setError(err.message || "An error occurred while updating the expense");
-        throw err;
-      } finally {
-        setLoading(false);
-      }
+        return expenseService.createExpense(projectId, data);
+      });
     },
-    [fetchExpenses]
-  );
-
-  /**
-   * Delete an expense
-   */
-  const deleteExpense = useCallback(
-    async (expenseId) => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await expenseService.deleteExpense(expenseId);
-
-        if (response.success) {
-          await fetchExpenses();
-          return true;
-        } else {
-          throw new Error(response.message || "Failed to delete expense");
-        }
-      } catch (err) {
-        setError(err.message || "An error occurred while deleting the expense");
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [fetchExpenses]
-  );
-
-  /**
-   * Get a single expense by ID
-   */
-  const getExpenseById = useCallback(async (expenseId) => {
-    if (!expenseId) return null;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await expenseService.getExpenseById(expenseId);
-
+    onSuccess: (response) => {
       if (response.success) {
-        return response.data;
-      } else {
-        throw new Error(response.message || "Failed to fetch expense");
+        store.addExpense(response.data);
+        queryClient.invalidateQueries({
+          queryKey: ["expenses"],
+        });
       }
-    } catch (err) {
-      setError(err.message || "An error occurred while fetching the expense");
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /**
-   * Export expenses
-   */
-  const exportExpenses = useCallback(
-    async (format = "json", fromDate, toDate) => {
-      if (!projectId) return;
-
-      setLoading(true);
-      setError(null);
-
+    },
+    onError: (error) => {
+      let message = error.message;
       try {
-        const params = { format };
-        if (fromDate) params.fromDate = fromDate;
-        if (toDate) params.toDate = toDate;
+        const errors = JSON.parse(error.message);
+        message = Object.values(errors).join(", ");
+      } catch {
+        // Use error message as is
+      }
+      store.setError(message || "Failed to create expense");
+    },
+  });
 
-        const response = await expenseService.exportExpenses(projectId, params);
-
-        if (response.success) {
-          return response.data;
-        } else {
-          throw new Error(response.message || "Failed to export expenses");
+  // Update expense mutation
+  const updateExpenseMutation = useMutation({
+    mutationFn: ({ expenseId, data }) => {
+      return validateForm(updateExpenseSchema, data).then((validation) => {
+        if (!validation.isValid) {
+          throw new Error(JSON.stringify(validation.errors));
         }
-      } catch (err) {
-        setError(err.message || "An error occurred while exporting");
-        throw err;
-      } finally {
-        setLoading(false);
+        return expenseService.updateExpense(expenseId, data);
+      });
+    },
+    onSuccess: (response) => {
+      if (response.success) {
+        store.updateExpense(response.data);
+        queryClient.invalidateQueries({
+          queryKey: ["expenses"],
+        });
       }
     },
-    [projectId]
-  );
-
-  /**
-   * Update filters
-   */
-  const updateFilters = useCallback((newFilters) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to first page on filter change
-  }, []);
-
-  /**
-   * Reset all filters
-   */
-  const resetFilters = useCallback(() => {
-    setFilters(DEFAULT_FILTERS);
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  }, []);
-
-  /**
-   * Change page
-   */
-  const changePage = useCallback((page) => {
-    setPagination((prev) => ({ ...prev, page }));
-  }, []);
-
-  /**
-   * Change limit
-   */
-  const changeLimit = useCallback((limit) => {
-    setPagination({ page: 1, limit });
-  }, []);
-
-  /**
-   * Change sort
-   */
-  const changeSort = useCallback((sortBy, sortOrder) => {
-    setSortBy(sortBy);
-    setSortOrder(sortOrder);
-    setPagination((prev) => ({ ...prev, page: 1 }));
-  }, []);
-
-  /**
-   * Navigate to expense detail
-   */
-  const navigateToDetail = useCallback(
-    (expenseId) => {
-      navigate(`/expenses/${expenseId}`);
+    onError: (error) => {
+      let message = error.message;
+      try {
+        const errors = JSON.parse(error.message);
+        message = Object.values(errors).join(", ");
+      } catch {
+        // Use error message as is
+      }
+      store.setError(message || "Failed to update expense");
     },
-    [navigate]
-  );
+  });
 
-  /**
-   * Navigate to expense edit
-   */
-  const navigateToEdit = useCallback(
-    (expenseId) => {
-      navigate(`/expenses/${expenseId}/edit`);
+  // Delete expense mutation
+  const deleteExpenseMutation = useMutation({
+    mutationFn: (expenseId) => {
+      return expenseService.deleteExpense(expenseId);
     },
-    [navigate]
-  );
+    onSuccess: (response) => {
+      if (response.success) {
+        store.removeExpense(response.data?.id);
+        queryClient.invalidateQueries({
+          queryKey: ["expenses"],
+        });
+      }
+    },
+    onError: (error) => {
+      store.setError(error.message || "Failed to delete expense");
+    },
+  });
 
-  /**
-   * Navigate to new expense form
-   */
-  const navigateToNew = useCallback(() => {
-    navigate("/expenses/new");
-  }, [navigate]);
+  // ============ API Methods ============
 
-  /**
-   * Navigate to summary
-   */
-  const navigateToSummary = useCallback(() => {
-    navigate("/expenses/summary");
-  }, [navigate]);
+  const getExpenses = (projectId, params = {}) => {
+    return getExpensesQuery(projectId, params);
+  };
 
-  /**
-   * Navigate to statistics
-   */
-  const navigateToStatistics = useCallback(() => {
-    navigate("/expenses/statistics");
-  }, [navigate]);
+  const getExpense = (expenseId) => {
+    return getExpenseQuery(expenseId);
+  };
 
-  // Memoized computed values
-  const totalAmount = useMemo(() => {
-    return expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-  }, [expenses]);
+  const getSummary = (projectId, params = {}) => {
+    return getSummaryQuery(projectId, params);
+  };
 
-  const averageAmount = useMemo(() => {
-    return expenses.length > 0 ? totalAmount / expenses.length : 0;
-  }, [expenses, totalAmount]);
+  const getCategories = (projectId, params = {}) => {
+    return getCategoriesQuery(projectId, params);
+  };
 
-  const recurringCount = useMemo(() => {
-    return expenses.filter((exp) => exp.recurring).length;
-  }, [expenses]);
+  const getMonthly = (projectId, params = {}) => {
+    return getMonthlyQuery(projectId, params);
+  };
 
-  // Auto-fetch on dependency changes
-  useEffect(() => {
-    fetchExpenses();
-  }, [fetchExpenses]);
+  const getStatistics = (projectId) => {
+    return getStatisticsQuery(projectId);
+  };
 
-  // Load initial data
-  useEffect(() => {
-    if (projectId) {
-      fetchSummary();
-      fetchCategoryData();
-      fetchMonthlyData();
-      fetchTotalExpenses();
+  const getTotal = (projectId, params = {}) => {
+    return getTotalQuery(projectId, params);
+  };
+
+  const createExpense = async (projectId, data) => {
+    store.clearError();
+    store.setLoading(true);
+    try {
+      const result = await createExpenseMutation.mutateAsync({
+        projectId,
+        data,
+      });
+      return result;
+    } finally {
+      store.setLoading(false);
     }
-  }, [projectId]);
+  };
+
+  const updateExpense = async (expenseId, data) => {
+    store.clearError();
+    store.setLoading(true);
+    try {
+      const result = await updateExpenseMutation.mutateAsync({
+        expenseId,
+        data,
+      });
+      return result;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const deleteExpense = async (expenseId) => {
+    store.clearError();
+    store.setLoading(true);
+    try {
+      const result = await deleteExpenseMutation.mutateAsync(expenseId);
+      return result;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const exportExpenses = async (projectId, params = {}) => {
+    store.clearError();
+    store.setLoading(true);
+    try {
+      const result = await expenseService.exportExpenses(projectId, params);
+      return result;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  // ============ Store Actions ============
+
+  const clearError = () => store.clearError();
+  const clearExpenses = () => store.clearExpenses();
+  const reset = () => store.reset();
+  const setFilters = (filters) => store.setFilters(filters);
+  const resetFilters = () => store.resetFilters();
 
   return {
-    // State
-    expenses,
-    loading,
-    error,
-    pagination,
-    filters,
-    sortBy,
-    sortOrder,
-    statistics,
-    summary,
-    categoryData,
-    monthlyData,
-    totalExpenses,
+    // State from store
+    expenses: store.expenses,
+    currentExpense: store.currentExpense,
+    summary: store.summary,
+    categories: store.categories,
+    monthlyData: store.monthlyData,
+    statistics: store.statistics,
+    isLoading: store.isLoading,
+    error: store.error,
+    pagination: store.pagination,
+    filters: store.filters,
 
-    // Computed
-    totalAmount,
-    averageAmount,
-    recurringCount,
-    hasExpenses: expenses.length > 0,
+    // Query loading states
+    isExpensesLoading: getExpensesQuery("", {}).isLoading,
+    isExpenseLoading: getExpenseQuery("").isLoading,
+    isSummaryLoading: getSummaryQuery("").isLoading,
+    isCategoriesLoading: getCategoriesQuery("").isLoading,
+    isMonthlyLoading: getMonthlyQuery("").isLoading,
+    isStatisticsLoading: getStatisticsQuery("").isLoading,
 
-    // Fetch functions
-    fetchExpenses,
-    fetchSummary,
-    fetchCategoryData,
-    fetchMonthlyData,
-    fetchTotalExpenses,
+    // Mutation loading states
+    isCreating: createExpenseMutation.isPending,
+    isUpdating: updateExpenseMutation.isPending,
+    isDeleting: deleteExpenseMutation.isPending,
 
-    // CRUD operations
+    // Query methods
+    getExpenses,
+    getExpense,
+    getSummary,
+    getCategories,
+    getMonthly,
+    getStatistics,
+    getTotal,
+
+    // Mutation methods
     createExpense,
     updateExpense,
     deleteExpense,
-    getExpenseById,
-
-    // Utility functions
     exportExpenses,
 
-    // Filter functions
-    updateFilters,
+    // Store actions
+    clearError,
+    clearExpenses,
+    reset,
+    setFilters,
     resetFilters,
-
-    // Pagination functions
-    changePage,
-    changeLimit,
-
-    // Sort functions
-    changeSort,
-
-    // Navigation functions
-    navigateToDetail,
-    navigateToEdit,
-    navigateToNew,
-    navigateToSummary,
-    navigateToStatistics,
-
-    // Project ID
-    projectId,
   };
 };
 

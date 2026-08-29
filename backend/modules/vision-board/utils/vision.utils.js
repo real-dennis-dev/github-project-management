@@ -542,4 +542,7 @@ Linked Projects: ${goal.project_count || 0}
   }
 }
 
-module.exports = new VisionUtils();
+const visionUtils = new VisionUtils();
+
+module.exports = visionUtils;
+module.exports.visionUtils = visionUtils;

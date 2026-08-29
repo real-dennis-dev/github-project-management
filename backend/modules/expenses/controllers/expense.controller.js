@@ -362,4 +362,7 @@ class ExpenseController {
   }
 }
 
-module.exports = new ExpenseController();
+const expenseController = new ExpenseController();
+
+module.exports = expenseController;
+module.exports.expenseController = expenseController;

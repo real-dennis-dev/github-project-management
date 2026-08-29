@@ -1,63 +1,55 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { Toast } from "../components/common/Toast"; // Adjust relative path if needed
+import { Toast } from "../components/common/Toast";
 
 const ToastContext = createContext(null);
 
 export const ToastProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
 
-  /**
-   * Primary method used by useKnowledgeBase:
-   * showToast("Message string", "error")
-   *
-   * Also accepts an options object for advanced usage:
-   * showToast({ message: "Hello", variant: "success", title: "Success" })
-   */
-  const showToast = useCallback((messageOrOptions, type = "info") => {
-    const id = Date.now() + Math.random().toString(36).substring(2, 9);
+  // Trigger a toast (returns generated ID so you can dismiss manually if needed)
+  const addToast = useCallback((options) => {
+    const id = Date.now() + Math.random();
 
-    let toastOptions = {};
-    if (typeof messageOrOptions === "string") {
-      toastOptions = {
-        message: messageOrOptions,
-        variant: type,
-      };
-    } else if (
-      typeof messageOrOptions === "object" &&
-      messageOrOptions !== null
-    ) {
-      toastOptions = {
-        ...messageOrOptions,
-        variant: messageOrOptions.variant || type,
-      };
-    }
+    // Normalize string input or object options
+    const toastOptions =
+      typeof options === "string" ? { message: options } : options;
 
-    setToasts((prev) => [...prev, { id, ...toastOptions }]);
+    setToasts((prevToasts) => [...prevToasts, { id, ...toastOptions }]);
     return id;
   }, []);
 
   const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    setToasts((prevToasts) => prevToasts.filter((toast) => toast.id !== id));
   }, []);
 
-  return (
-    <ToastContext.Provider value={{ showToast, removeToast }}>
-      {children}
+  // Helper shortcuts for common variants
+  const toast = useCallback(
+    (message, options = {}) => addToast({ message, ...options }),
+    [addToast]
+  );
 
-      {/* Toast Container */}
-      <div className="pointer-events-none fixed inset-0 z-50 flex flex-col gap-2 p-4">
-        {toasts.map((toast) => (
-          <Toast
-            key={toast.id}
-            variant={toast.variant}
-            title={toast.title}
-            duration={toast.duration}
-            position={toast.position || "top-right"}
-            className="pointer-events-auto"
-            onClose={() => removeToast(toast.id)}
-          >
-            {toast.message}
-          </Toast>
+  toast.success = (message, options = {}) =>
+    addToast({ message, variant: "success", ...options });
+  toast.error = (message, options = {}) =>
+    addToast({ message, variant: "error", ...options });
+  toast.info = (message, options = {}) =>
+    addToast({ message, variant: "info", ...options });
+  toast.warning = (message, options = {}) =>
+    addToast({ message, variant: "warning", ...options });
+  toast.primary = (message, options = {}) =>
+    addToast({ message, variant: "primary", ...options });
+
+  return (
+    <ToastContext.Provider value={{ addToast, removeToast, toast }}>
+      {children}
+      {/* Container for rendering active toasts */}
+      <div className="fixed z-50 pointer-events-none inset-0 overflow-hidden flex flex-col items-end p-4 gap-2">
+        {toasts.map(({ id, message, ...props }) => (
+          <div key={id} className="pointer-events-auto">
+            <Toast {...props} onClose={() => removeToast(id)}>
+              {message}
+            </Toast>
+          </div>
         ))}
       </div>
     </ToastContext.Provider>

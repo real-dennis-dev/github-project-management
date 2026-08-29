@@ -253,4 +253,7 @@ class SubscriptionController {
   }
 }
 
-module.exports = new SubscriptionController();
+const subscriptionController = new SubscriptionController();
+
+module.exports = subscriptionController;
+module.exports.subscriptionController = subscriptionController;

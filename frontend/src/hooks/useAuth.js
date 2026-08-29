@@ -1,327 +1,337 @@
-// src/components/auth/useAuth.js
+// src/hooks/useAuth.js
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuthStore } from '../store/authStore';
+import { authService } from '../services/authService';
+import { 
+  loginSchema, 
+  registerSchema, 
+  resetPasswordSchema, 
+  updatePasswordSchema,
+  socialLoginSchema,
+  sessionFilterSchema,
+  extendSessionSchema,
+  validateForm 
+} from '../utils/authValidation';
 
-import { useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth as useAuthContext } from "../context/AuthContext";
-
-/**
- * Custom hook for authentication operations
- * Extends the global AuthContext with additional UI state
- */
 export const useAuth = () => {
-  const navigate = useNavigate();
-  const authContext = useAuthContext();
+  const queryClient = useQueryClient();
+  const store = useAuthStore();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-
-  /**
-   * Handle login with email/password
-   */
-  const login = useCallback(
-    async (credentials) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await authContext.login(credentials);
-        setSuccess(true);
-        navigate("/dashboard");
-        return result;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
+  // Queries
+  const currentUserQuery = useQuery({
+    queryKey: ['auth', 'me'],
+    queryFn: authService.getCurrentUser,
+    enabled: store.isAuthenticated,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false,
+    onSuccess: (data) => {
+      if (data.success && data.data) {
+        store.setUser(data.data.user);
+        store.setSession(data.data.session);
       }
     },
-    [authContext, navigate]
-  );
+    onError: () => {
+      store.clearAuth();
+    },
+  });
 
-  /**
-   * Handle registration
-   */
-  const register = useCallback(
-    async (userData) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await authContext.register(userData);
-        setSuccess(true);
-        navigate("/login", {
-          state: { message: "Registration successful! Please log in." },
+  const sessionsQuery = useQuery({
+    queryKey: ['auth', 'sessions'],
+    queryFn: () => authService.getSessions({ status: 'active' }),
+    enabled: store.isAuthenticated,
+    staleTime: 60 * 1000, // 1 minute
+    onSuccess: (data) => {
+      if (data.success) {
+        store.setSessions(data.data, data.meta);
+      }
+    },
+  });
+
+  const sessionStatsQuery = useQuery({
+    queryKey: ['auth', 'sessions', 'stats'],
+    queryFn: authService.getSessionStats,
+    enabled: store.isAuthenticated,
+    staleTime: 60 * 1000,
+    onSuccess: (data) => {
+      if (data.success) {
+        store.setSessionStats(data.data);
+      }
+    },
+  });
+
+  const validateSessionQuery = useQuery({
+    queryKey: ['auth', 'validate'],
+    queryFn: authService.validateSession,
+    enabled: store.isAuthenticated,
+    staleTime: 30 * 1000, // 30 seconds
+    retry: false,
+    onError: () => {
+      store.clearAuth();
+    },
+  });
+
+  // Mutations
+  const loginMutation = useMutation({
+    mutationFn: authService.login,
+    onSuccess: (data) => {
+      if (data.success && data.data) {
+        store.setUser(data.data.user);
+        store.setSession({ expires_in: data.data.expires_in });
+        queryClient.invalidateQueries(['auth']);
+      }
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Login failed');
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: authService.register,
+    onSuccess: (data) => {
+      if (data.success && data.data) {
+        store.setUser(data.data.user);
+        store.setSession({ expires_in: data.data.expires_in });
+        queryClient.invalidateQueries(['auth']);
+      }
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Registration failed');
+    },
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: (allDevices) => authService.logout(allDevices),
+    onSuccess: () => {
+      store.clearAuth();
+      queryClient.clear();
+      window.dispatchEvent(new Event('auth:logout'));
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Logout failed');
+    },
+  });
+
+  const refreshTokenMutation = useMutation({
+    mutationFn: authService.refreshToken,
+    onSuccess: (data) => {
+      if (data.success && data.data) {
+        store.setSession({ expires_in: data.data.expires_in });
+      }
+    },
+    onError: () => {
+      store.clearAuth();
+    },
+  });
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: authService.resetPassword,
+    onSuccess: () => {
+      store.setError(null);
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Password reset failed');
+    },
+  });
+
+  const updatePasswordMutation = useMutation({
+    mutationFn: authService.updatePassword,
+    onSuccess: (data) => {
+      store.setError(null);
+      return data;
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Password update failed');
+    },
+  });
+
+  const socialLoginMutation = useMutation({
+    mutationFn: authService.socialLogin,
+    onSuccess: (data) => {
+      if (data.success && data.data) {
+        store.setUser(data.data.user);
+        store.setSession({ expires_in: data.data.expires_in });
+        queryClient.invalidateQueries(['auth']);
+      }
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Social login failed');
+    },
+  });
+
+  const revokeSessionMutation = useMutation({
+    mutationFn: authService.revokeSession,
+    onSuccess: (_, sessionId) => {
+      store.removeSession(sessionId);
+      queryClient.invalidateQueries(['auth', 'sessions']);
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Failed to revoke session');
+    },
+  });
+
+  const revokeAllSessionsMutation = useMutation({
+    mutationFn: authService.revokeAllSessions,
+    onSuccess: (data) => {
+      if (data.success && data.data) {
+        const currentSession = store.session;
+        store.setSessions(currentSession ? [currentSession] : [], null);
+        queryClient.invalidateQueries(['auth', 'sessions']);
+        return data;
+      }
+    },
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Failed to revoke sessions');
+    },
+  });
+
+  const extendSessionMutation = useMutation({
+    mutationFn: authService.extendSession,
+    onSuccess: (data, variables) => {
+      if (variables.sessionId) {
+        store.updateSession(variables.sessionId, { 
+          expiresAt: new Date(Date.now() + variables.hours * 3600000).toISOString() 
         });
-        return result;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
       }
+      queryClient.invalidateQueries(['auth', 'sessions']);
+      return data;
     },
-    [authContext, navigate]
-  );
+    onError: (error) => {
+      store.setError(error.response?.data?.error || 'Failed to extend session');
+    },
+  });
 
-  /**
-   * Handle logout
-   */
-  const logout = useCallback(async () => {
-    setLoading(true);
-    try {
-      await authContext.logout();
-      navigate("/login");
-    } catch (err) {
-      console.error("Logout error:", err);
-    } finally {
-      setLoading(false);
+  // Helper functions
+  const login = async (data) => {
+    const validation = await validateForm(loginSchema, data);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
     }
-  }, [authContext, navigate]);
+    return loginMutation.mutateAsync(data);
+  };
 
-  /**
-   * Handle logout from all sessions
-   */
-  const logoutAll = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      await authContext.logoutAll();
-      navigate("/login");
-      return true;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
+  const register = async (data) => {
+    const validation = await validateForm(registerSchema, data);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
     }
-  }, [authContext, navigate]);
+    return registerMutation.mutateAsync(data);
+  };
 
-  /**
-   * Handle logout from specific session
-   */
-  const logoutSession = useCallback(
-    async (sessionId) => {
-      setLoading(true);
-      setError(null);
-      try {
-        await authContext.logoutSession(sessionId);
-        return true;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [authContext]
-  );
+  const logout = (allDevices = false) => {
+    return logoutMutation.mutateAsync(allDevices);
+  };
 
-  /**
-   * Handle forgot password
-   */
-  const forgotPassword = useCallback(
-    async (email) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await authContext.forgotPassword(email);
-        setSuccess(true);
-        return result;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [authContext]
-  );
+  const refreshToken = () => {
+    return refreshTokenMutation.mutateAsync();
+  };
 
-  /**
-   * Handle reset password
-   */
-  const resetPassword = useCallback(
-    async (token, newPassword, confirmPassword) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await authContext.resetPassword(
-          token,
-          newPassword,
-          confirmPassword
-        );
-        setSuccess(true);
-        navigate("/login", {
-          state: { message: "Password reset successful! Please log in." },
-        });
-        return result;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [authContext, navigate]
-  );
-
-  /**
-   * Handle change password (authenticated)
-   */
-  const changePassword = useCallback(
-    async (currentPassword, newPassword, confirmPassword) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await authContext.changePassword(
-          currentPassword,
-          newPassword,
-          confirmPassword
-        );
-        setSuccess(true);
-        return result;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [authContext]
-  );
-
-  /**
-   * Handle verify email
-   */
-  const verifyEmail = useCallback(
-    async (token) => {
-      setLoading(true);
-      setError(null);
-      try {
-        const result = await authContext.verifyEmail(token);
-        setSuccess(true);
-        return result;
-      } catch (err) {
-        setError(err.message);
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [authContext]
-  );
-
-  /**
-   * Handle resend verification
-   */
-  const resendVerification = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await authContext.resendVerification();
-      setSuccess(true);
-      return result;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
+  const resetPassword = async (email) => {
+    const validation = await validateForm(resetPasswordSchema, { email });
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
     }
-  }, [authContext]);
+    return resetPasswordMutation.mutateAsync(email);
+  };
 
-  /**
-   * Initiate OAuth login
-   */
-  const initiateOAuth = useCallback((provider) => {
-    const oauthProvider = OAUTH_PROVIDERS.find((p) => p.id === provider);
-    if (!oauthProvider) {
-      throw new Error(`Provider ${provider} not found`);
+  const updatePassword = async (data) => {
+    const validation = await validateForm(updatePasswordSchema, data);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
     }
+    return updatePasswordMutation.mutateAsync(data);
+  };
 
-    // Build OAuth URL
-    const params = new URLSearchParams({
-      client_id: oauthProvider.clientId,
-      redirect_uri: oauthProvider.redirectUri,
-      response_type: "code",
-      scope: oauthProvider.scope,
-      state: Math.random().toString(36).substring(7),
-    });
+  const socialLogin = async (data) => {
+    const validation = await validateForm(socialLoginSchema, data);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
+    }
+    return socialLoginMutation.mutateAsync(data);
+  };
 
-    window.location.href = `${oauthProvider.authUrl}?${params.toString()}`;
-  }, []);
+  const getSessions = async (params = {}) => {
+    const validation = await validateForm(sessionFilterSchema, params);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
+    }
+    return authService.getSessions(params);
+  };
 
-  /**
-   * Handle OAuth callback
-   */
-  const handleOAuthCallback = useCallback(
-    async (provider, code, redirectUri) => {
-      setLoading(true);
-      setError(null);
-      try {
-        let result;
-        if (provider === "google") {
-          result = await authContext.loginWithGoogle(code, redirectUri);
-        } else if (provider === "github") {
-          result = await authContext.loginWithGithub(code, redirectUri);
-        } else {
-          throw new Error(`Unsupported provider: ${provider}`);
-        }
-        navigate("/dashboard");
-        return result;
-      } catch (err) {
-        setError(err.message);
-        navigate("/login", {
-          state: { error: `${provider} login failed: ${err.message}` },
-        });
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [authContext, navigate]
-  );
+  const revokeSession = (sessionId) => {
+    return revokeSessionMutation.mutateAsync(sessionId);
+  };
 
-  /**
-   * Clear error
-   */
-  const clearError = useCallback(() => {
-    setError(null);
-  }, []);
+  const revokeAllSessions = (excludeCurrent = true) => {
+    return revokeAllSessionsMutation.mutateAsync(excludeCurrent);
+  };
 
-  /**
-   * Clear success
-   */
-  const clearSuccess = useCallback(() => {
-    setSuccess(false);
-  }, []);
+  const extendSession = async (data) => {
+    const validation = await validateForm(extendSessionSchema, data);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
+    }
+    return extendSessionMutation.mutateAsync(data);
+  };
+
+  const refetchUser = () => {
+    return currentUserQuery.refetch();
+  };
+
+  const refetchSessions = () => {
+    return sessionsQuery.refetch();
+  };
+
+  const refetchStats = () => {
+    return sessionStatsQuery.refetch();
+  };
 
   return {
     // State
-    loading,
-    error,
-    success,
-    user: authContext.user,
-    isAuthenticated: authContext.isAuthenticated,
-    sessions: authContext.sessions,
+    user: store.user,
+    session: store.session,
+    isAuthenticated: store.isAuthenticated,
+    isLoading: store.isLoading || currentUserQuery.isLoading,
+    error: store.error,
+    sessions: store.sessions,
+    sessionsMeta: store.sessionsMeta,
+    sessionStats: store.sessionStats,
 
-    // Auth operations
+    // Query states
+    isUserLoading: currentUserQuery.isLoading,
+    isSessionsLoading: sessionsQuery.isLoading,
+    isStatsLoading: sessionStatsQuery.isLoading,
+    isValidateLoading: validateSessionQuery.isLoading,
+
+    // Mutation states
+    isLoggingIn: loginMutation.isPending,
+    isRegistering: registerMutation.isPending,
+    isLoggingOut: logoutMutation.isPending,
+    isRefreshing: refreshTokenMutation.isPending,
+    isResettingPassword: resetPasswordMutation.isPending,
+    isUpdatingPassword: updatePasswordMutation.isPending,
+    isSocialLoggingIn: socialLoginMutation.isPending,
+    isRevokingSession: revokeSessionMutation.isPending,
+    isRevokingAll: revokeAllSessionsMutation.isPending,
+    isExtendingSession: extendSessionMutation.isPending,
+
+    // Methods
     login,
     register,
     logout,
-    logoutAll,
-    logoutSession,
-    forgotPassword,
+    refreshToken,
     resetPassword,
-    changePassword,
-    verifyEmail,
-    resendVerification,
-    initiateOAuth,
-    handleOAuthCallback,
-
-    // Utilities
-    clearError,
-    clearSuccess,
-    refreshSessions: authContext.getSessions,
-    hasPermission: authContext.hasPermission,
+    updatePassword,
+    socialLogin,
+    getSessions,
+    revokeSession,
+    revokeAllSessions,
+    extendSession,
+    refetchUser,
+    refetchSessions,
+    refetchStats,
+    validateSession: validateSessionQuery.refetch,
+    clearError: () => store.setError(null),
+    clearAuth: () => store.clearAuth(),
   };
 };
 

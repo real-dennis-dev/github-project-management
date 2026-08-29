@@ -91,8 +91,7 @@ class DateUtils {
   }
 }
 
-module.exports = new DateUtils();
-const stringUtils = new StringUtils();
+const dateUtils = new DateUtils();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = dateUtils;
+module.exports.dateUtils = dateUtils;

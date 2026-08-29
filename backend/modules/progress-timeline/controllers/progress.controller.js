@@ -262,4 +262,8 @@ class ProgressController {
     }
   }
 }
-module.exports = { ProgressController };
+
+const progressController = new ProgressController();
+
+module.exports = progressController;
+module.exports.progressController = progressController;

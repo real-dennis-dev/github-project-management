@@ -76,8 +76,7 @@ class ValidationMiddleware {
   };
 }
 
-module.exports = new ValidationMiddleware();
-const stringUtils = new StringUtils();
+const validationMiddleware = new ValidationMiddleware();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = validationMiddleware;
+module.exports.validationMiddleware = validationMiddleware;

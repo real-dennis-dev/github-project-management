@@ -411,4 +411,8 @@ class ProgressUtils {
     };
   }
 }
-module.exports = ProgressUtils;
+
+const progressUtils = new ProgressUtils();
+
+module.exports = progressUtils;
+module.exports.progressUtils = progressUtils;

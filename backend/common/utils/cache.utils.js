@@ -124,8 +124,7 @@ class CacheUtils {
   }
 }
 
-module.exports = new CacheUtils();
-const stringUtils = new StringUtils();
+const cacheUtils = new CacheUtils();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = cacheUtils;
+module.exports.cacheUtils = cacheUtils;

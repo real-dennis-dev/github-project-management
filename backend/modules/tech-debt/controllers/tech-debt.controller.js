@@ -373,4 +373,7 @@ class TechDebtController {
   }
 }
 
-module.exports = new TechDebtController();
+const techDebtController = new TechDebtController();
+
+module.exports = techDebtController;
+module.exports.techDebtController = techDebtController;

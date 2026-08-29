@@ -195,4 +195,7 @@ class KnowledgeBaseController {
   }
 }
 
-module.exports = new KnowledgeBaseController();
+const knowledgeBaseController = new KnowledgeBaseController();
+
+module.exports = knowledgeBaseController;
+module.exports.knowledgeBaseController = knowledgeBaseController;

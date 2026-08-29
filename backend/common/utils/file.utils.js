@@ -123,8 +123,7 @@ class FileUtils {
   }
 }
 
-module.exports = new FileUtils();
-const stringUtils = new StringUtils();
+const fileUtils = new FileUtils();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = fileUtils;
+module.exports.fileUtils = fileUtils;

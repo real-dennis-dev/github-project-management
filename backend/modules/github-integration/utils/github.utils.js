@@ -429,4 +429,7 @@ class GitHubUtils {
   }
 }
 
-module.exports = GitHubUtils;
+const gitHubUtils = new GitHubUtils();
+
+module.exports = gitHubUtils;
+module.exports.gitHubUtils = gitHubUtils;

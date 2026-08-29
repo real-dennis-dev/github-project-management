@@ -332,4 +332,7 @@ class SubscriptionMiddleware {
   }
 }
 
-module.exports = new SubscriptionMiddleware();
+const subscriptionMiddleware = new SubscriptionMiddleware();
+
+module.exports = subscriptionMiddleware;
+module.exports.subscriptionMiddleware = subscriptionMiddleware;

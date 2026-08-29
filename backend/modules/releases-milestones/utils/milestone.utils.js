@@ -317,4 +317,7 @@ ${milestone.status === "delayed" ? "⚠️ This milestone is delayed!" : ""}
   }
 }
 
-module.exports = new MilestoneUtils();
+const milestoneUtils = new MilestoneUtils();
+
+module.exports = milestoneUtils;
+module.exports.milestoneUtils = milestoneUtils;

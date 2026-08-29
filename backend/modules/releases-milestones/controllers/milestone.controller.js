@@ -328,4 +328,7 @@ class MilestoneController {
   }
 }
 
-module.exports = new MilestoneController();
+const milestoneController = new MilestoneController();
+
+module.exports = milestoneController;
+module.exports.milestoneController = milestoneController;

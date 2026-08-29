@@ -246,4 +246,7 @@ class DecisionController {
   }
 }
 
-module.exports = new DecisionController();
+const decisionController = new DecisionController();
+
+module.exports = decisionController;
+module.exports.decisionController = decisionController;

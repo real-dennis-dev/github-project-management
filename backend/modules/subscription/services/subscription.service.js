@@ -601,4 +601,7 @@ class SubscriptionService {
   }
 }
 
-module.exports = new SubscriptionService();
+const subscriptionService = new SubscriptionService();
+
+module.exports = subscriptionService;
+module.exports.subscriptionService = subscriptionService;

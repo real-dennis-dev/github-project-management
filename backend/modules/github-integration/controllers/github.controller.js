@@ -585,4 +585,7 @@ class GitHubController {
   }
 }
 
-module.exports = GitHubController;
+const gitHubController = new GitHubController();
+
+module.exports = gitHubController;
+module.exports.gitHubController = gitHubController;

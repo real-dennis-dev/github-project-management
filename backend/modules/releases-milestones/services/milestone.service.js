@@ -478,4 +478,7 @@ class MilestoneService {
   }
 }
 
-module.exports = new MilestoneService();
+const milestoneService = new MilestoneService();
+
+module.exports = milestoneService;
+module.exports.milestoneService = milestoneService;

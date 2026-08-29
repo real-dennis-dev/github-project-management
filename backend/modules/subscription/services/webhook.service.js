@@ -716,4 +716,7 @@ class WebhookService {
   }
 }
 
-module.exports = new WebhookService();
+const webhookService = new WebhookService();
+
+module.exports = webhookService;
+module.exports.webhookService = webhookService;

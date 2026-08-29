@@ -1017,4 +1017,7 @@ class GitHubService {
   }
 }
 
-module.exports = GitHubService;
+const gitHubService = new GitHubService();
+
+module.exports = gitHubService;
+module.exports.gitHubService = gitHubService;

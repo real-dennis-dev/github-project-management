@@ -296,4 +296,7 @@ class JournalMiddleware {
   }
 }
 
-module.exports = new JournalMiddleware();
+const journalMiddleware = new JournalMiddleware();
+
+module.exports = journalMiddleware;
+module.exports.journalMiddleware = journalMiddleware;

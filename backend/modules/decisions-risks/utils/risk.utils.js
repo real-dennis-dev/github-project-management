@@ -284,4 +284,7 @@ Score: ${this.calculateRiskScore(risk)}/100
   }
 }
 
-module.exports = new RiskUtils();
+const riskUtils = new RiskUtils();
+
+module.exports = riskUtils;
+module.exports.riskUtils = riskUtils;

@@ -364,4 +364,7 @@ class ReleaseController {
   }
 }
 
-module.exports = new ReleaseController();
+const releaseController = new ReleaseController();
+
+module.exports = releaseController;
+module.exports.releaseController = releaseController;

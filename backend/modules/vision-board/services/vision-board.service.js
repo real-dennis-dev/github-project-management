@@ -546,4 +546,7 @@ class VisionBoardService {
   }
 }
 
-module.exports = new VisionBoardService();
+const visionBoardService = new VisionBoardService();
+
+module.exports = visionBoardService;
+module.exports.visionBoardService = visionBoardService;

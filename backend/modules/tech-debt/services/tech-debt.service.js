@@ -630,4 +630,7 @@ class TechDebtService {
   }
 }
 
-module.exports = new TechDebtService();
+const techDebtService = new TechDebtService();
+
+module.exports = techDebtService;
+module.exports.techDebtService = techDebtService;

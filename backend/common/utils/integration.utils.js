@@ -131,8 +131,7 @@ class IntegrationUtils {
   }
 }
 
-module.exports = new IntegrationUtils();
-const stringUtils = new StringUtils();
+const integrationUtils = new IntegrationUtils();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = integrationUtils;
+module.exports.integrationUtils = integrationUtils;

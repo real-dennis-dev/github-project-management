@@ -884,4 +884,7 @@ class ReleasesMilestonesMiddleware {
   }
 }
 
-module.exports = new ReleasesMilestonesMiddleware();
+const releasesMilestonesMiddleware = new ReleasesMilestonesMiddleware();
+
+module.exports = releasesMilestonesMiddleware;
+module.exports.releasesMilestonesMiddleware = releasesMilestonesMiddleware;

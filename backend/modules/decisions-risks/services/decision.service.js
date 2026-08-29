@@ -339,4 +339,7 @@ class DecisionService {
   }
 }
 
-module.exports = new DecisionService();
+const decisionService = new DecisionService();
+
+module.exports = decisionService;
+module.exports.decisionService = decisionService;

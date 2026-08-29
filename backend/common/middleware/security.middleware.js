@@ -117,8 +117,7 @@ class SecurityMiddleware {
   }
 }
 
-module.exports = new SecurityMiddleware();
-const stringUtils = new StringUtils();
+const securityMiddleware = new SecurityMiddleware();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = securityMiddleware;
+module.exports.securityMiddleware = securityMiddleware;

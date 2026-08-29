@@ -922,4 +922,7 @@ Include specific metrics and data points to support your analysis.
   }
 }
 
-module.exports = new AIAssistantService();
+const aIAssistantService = new AIAssistantService();
+
+module.exports = aIAssistantService;
+module.exports.aIAssistantService = aIAssistantService;

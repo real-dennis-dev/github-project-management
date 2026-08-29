@@ -138,8 +138,7 @@ class ExportUtils {
   }
 }
 
-module.exports = new ExportUtils();
-const stringUtils = new StringUtils();
+const exportUtils = new ExportUtils();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = exportUtils;
+module.exports.exportUtils = exportUtils;

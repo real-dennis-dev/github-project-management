@@ -173,4 +173,7 @@ class GitHubMiddleware {
   }
 }
 
-module.exports = GitHubMiddleware;
+const gitHubMiddleware = new GitHubMiddleware();
+
+module.exports = gitHubMiddleware;
+module.exports.gitHubMiddleware = gitHubMiddleware;

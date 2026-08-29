@@ -385,4 +385,7 @@ class DecisionsRisksMiddleware {
   }
 }
 
-module.exports = new DecisionsRisksMiddleware();
+const decisionsRisksMiddleware = new DecisionsRisksMiddleware();
+
+module.exports = decisionsRisksMiddleware;
+module.exports.decisionsRisksMiddleware = decisionsRisksMiddleware;

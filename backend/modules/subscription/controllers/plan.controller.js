@@ -183,4 +183,7 @@ class PlanController {
   }
 }
 
-module.exports = new PlanController();
+const planController = new PlanController();
+
+module.exports = planController;
+module.exports.planController = planController;

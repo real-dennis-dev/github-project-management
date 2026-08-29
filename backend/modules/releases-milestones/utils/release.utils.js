@@ -331,4 +331,7 @@ Readiness: ${readiness.percentage}%
   }
 }
 
-module.exports = new ReleaseUtils();
+const releaseUtils = new ReleaseUtils();
+
+module.exports = releaseUtils;
+module.exports.releaseUtils = releaseUtils;

@@ -218,4 +218,7 @@ Date: ${new Date(decision.decision_date).toISOString().split("T")[0]}
   }
 }
 
-module.exports = new DecisionUtils();
+const decisionUtils = new DecisionUtils();
+
+module.exports = decisionUtils;
+module.exports.decisionUtils = decisionUtils;

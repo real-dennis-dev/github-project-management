@@ -457,4 +457,7 @@ class AuthService {
   }
 }
 
-module.exports = new AuthService();
+const authService = new AuthService();
+
+module.exports = authService;
+module.exports.authService = authService;

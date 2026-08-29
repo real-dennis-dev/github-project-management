@@ -581,4 +581,7 @@ class JournalUtils {
   }
 }
 
-module.exports = new JournalUtils();
+const journalUtils = new JournalUtils();
+
+module.exports = journalUtils;
+module.exports.journalUtils = journalUtils;

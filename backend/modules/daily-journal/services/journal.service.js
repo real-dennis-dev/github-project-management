@@ -468,4 +468,7 @@ class JournalService {
   }
 }
 
-module.exports = new JournalService();
+const journalService = new JournalService();
+
+module.exports = journalService;
+module.exports.journalService = journalService;

@@ -223,8 +223,8 @@ class DatabaseUtils {
     );
   }
 }
-module.exports = DatabaseUtils;
-const stringUtils = new StringUtils();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+const databaseUtils = new DatabaseUtils();
+
+module.exports = databaseUtils;
+module.exports.databaseUtils = databaseUtils;

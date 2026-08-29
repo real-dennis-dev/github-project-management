@@ -415,4 +415,7 @@ class VisionBoardController {
   }
 }
 
-module.exports = new VisionBoardController();
+const visionBoardController = new VisionBoardController();
+
+module.exports = visionBoardController;
+module.exports.visionBoardController = visionBoardController;

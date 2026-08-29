@@ -161,4 +161,7 @@ class DocumentationMiddleware {
     next();
   }
 }
-module.exports = new DocumentationMiddleware();
+const documentationMiddleware = new DocumentationMiddleware();
+
+module.exports = documentationMiddleware;
+module.exports.documentationMiddleware = documentationMiddleware;

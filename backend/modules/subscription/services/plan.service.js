@@ -314,4 +314,7 @@ class PlanService {
   }
 }
 
-module.exports = new PlanService();
+const planService = new PlanService();
+
+module.exports = planService;
+module.exports.planService = planService;

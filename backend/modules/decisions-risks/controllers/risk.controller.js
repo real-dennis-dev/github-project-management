@@ -305,4 +305,7 @@ class RiskController {
   }
 }
 
-module.exports = new RiskController();
+const riskController = new RiskController();
+
+module.exports = riskController;
+module.exports.riskController = riskController;

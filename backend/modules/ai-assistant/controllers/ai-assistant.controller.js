@@ -363,4 +363,7 @@ class AIAssistantController {
   }
 }
 
-module.exports = new AIAssistantController();
+const aIAssistantController = new AIAssistantController();
+
+module.exports = aIAssistantController;
+module.exports.aIAssistantController = aIAssistantController;

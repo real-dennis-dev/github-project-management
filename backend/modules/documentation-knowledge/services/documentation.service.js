@@ -299,4 +299,7 @@ class DocumentationService {
   }
 }
 
-module.exports = new DocumentationService();
+const documentationService = new DocumentationService();
+
+module.exports = documentationService;
+module.exports.documentationService = documentationService;

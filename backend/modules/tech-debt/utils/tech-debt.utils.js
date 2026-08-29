@@ -439,4 +439,7 @@ class TechDebtUtils {
   }
 }
 
-module.exports = new TechDebtUtils();
+const techDebtUtils = new TechDebtUtils();
+
+module.exports = techDebtUtils;
+module.exports.techDebtUtils = techDebtUtils;

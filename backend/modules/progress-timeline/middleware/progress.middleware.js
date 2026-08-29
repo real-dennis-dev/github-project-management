@@ -287,4 +287,8 @@ class ProgressMiddleware {
     }
   }
 }
-module.exports = { ProgressMiddleware };
+
+const progressMiddleware = new ProgressMiddleware();
+
+module.exports = progressMiddleware;
+module.exports.progressMiddleware = progressMiddleware;

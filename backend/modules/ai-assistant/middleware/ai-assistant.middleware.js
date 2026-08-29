@@ -292,4 +292,7 @@ class AIAssistantMiddleware {
   }
 }
 
-module.exports = new AIAssistantMiddleware();
+const aIAssistantMiddleware = new AIAssistantMiddleware();
+
+module.exports = aIAssistantMiddleware;
+module.exports.aIAssistantMiddleware = aIAssistantMiddleware;

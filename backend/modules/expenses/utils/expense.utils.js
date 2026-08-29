@@ -414,4 +414,7 @@ class ExpenseUtils {
   }
 }
 
-module.exports = new ExpenseUtils();
+const expenseUtils = new ExpenseUtils();
+
+module.exports = expenseUtils;
+module.exports.expenseUtils = expenseUtils;

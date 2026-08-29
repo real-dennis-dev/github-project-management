@@ -504,4 +504,7 @@ class ReleaseService {
   }
 }
 
-module.exports = new ReleaseService();
+const releaseService = new ReleaseService();
+
+module.exports = releaseService;
+module.exports.releaseService = releaseService;

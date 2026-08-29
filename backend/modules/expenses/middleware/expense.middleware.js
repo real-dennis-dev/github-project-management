@@ -276,4 +276,7 @@ class ExpenseMiddleware {
   }
 }
 
-module.exports = new ExpenseMiddleware();
+const expenseMiddleware = new ExpenseMiddleware();
+
+module.exports = expenseMiddleware;
+module.exports.expenseMiddleware = expenseMiddleware;

@@ -263,4 +263,7 @@ class PaymentUtils {
   }
 }
 
-module.exports = new PaymentUtils();
+const paymentUtils = new PaymentUtils();
+
+module.exports = paymentUtils;
+module.exports.paymentUtils = paymentUtils;

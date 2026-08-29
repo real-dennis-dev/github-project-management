@@ -478,8 +478,7 @@ class AuthMiddleware {
   }
 }
 
-module.exports = new AuthMiddleware();
-const stringUtils = new StringUtils();
+const authMiddleware = new AuthMiddleware();
 
-module.exports = stringUtils;
-module.exports.stringUtils = stringUtils;
+module.exports = authMiddleware;
+module.exports.authMiddleware = authMiddleware;

@@ -1,127 +1,35 @@
-// src/components/github-integration/GitHubRoutes.jsx
+// src/routes/githubRoutes.jsx
+import React, { Suspense } from "react";
+import { Navigate } from "react-router-dom";
+import { ProtectedRoute } from "../components/auth";
+import { LoadingSpinner } from "../components/common";
 
-import React from "react";
-import { Route, Routes, Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-
-// Lazy load components for better performance
-const GitHubDashboard = React.lazy(() =>
-  import("../components/github-integration/GitHubDashboard")
-);
-const RepositoryList = React.lazy(() =>
-  import("../components/github-integration/RepositoryList")
-);
-const RepositoryDetail = React.lazy(() =>
-  import("../components/github-integration/RepositoryDetail")
-);
-const ConnectRepository = React.lazy(() =>
-  import("../components/github-integration/ConnectRepository")
-);
-const RepositoryStats = React.lazy(() =>
-  import("../components/github-integration/RepositoryStats")
-);
-const WebhookSettings = React.lazy(() =>
-  import("../components/github-integration/WebhookSettings")
+// Lazy load components
+const GitHubIntegration = React.lazy(() =>
+  import("../components/github/GitHubIntegration")
 );
 
-/**
- * Protected route wrapper component
- */
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+const LoadingFallback = () => (
+  <div className="flex justify-center items-center min-h-[400px]">
+    <LoadingSpinner size="lg" />
+  </div>
+);
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+const githubRoutes = [
+  {
+    path: "/github/:projectId",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <ProtectedRoute>
+          <GitHubIntegration />
+        </ProtectedRoute>
+      </Suspense>
+    ),
+  },
+  {
+    path: "/github/*",
+    element: <Navigate to="/dashboard" replace />,
+  },
+];
 
-  return children;
-};
-
-/**
- * GitHub Routes Component
- */
-const GitHubRoutes = () => {
-  const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  }
-
-  return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <GitHubDashboard />
-            </React.Suspense>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="repositories"
-        element={
-          <ProtectedRoute>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <RepositoryList />
-            </React.Suspense>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="repositories/connect"
-        element={
-          <ProtectedRoute>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <ConnectRepository />
-            </React.Suspense>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="repositories/:repositoryId"
-        element={
-          <ProtectedRoute>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <RepositoryDetail />
-            </React.Suspense>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="repositories/:repositoryId/stats"
-        element={
-          <ProtectedRoute>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <RepositoryStats />
-            </React.Suspense>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="repositories/:repositoryId/webhook"
-        element={
-          <ProtectedRoute>
-            <React.Suspense fallback={<div>Loading...</div>}>
-              <WebhookSettings />
-            </React.Suspense>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
-  );
-};
-
-export default GitHubRoutes;
+export default githubRoutes;

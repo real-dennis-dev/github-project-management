@@ -245,4 +245,7 @@ class TechDebtMiddleware {
   }
 }
 
-module.exports = new TechDebtMiddleware();
+const techDebtMiddleware = new TechDebtMiddleware();
+
+module.exports = techDebtMiddleware;
+module.exports.techDebtMiddleware = techDebtMiddleware;

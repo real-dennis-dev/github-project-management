@@ -334,4 +334,7 @@ class PlanUtils {
   }
 }
 
-module.exports = new PlanUtils();
+const planUtils = new PlanUtils();
+
+module.exports = planUtils;
+module.exports.planUtils = planUtils;

@@ -442,4 +442,7 @@ class AuthController {
   }
 }
 
-module.exports = new AuthController();
+const authController = new AuthController();
+
+module.exports = authController;
+module.exports.authController = authController;

@@ -259,4 +259,7 @@ class VisionBoardMiddleware {
   }
 }
 
-module.exports = new VisionBoardMiddleware();
+const visionBoardMiddleware = new VisionBoardMiddleware();
+
+module.exports = visionBoardMiddleware;
+module.exports.visionBoardMiddleware = visionBoardMiddleware;

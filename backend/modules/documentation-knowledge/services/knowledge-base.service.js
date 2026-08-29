@@ -325,4 +325,7 @@ class KnowledgeBaseService {
   }
 }
 
-module.exports = new KnowledgeBaseService();
+const knowledgeBaseService = new KnowledgeBaseService();
+
+module.exports = knowledgeBaseService;
+module.exports.knowledgeBaseService = knowledgeBaseService;
