@@ -1,10 +1,7 @@
 // src/routes/aiRoutes.jsx
 import React, { Suspense } from "react";
-import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const AIAssistant = React.lazy(() => import("../components/ai/AIAssistant"));
 const ProjectAnalysis = React.lazy(() =>
   import("../components/ai/ProjectAnalysis")
@@ -26,71 +23,20 @@ const LoadingFallback = () => (
   </div>
 );
 
+const withSuspense = (Component) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Component />
+  </Suspense>
+);
+
 const aiRoutes = [
-  {
-    path: "/ai/assistant/:projectId",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <AIAssistant />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/ai/analysis/:projectId",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ProjectAnalysis />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/ai/report/:projectId",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ReportGenerator />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/ai/actions/:projectId",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <NextActions />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/ai/trends/:projectId",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TrendAnalysis />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/ai/summarize",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TextSummarizer />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/ai/*",
-    element: <Navigate to="/dashboard" replace />,
-  },
+  { path: "ai", element: withSuspense(AIAssistant) },
+  { path: "ai/assistant/:projectId", element: withSuspense(AIAssistant) },
+  { path: "ai/analysis/:projectId", element: withSuspense(ProjectAnalysis) },
+  { path: "ai/report/:projectId", element: withSuspense(ReportGenerator) },
+  { path: "ai/actions/:projectId", element: withSuspense(NextActions) },
+  { path: "ai/trends/:projectId", element: withSuspense(TrendAnalysis) },
+  { path: "ai/summarize", element: withSuspense(TextSummarizer) },
 ];
 
 export default aiRoutes;

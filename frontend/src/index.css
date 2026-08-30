@@ -14,7 +14,7 @@
   --color-primary-600: #c2410c; /* deep burnt orange */
 
   /* ============================================
-     Secondary - Copper / Dark Orange
+     Secondary - Copper / Dark Orangez
   ============================================ */
 
   --color-secondary-400: #ea580c;
@@ -33,7 +33,7 @@
      Neutral - Dark Charcoal to Silver Range
   ============================================ */
 
-  --color-neutral-50:  #090a0f; /* ultra dark obsidian base */
+  --color-neutral-50: #090a0f; /* ultra dark obsidian base */
   --color-neutral-100: #0f1117; /* dark surface background */
   --color-neutral-200: #1a1d24; /* dark container surface */
   --color-neutral-300: #2a2e39; /* subtle borders / dark cards */

@@ -226,5 +226,5 @@ class DatabaseUtils {
 
 const databaseUtils = new DatabaseUtils();
 
-module.exports = databaseUtils;
-module.exports.databaseUtils = databaseUtils;
+module.exports = DatabaseUtils;
+// module.exports.databaseUtils = databaseUtils;

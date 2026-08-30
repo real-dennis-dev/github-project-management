@@ -1,3 +1,4 @@
+const { supabase } = require("../../../common/config/supabase");
 const SessionModel = require("../models/session.model");
 const TokenUtils = require("../utils/token.utils");
 const AuthUtils = require("../utils/auth.utils");

@@ -2,53 +2,42 @@
 import axiosInstance from "./axiosInstance";
 
 class ReleasesService {
-  constructor() {
-    this.basePath = "/api";
-  }
-
   // ============ Release Endpoints ============
 
   async getReleases(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/releases`,
+      `/projects/${projectId}/releases`,
       { params }
     );
     return response.data;
   }
 
   async getRelease(releaseId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/releases/${releaseId}`
-    );
+    const response = await axiosInstance.get(`/releases/${releaseId}`);
     return response.data;
   }
 
   async createRelease(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/releases`,
+      `/projects/${projectId}/releases`,
       data
     );
     return response.data;
   }
 
   async updateRelease(releaseId, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/releases/${releaseId}`,
-      data
-    );
+    const response = await axiosInstance.put(`/releases/${releaseId}`, data);
     return response.data;
   }
 
   async deleteRelease(releaseId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/releases/${releaseId}`
-    );
+    const response = await axiosInstance.delete(`/releases/${releaseId}`);
     return response.data;
   }
 
   async updateReleaseStatus(releaseId, data) {
     const response = await axiosInstance.patch(
-      `${this.basePath}/releases/${releaseId}/status`,
+      `/releases/${releaseId}/status`,
       data
     );
     return response.data;
@@ -56,7 +45,7 @@ class ReleasesService {
 
   async addFeaturesToRelease(releaseId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/releases/${releaseId}/features`,
+      `/releases/${releaseId}/features`,
       data
     );
     return response.data;
@@ -64,28 +53,26 @@ class ReleasesService {
 
   async removeFeatureFromRelease(releaseId, featureId) {
     const response = await axiosInstance.delete(
-      `${this.basePath}/releases/${releaseId}/features/${featureId}`
+      `/releases/${releaseId}/features/${featureId}`
     );
     return response.data;
   }
 
   async getReleaseProgress(releaseId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/releases/${releaseId}/progress`
-    );
+    const response = await axiosInstance.get(`/releases/${releaseId}/progress`);
     return response.data;
   }
 
   async getReleaseChangelog(releaseId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/releases/${releaseId}/changelog`
+      `/releases/${releaseId}/changelog`
     );
     return response.data;
   }
 
   async getReleaseStatistics(projectId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/releases/statistics`
+      `/projects/${projectId}/releases/statistics`
     );
     return response.data;
   }
@@ -94,22 +81,20 @@ class ReleasesService {
 
   async getMilestones(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/milestones`,
+      `/projects/${projectId}/milestones`,
       { params }
     );
     return response.data;
   }
 
   async getMilestone(milestoneId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/milestones/${milestoneId}`
-    );
+    const response = await axiosInstance.get(`/milestones/${milestoneId}`);
     return response.data;
   }
 
   async createMilestone(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/milestones`,
+      `/projects/${projectId}/milestones`,
       data
     );
     return response.data;
@@ -117,22 +102,20 @@ class ReleasesService {
 
   async updateMilestone(milestoneId, data) {
     const response = await axiosInstance.put(
-      `${this.basePath}/milestones/${milestoneId}`,
+      `/milestones/${milestoneId}`,
       data
     );
     return response.data;
   }
 
   async deleteMilestone(milestoneId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/milestones/${milestoneId}`
-    );
+    const response = await axiosInstance.delete(`/milestones/${milestoneId}`);
     return response.data;
   }
 
   async updateMilestoneStatus(milestoneId, data) {
     const response = await axiosInstance.patch(
-      `${this.basePath}/milestones/${milestoneId}/status`,
+      `/milestones/${milestoneId}/status`,
       data
     );
     return response.data;
@@ -140,28 +123,28 @@ class ReleasesService {
 
   async getMilestoneProgress(milestoneId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/milestones/${milestoneId}/progress`
+      `/milestones/${milestoneId}/progress`
     );
     return response.data;
   }
 
   async getOverdueMilestones(projectId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/milestones/overdue`
+      `/projects/${projectId}/milestones/overdue`
     );
     return response.data;
   }
 
   async getMilestoneStatistics(projectId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/milestones/statistics`
+      `/projects/${projectId}/milestones/statistics`
     );
     return response.data;
   }
 
   async bulkUpdateMilestones(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/milestones/bulk-update`,
+      `/projects/${projectId}/milestones/bulk-update`,
       data
     );
     return response.data;

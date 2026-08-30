@@ -1,10 +1,8 @@
 // src/routes/subscriptionRoutes.jsx
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const SubscriptionList = React.lazy(() =>
   import("../components/subscription/SubscriptionList")
 );
@@ -43,14 +41,11 @@ const LoadingFallback = () => (
 );
 
 const subscriptionRoutes = [
-  // Subscription routes
   {
     path: "/subscriptions",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <SubscriptionList />
-        </ProtectedRoute>
+        <SubscriptionList />
       </Suspense>
     ),
   },
@@ -58,9 +53,7 @@ const subscriptionRoutes = [
     path: "/subscriptions/:id",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <SubscriptionDetail />
-        </ProtectedRoute>
+        <SubscriptionDetail />
       </Suspense>
     ),
   },
@@ -68,9 +61,7 @@ const subscriptionRoutes = [
     path: "/subscriptions/new",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <SubscriptionForm />
-        </ProtectedRoute>
+        <SubscriptionForm />
       </Suspense>
     ),
   },
@@ -78,21 +69,15 @@ const subscriptionRoutes = [
     path: "/subscriptions/:id/edit",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <SubscriptionForm />
-        </ProtectedRoute>
+        <SubscriptionForm />
       </Suspense>
     ),
   },
-
-  // Plan routes
   {
     path: "/plans",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <PlanList />
-        </ProtectedRoute>
+        <PlanList />
       </Suspense>
     ),
   },
@@ -100,9 +85,7 @@ const subscriptionRoutes = [
     path: "/plans/new",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <PlanForm />
-        </ProtectedRoute>
+        <PlanForm />
       </Suspense>
     ),
   },
@@ -110,9 +93,7 @@ const subscriptionRoutes = [
     path: "/plans/:id/edit",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <PlanForm />
-        </ProtectedRoute>
+        <PlanForm />
       </Suspense>
     ),
   },
@@ -120,21 +101,15 @@ const subscriptionRoutes = [
     path: "/plans/select",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <PlanSelector />
-        </ProtectedRoute>
+        <PlanSelector />
       </Suspense>
     ),
   },
-
-  // Feature routes
   {
     path: "/features",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <FeatureUsageList />
-        </ProtectedRoute>
+        <FeatureUsageList />
       </Suspense>
     ),
   },
@@ -142,38 +117,26 @@ const subscriptionRoutes = [
     path: "/features/check",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <FeatureAccessCheck />
-        </ProtectedRoute>
+        <FeatureAccessCheck />
       </Suspense>
     ),
   },
-
-  // Stats route
   {
     path: "/subscriptions/stats",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <SubscriptionStats />
-        </ProtectedRoute>
+        <SubscriptionStats />
       </Suspense>
     ),
   },
-
-  // Webhook routes (admin only)
   {
     path: "/webhooks/events",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <WebhookEventsList />
-        </ProtectedRoute>
+        <WebhookEventsList />
       </Suspense>
     ),
   },
-
-  // Fallback routes
   {
     path: "/subscriptions/*",
     element: <Navigate to="/subscriptions" replace />,

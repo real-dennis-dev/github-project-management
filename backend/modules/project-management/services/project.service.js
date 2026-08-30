@@ -4,8 +4,6 @@ const { ValidationUtils } = require("../../../common/utils/validation.utils");
 const { DateUtils } = require("../../../common/utils/date.utils");
 const { projectStatus, projectPriority } = require("../utils/project.utils");
 
-const db = new DatabaseUtils();
-
 class ProjectService {
   /**
    * Gets all projects with filters

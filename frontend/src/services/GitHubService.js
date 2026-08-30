@@ -2,21 +2,17 @@
 import axiosInstance from "./axiosInstance";
 
 class GithubService {
-  constructor() {
-    this.basePath = "/api";
-  }
-
   // Repository endpoints
   async getRepositories(projectId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/repositories`
+      `/projects/${projectId}/repositories`
     );
     return response.data;
   }
 
   async connectRepository(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/repositories`,
+      `/projects/${projectId}/repositories`,
       data
     );
     return response.data;
@@ -24,14 +20,14 @@ class GithubService {
 
   async disconnectRepository(repositoryId) {
     const response = await axiosInstance.delete(
-      `${this.basePath}/repositories/${repositoryId}`
+      `/repositories/${repositoryId}`
     );
     return response.data;
   }
 
   async syncRepository(repositoryId, data = {}) {
     const response = await axiosInstance.post(
-      `${this.basePath}/repositories/${repositoryId}/sync`,
+      `/repositories/${repositoryId}/sync`,
       data
     );
     return response.data;
@@ -40,7 +36,7 @@ class GithubService {
   // Commit endpoints
   async getCommits(repositoryId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/repositories/${repositoryId}/commits`,
+      `/repositories/${repositoryId}/commits`,
       { params }
     );
     return response.data;
@@ -49,7 +45,7 @@ class GithubService {
   // Branch endpoints
   async getBranches(repositoryId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/repositories/${repositoryId}/branches`
+      `/repositories/${repositoryId}/branches`
     );
     return response.data;
   }
@@ -57,7 +53,7 @@ class GithubService {
   // Pull Request endpoints
   async getPullRequests(repositoryId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/repositories/${repositoryId}/pull-requests`,
+      `/repositories/${repositoryId}/pull-requests`,
       { params }
     );
     return response.data;
@@ -66,7 +62,7 @@ class GithubService {
   // Issue endpoints
   async getIssues(repositoryId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/repositories/${repositoryId}/issues`,
+      `/repositories/${repositoryId}/issues`,
       { params }
     );
     return response.data;
@@ -75,7 +71,7 @@ class GithubService {
   // Webhook endpoints
   async setupWebhook(repositoryId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/repositories/${repositoryId}/webhook`,
+      `/repositories/${repositoryId}/webhook`,
       data
     );
     return response.data;
@@ -84,7 +80,7 @@ class GithubService {
   // Statistics endpoints
   async getRepositoryStats(repositoryId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/repositories/${repositoryId}/stats`
+      `/repositories/${repositoryId}/stats`
     );
     return response.data;
   }

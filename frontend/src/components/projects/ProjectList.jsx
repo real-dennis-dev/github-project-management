@@ -22,7 +22,6 @@ const ProjectList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {
-    getProjects,
     deleteProject,
     projects,
     pagination,
@@ -37,10 +36,6 @@ const ProjectList = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-
-  useEffect(() => {
-    getProjects(filters);
-  }, [filters.page, filters.status, filters.priority, filters.search]);
 
   const handlePageChange = (page) => {
     setFilters({ page });
@@ -57,7 +52,6 @@ const ProjectList = () => {
   const handleCreateSuccess = (project) => {
     setShowCreateModal(false);
     toast.success(`Project "${project.name}" created successfully`);
-    getProjects(filters);
   };
 
   const handleDeleteClick = (project) => {
@@ -72,7 +66,6 @@ const ProjectList = () => {
       toast.success(`Project "${selectedProject.name}" deleted successfully`);
       setShowDeleteModal(false);
       setSelectedProject(null);
-      getProjects(filters);
     } catch (error) {
       toast.error(error.message || "Failed to delete project");
     }

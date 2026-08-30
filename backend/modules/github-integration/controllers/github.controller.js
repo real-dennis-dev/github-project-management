@@ -10,9 +10,10 @@ const AuthMiddleware = require("../../../common/middleware/auth.middleware");
  */
 class GitHubController {
   constructor() {
-    this.service = new GitHubService();
+    this.utils = GitHubUtils;
+
+    this.service = GitHubService;
     this.response = ResponseUtils;
-    this.utils = new GitHubUtils({});
   }
 
   /**

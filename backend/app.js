@@ -9,8 +9,6 @@ const swaggerJsdoc = require("swagger-jsdoc");
 dotenv.config();
 
 // Import middleware
-const authMiddleware = require("./common/middleware/auth.middleware");
-const validationMiddleware = require("./common/middleware/validation.middleware");
 const errorMiddleware = require("./common/middleware/error.middleware");
 const loggingMiddleware = require("./common/middleware/logging.middleware");
 const securityMiddleware = require("./common/middleware/security.middleware");
@@ -64,7 +62,7 @@ app.use(loggingMiddleware.logPerformance);
 
 // Security middleware
 app.use(securityMiddleware.sanitizeInput);
-app.use(securityMiddleware.rateLimiter());
+// app.use(securityMiddleware.rateLimiter());
 
 // Data middleware
 app.use(dataMiddleware.filterParser);
@@ -141,7 +139,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // API Routes
 // =======================
 // AI Assistant
-// app.use("/api/ai-assistant", AIAssistantRoutes);
+// app.use("/api/ai", AIAssistantRoutes);
 
 // Authentication
 app.use("/api/auth", authRoutes);
@@ -161,7 +159,7 @@ app.use("/api/bugs", bugRoutes);
 app.use("/api/features", featureRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/releases", releaseMilestoneRoutes);
-app.use("/api/technical-debt", techDebtRoutes);
+app.use("/api/tech-debt", techDebtRoutes);
 app.use("/api/vision-board", visionBoardRoutes);
 
 // =======================

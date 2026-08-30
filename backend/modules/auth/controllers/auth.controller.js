@@ -2,7 +2,7 @@ const AuthService = require("../services/auth.service");
 const AuthMiddleware = require("../../../common/middleware/auth.middleware");
 const ResponseUtils = require("../../../common/utils/response.utils");
 const logger = require("../../../common/config/logger");
-
+const SessionService = require("../services/session.service");
 class AuthController {
   /**
    * Login with email and password
@@ -288,7 +288,31 @@ class AuthController {
       return ResponseUtils.sendError(res, error.message, 401);
     }
   }
+  /**
+   * Get session statistics
+   *
+   * @route GET /api/auth/sessions/stats
+   * @access Private
+   */
+  async getSessionStats(req, res) {
+    try {
+      const stats = await SessionService.getSessionStats();
 
+      return ResponseUtils.sendSuccess(
+        res,
+        stats,
+        "Session statistics retrieved successfully"
+      );
+    } catch (error) {
+      logger.error("Get session stats error:", error);
+
+      return ResponseUtils.sendError(
+        res,
+        "Unable to retrieve session statistics",
+        500
+      );
+    }
+  }
   /**
    * Get current authentication state
    * Used for public pages where authentication is optional
@@ -325,7 +349,7 @@ class AuthController {
    */
   async refreshToken(req, res) {
     try {
-      const refreshToken = req.cookies?.refresh_token || req.body?.refreshToken;
+      const refreshToken = req.cookies?.refresh_token;
 
       if (!refreshToken) {
         return ResponseUtils.sendError(res, "Refresh token required", 400);

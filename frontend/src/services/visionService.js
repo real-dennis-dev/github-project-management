@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 
 class VisionService {
   constructor() {
-    this.basePath = "/api/vision-board";
+    this.basePath = "/vision-board";
   }
 
   // ============ Goal Endpoints ============

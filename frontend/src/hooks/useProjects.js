@@ -1,4 +1,5 @@
 // src/hooks/useProjects.js
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useProjectStore } from "../store/projectStore";
 import projectService from "../services/projectService";
@@ -11,468 +12,603 @@ import {
   validateForm,
 } from "../utils/projectValidation";
 
+const PROJECT_KEYS = {
+  projects: (params) => ["projects", params],
+  project: (id) => ["project", id],
+  features: (projectId, params) => ["features", projectId, params],
+  feature: (id) => ["feature", id],
+  bugs: (projectId, params) => ["bugs", projectId, params],
+  bug: (id) => ["bug", id],
+  subtasks: (featureId, params) => ["subtasks", featureId, params],
+  subtask: (id) => ["subtask", id],
+  stats: (projectId) => ["project-stats", projectId],
+};
+
+const getErrorMessage = (error, fallback) => {
+  let message = error?.message || fallback;
+
+  try {
+    const errors = JSON.parse(message);
+    message = Object.values(errors).join(", ");
+  } catch {
+    // Normal error message
+  }
+
+  return message || fallback;
+};
+
 export const useProjects = () => {
   const queryClient = useQueryClient();
   const store = useProjectStore();
 
-  // Query Keys
-  const PROJECT_KEYS = {
-    projects: (params) => ["projects", params],
-    project: (id) => ["project", id],
-    features: (projectId, params) => ["features", projectId, params],
-    feature: (id) => ["feature", id],
-    bugs: (projectId, params) => ["bugs", projectId, params],
-    bug: (id) => ["bug", id],
-    subtasks: (featureId, params) => ["subtasks", featureId, params],
-    subtask: (id) => ["subtask", id],
-    stats: (projectId) => ["project-stats", projectId],
-  };
+  const {
+    projects,
+    currentProject,
+    features,
+    bugs,
+    subtasks,
+    projectStats,
+    isLoading,
+    error,
+    pagination,
+    filters,
+  } = store;
 
-  // ============ Project Queries ============
+  /*
+   * ============================================================
+   * QUERIES
+   *
+   * IMPORTANT:
+   * All useQuery calls are directly inside useProjects().
+   * NEVER put useQuery inside getProjects(), getProject(), etc.
+   * ============================================================
+   */
 
-  const getProjectsQuery = (params = {}) => {
-    const validatedParams = projectFilterSchema.cast(params);
-    return useQuery({
-      queryKey: PROJECT_KEYS.projects(validatedParams),
-      queryFn: () => projectService.getProjects(validatedParams),
-      onSuccess: (response) => {
-        if (response.success) {
-          store.setProjects(response.data, response.pagination);
-          store.setPagination({
-            page: response.pagination?.page || 1,
-            limit: response.pagination?.limit || 20,
-          });
-        }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch projects");
-      },
-    });
-  };
+  const validatedProjectFilters = projectFilterSchema.cast(filters || {});
 
-  const getProjectQuery = (projectId) => {
-    return useQuery({
-      queryKey: PROJECT_KEYS.project(projectId),
-      queryFn: () => projectService.getProject(projectId),
-      enabled: !!projectId,
-      onSuccess: (response) => {
-        if (response.success) {
-          store.setCurrentProject(response.data);
-        }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch project");
-      },
-    });
-  };
+  const projectsQuery = useQuery({
+    queryKey: PROJECT_KEYS.projects(validatedProjectFilters),
 
-  const getProjectStatsQuery = (projectId) => {
-    return useQuery({
-      queryKey: PROJECT_KEYS.stats(projectId),
-      queryFn: () => projectService.getProjectStats(projectId),
-      enabled: !!projectId,
-      onSuccess: (response) => {
-        if (response.success) {
-          store.setProjectStats(response.data);
-        }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch project stats");
-      },
-    });
-  };
+    queryFn: () => projectService.getProjects(validatedProjectFilters),
 
-  // ============ Feature Queries ============
+    placeholderData: (previousData) => previousData,
+  });
 
-  const getFeaturesQuery = (projectId, params = {}) => {
-    return useQuery({
-      queryKey: PROJECT_KEYS.features(projectId, params),
-      queryFn: () => projectService.getFeatures(projectId, params),
-      enabled: !!projectId,
-      onSuccess: (response) => {
-        if (response.success) {
-          store.setFeatures(response.data);
-        }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch features");
-      },
-    });
-  };
+  const projectId = currentProject?.id || null;
 
-  // ============ Bug Queries ============
+  const projectQuery = useQuery({
+    queryKey: PROJECT_KEYS.project(projectId),
 
-  const getBugsQuery = (projectId, params = {}) => {
-    return useQuery({
-      queryKey: PROJECT_KEYS.bugs(projectId, params),
-      queryFn: () => projectService.getBugs(projectId, params),
-      enabled: !!projectId,
-      onSuccess: (response) => {
-        if (response.success) {
-          store.setBugs(response.data);
-        }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch bugs");
-      },
-    });
-  };
+    queryFn: () => projectService.getProject(projectId),
 
-  // ============ Subtask Queries ============
+    enabled: !!projectId,
+  });
 
-  const getSubtasksQuery = (featureId, params = {}) => {
-    return useQuery({
-      queryKey: PROJECT_KEYS.subtasks(featureId, params),
-      queryFn: () => projectService.getSubtasks(featureId, params),
-      enabled: !!featureId,
-      onSuccess: (response) => {
-        if (response.success) {
-          store.setSubtasks(response.data);
-        }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch subtasks");
-      },
-    });
-  };
+  const projectStatsQuery = useQuery({
+    queryKey: PROJECT_KEYS.stats(projectId),
 
-  // ============ Project Mutations ============
+    queryFn: () => projectService.getProjectStats(projectId),
+
+    enabled: !!projectId,
+  });
+
+  /*
+   * These are disabled by default because we don't know which
+   * project/feature the caller wants until they explicitly ask.
+   */
+  const featuresQuery = useQuery({
+    queryKey: PROJECT_KEYS.features(projectId, {}),
+
+    queryFn: () => projectService.getFeatures(projectId, {}),
+
+    enabled: false,
+  });
+
+  const bugsQuery = useQuery({
+    queryKey: PROJECT_KEYS.bugs(projectId, {}),
+
+    queryFn: () => projectService.getBugs(projectId, {}),
+
+    enabled: false,
+  });
+
+  const subtasksQuery = useQuery({
+    queryKey: PROJECT_KEYS.subtasks(null, {}),
+
+    queryFn: () => projectService.getSubtasks(null, {}),
+
+    enabled: false,
+  });
+
+  /*
+   * Sync query results into Zustand.
+   */
+  useEffect(() => {
+    if (projectsQuery.data?.success) {
+      store.setProjects(projectsQuery.data.data, projectsQuery.data.pagination);
+
+      store.setPagination({
+        page: projectsQuery.data.pagination?.page || 1,
+        limit: projectsQuery.data.pagination?.limit || 20,
+        pages: projectsQuery.data.pagination?.pages || 1,
+        total: projectsQuery.data.pagination?.total || 0,
+      });
+    }
+  }, [projectsQuery.data]);
+
+  useEffect(() => {
+    if (projectsQuery.error) {
+      store.setError(projectsQuery.error.message || "Failed to fetch projects");
+    }
+  }, [projectsQuery.error]);
+
+  useEffect(() => {
+    if (projectQuery.data?.success) {
+      store.setCurrentProject(projectQuery.data.data);
+    }
+  }, [projectQuery.data]);
+
+  useEffect(() => {
+    if (projectQuery.error) {
+      store.setError(projectQuery.error.message || "Failed to fetch project");
+    }
+  }, [projectQuery.error]);
+
+  useEffect(() => {
+    if (projectStatsQuery.data?.success) {
+      store.setProjectStats(projectStatsQuery.data.data);
+    }
+  }, [projectStatsQuery.data]);
+
+  useEffect(() => {
+    if (projectStatsQuery.error) {
+      store.setError(
+        projectStatsQuery.error.message || "Failed to fetch project stats"
+      );
+    }
+  }, [projectStatsQuery.error]);
+
+  /*
+   * ============================================================
+   * MUTATIONS
+   * ============================================================
+   */
 
   const createProjectMutation = useMutation({
-    mutationFn: (data) => {
-      return validateForm(projectSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.createProject(data);
-      });
+    mutationFn: async (data) => {
+      const validation = await validateForm(projectSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.createProject(data);
     },
+
     onSuccess: (response) => {
       if (response.success) {
         store.addProject(response.data);
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+
+        queryClient.invalidateQueries({
+          queryKey: ["projects"],
+        });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to create project");
+      store.setError(getErrorMessage(error, "Failed to create project"));
     },
   });
 
   const updateProjectMutation = useMutation({
-    mutationFn: ({ projectId, data }) => {
-      return validateForm(projectSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.updateProject(projectId, data);
-      });
+    mutationFn: async ({ projectId, data }) => {
+      const validation = await validateForm(projectSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.updateProject(projectId, data);
     },
+
     onSuccess: (response) => {
       if (response.success) {
         store.updateProject(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["projects"],
         });
+
         queryClient.invalidateQueries({
           queryKey: ["project", response.data.id],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to update project");
+      store.setError(getErrorMessage(error, "Failed to update project"));
     },
   });
 
   const deleteProjectMutation = useMutation({
     mutationFn: (projectId) => projectService.deleteProject(projectId),
+
     onSuccess: (response, projectId) => {
       if (response.success) {
         store.removeProject(projectId);
-        queryClient.invalidateQueries({ queryKey: ["projects"] });
+
+        queryClient.invalidateQueries({
+          queryKey: ["projects"],
+        });
       }
     },
+
     onError: (error) => {
       store.setError(error.message || "Failed to delete project");
     },
   });
 
-  // ============ Feature Mutations ============
+  /*
+   * ============================================================
+   * FEATURE MUTATIONS
+   * ============================================================
+   */
 
   const createFeatureMutation = useMutation({
-    mutationFn: ({ projectId, data }) => {
-      return validateForm(featureSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.createFeature(projectId, data);
-      });
+    mutationFn: async ({ projectId, data }) => {
+      const validation = await validateForm(featureSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.createFeature(projectId, data);
     },
+
     onSuccess: (response, variables) => {
       if (response.success) {
         store.addFeature(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["features", variables.projectId],
         });
+
         queryClient.invalidateQueries({
           queryKey: ["project-stats", variables.projectId],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to create feature");
+      store.setError(getErrorMessage(error, "Failed to create feature"));
     },
   });
 
   const updateFeatureMutation = useMutation({
-    mutationFn: ({ featureId, data }) => {
-      return validateForm(featureSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.updateFeature(featureId, data);
-      });
+    mutationFn: async ({ featureId, data }) => {
+      const validation = await validateForm(featureSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.updateFeature(featureId, data);
     },
+
     onSuccess: (response) => {
       if (response.success) {
         store.updateFeature(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["features"],
         });
+
         queryClient.invalidateQueries({
           queryKey: ["feature", response.data.id],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to update feature");
+      store.setError(getErrorMessage(error, "Failed to update feature"));
     },
   });
 
   const deleteFeatureMutation = useMutation({
     mutationFn: (featureId) => projectService.deleteFeature(featureId),
+
     onSuccess: (response, featureId) => {
       if (response.success) {
         store.removeFeature(featureId);
+
         queryClient.invalidateQueries({
           queryKey: ["features"],
         });
       }
     },
+
     onError: (error) => {
       store.setError(error.message || "Failed to delete feature");
     },
   });
 
-  // ============ Bug Mutations ============
+  /*
+   * ============================================================
+   * BUG MUTATIONS
+   * ============================================================
+   */
 
   const createBugMutation = useMutation({
-    mutationFn: ({ projectId, data }) => {
-      return validateForm(bugSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.createBug(projectId, data);
-      });
+    mutationFn: async ({ projectId, data }) => {
+      const validation = await validateForm(bugSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.createBug(projectId, data);
     },
+
     onSuccess: (response, variables) => {
       if (response.success) {
         store.addBug(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["bugs", variables.projectId],
         });
+
         queryClient.invalidateQueries({
           queryKey: ["project-stats", variables.projectId],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to create bug");
+      store.setError(getErrorMessage(error, "Failed to create bug"));
     },
   });
 
   const updateBugMutation = useMutation({
-    mutationFn: ({ bugId, data }) => {
-      return validateForm(bugSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.updateBug(bugId, data);
-      });
+    mutationFn: async ({ bugId, data }) => {
+      const validation = await validateForm(bugSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.updateBug(bugId, data);
     },
+
     onSuccess: (response) => {
       if (response.success) {
         store.updateBug(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["bugs"],
         });
+
         queryClient.invalidateQueries({
           queryKey: ["bug", response.data.id],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to update bug");
+      store.setError(getErrorMessage(error, "Failed to update bug"));
     },
   });
 
   const deleteBugMutation = useMutation({
     mutationFn: (bugId) => projectService.deleteBug(bugId),
+
     onSuccess: (response, bugId) => {
       if (response.success) {
         store.removeBug(bugId);
+
         queryClient.invalidateQueries({
           queryKey: ["bugs"],
         });
       }
     },
+
     onError: (error) => {
       store.setError(error.message || "Failed to delete bug");
     },
   });
 
-  // ============ Subtask Mutations ============
+  /*
+   * ============================================================
+   * SUBTASK MUTATIONS
+   * ============================================================
+   */
 
   const createSubtaskMutation = useMutation({
-    mutationFn: ({ featureId, data }) => {
-      return validateForm(subtaskSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.createSubtask(featureId, data);
-      });
+    mutationFn: async ({ featureId, data }) => {
+      const validation = await validateForm(subtaskSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.createSubtask(featureId, data);
     },
+
     onSuccess: (response, variables) => {
       if (response.success) {
         store.addSubtask(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["subtasks", variables.featureId],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to create subtask");
+      store.setError(getErrorMessage(error, "Failed to create subtask"));
     },
   });
 
   const updateSubtaskMutation = useMutation({
-    mutationFn: ({ subtaskId, data }) => {
-      return validateForm(subtaskSchema, data).then((validation) => {
-        if (!validation.isValid) {
-          throw new Error(JSON.stringify(validation.errors));
-        }
-        return projectService.updateSubtask(subtaskId, data);
-      });
+    mutationFn: async ({ subtaskId, data }) => {
+      const validation = await validateForm(subtaskSchema, data);
+
+      if (!validation.isValid) {
+        throw new Error(JSON.stringify(validation.errors));
+      }
+
+      return projectService.updateSubtask(subtaskId, data);
     },
+
     onSuccess: (response) => {
       if (response.success) {
         store.updateSubtask(response.data);
+
         queryClient.invalidateQueries({
           queryKey: ["subtasks"],
         });
+
         queryClient.invalidateQueries({
           queryKey: ["subtask", response.data.id],
         });
       }
     },
+
     onError: (error) => {
-      let message = error.message;
-      try {
-        const errors = JSON.parse(error.message);
-        message = Object.values(errors).join(", ");
-      } catch {
-        // Use error message as is
-      }
-      store.setError(message || "Failed to update subtask");
+      store.setError(getErrorMessage(error, "Failed to update subtask"));
     },
   });
 
   const deleteSubtaskMutation = useMutation({
     mutationFn: (subtaskId) => projectService.deleteSubtask(subtaskId),
+
     onSuccess: (response, subtaskId) => {
       if (response.success) {
         store.removeSubtask(subtaskId);
+
         queryClient.invalidateQueries({
           queryKey: ["subtasks"],
         });
       }
     },
+
     onError: (error) => {
       store.setError(error.message || "Failed to delete subtask");
     },
   });
 
-  // ============ API Methods ============
+  /*
+   * ============================================================
+   * API METHODS
+   *
+   * These methods DO NOT call React hooks.
+   * ============================================================
+   */
 
-  const getProjects = (params = {}) => {
+  const getProjects = async () => {
     store.clearError();
-    return getProjectsQuery(params);
+
+    const result = await projectsQuery.refetch();
+
+    return result.data;
   };
 
-  const getProject = (projectId) => {
+  const getProject = async (id) => {
     store.clearError();
-    return getProjectQuery(projectId);
+
+    if (!id) return null;
+
+    const result = await queryClient.fetchQuery({
+      queryKey: PROJECT_KEYS.project(id),
+      queryFn: () => projectService.getProject(id),
+    });
+
+    if (result?.success) {
+      store.setCurrentProject(result.data);
+    }
+
+    return result;
   };
 
-  const getProjectStats = (projectId) => {
+  const getProjectStats = async (id) => {
     store.clearError();
-    return getProjectStatsQuery(projectId);
+
+    if (!id) return null;
+
+    const result = await queryClient.fetchQuery({
+      queryKey: PROJECT_KEYS.stats(id),
+      queryFn: () => projectService.getProjectStats(id),
+    });
+
+    if (result?.success) {
+      store.setProjectStats(result.data);
+    }
+
+    return result;
   };
+
+  const getFeatures = async (id, params = {}) => {
+    store.clearError();
+
+    if (!id) return null;
+
+    const result = await queryClient.fetchQuery({
+      queryKey: PROJECT_KEYS.features(id, params),
+      queryFn: () => projectService.getFeatures(id, params),
+    });
+
+    if (result?.success) {
+      store.setFeatures(result.data);
+    }
+
+    return result;
+  };
+
+  const getBugs = async (id, params = {}) => {
+    store.clearError();
+
+    if (!id) return null;
+
+    const result = await queryClient.fetchQuery({
+      queryKey: PROJECT_KEYS.bugs(id, params),
+      queryFn: () => projectService.getBugs(id, params),
+    });
+
+    if (result?.success) {
+      store.setBugs(result.data);
+    }
+
+    return result;
+  };
+
+  const getSubtasks = async (id, params = {}) => {
+    store.clearError();
+
+    if (!id) return null;
+
+    const result = await queryClient.fetchQuery({
+      queryKey: PROJECT_KEYS.subtasks(id, params),
+      queryFn: () => projectService.getSubtasks(id, params),
+    });
+
+    if (result?.success) {
+      store.setSubtasks(result.data);
+    }
+
+    return result;
+  };
+
+  /*
+   * ============================================================
+   * MUTATION API METHODS
+   * ============================================================
+   */
 
   const createProject = async (data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await createProjectMutation.mutateAsync(data);
-      return result;
+      return await createProjectMutation.mutateAsync(data);
     } finally {
       store.setLoading(false);
     }
@@ -481,12 +617,12 @@ export const useProjects = () => {
   const updateProject = async (projectId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await updateProjectMutation.mutateAsync({
+      return await updateProjectMutation.mutateAsync({
         projectId,
         data,
       });
-      return result;
     } finally {
       store.setLoading(false);
     }
@@ -495,28 +631,23 @@ export const useProjects = () => {
   const deleteProject = async (projectId) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await deleteProjectMutation.mutateAsync(projectId);
-      return result;
+      return await deleteProjectMutation.mutateAsync(projectId);
     } finally {
       store.setLoading(false);
     }
   };
 
-  const getFeatures = (projectId, params = {}) => {
-    store.clearError();
-    return getFeaturesQuery(projectId, params);
-  };
-
   const createFeature = async (projectId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await createFeatureMutation.mutateAsync({
+      return await createFeatureMutation.mutateAsync({
         projectId,
         data,
       });
-      return result;
     } finally {
       store.setLoading(false);
     }
@@ -525,12 +656,12 @@ export const useProjects = () => {
   const updateFeature = async (featureId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await updateFeatureMutation.mutateAsync({
+      return await updateFeatureMutation.mutateAsync({
         featureId,
         data,
       });
-      return result;
     } finally {
       store.setLoading(false);
     }
@@ -539,25 +670,23 @@ export const useProjects = () => {
   const deleteFeature = async (featureId) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await deleteFeatureMutation.mutateAsync(featureId);
-      return result;
+      return await deleteFeatureMutation.mutateAsync(featureId);
     } finally {
       store.setLoading(false);
     }
   };
 
-  const getBugs = (projectId, params = {}) => {
-    store.clearError();
-    return getBugsQuery(projectId, params);
-  };
-
   const createBug = async (projectId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await createBugMutation.mutateAsync({ projectId, data });
-      return result;
+      return await createBugMutation.mutateAsync({
+        projectId,
+        data,
+      });
     } finally {
       store.setLoading(false);
     }
@@ -566,9 +695,12 @@ export const useProjects = () => {
   const updateBug = async (bugId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await updateBugMutation.mutateAsync({ bugId, data });
-      return result;
+      return await updateBugMutation.mutateAsync({
+        bugId,
+        data,
+      });
     } finally {
       store.setLoading(false);
     }
@@ -577,28 +709,23 @@ export const useProjects = () => {
   const deleteBug = async (bugId) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await deleteBugMutation.mutateAsync(bugId);
-      return result;
+      return await deleteBugMutation.mutateAsync(bugId);
     } finally {
       store.setLoading(false);
     }
   };
 
-  const getSubtasks = (featureId, params = {}) => {
-    store.clearError();
-    return getSubtasksQuery(featureId, params);
-  };
-
   const createSubtask = async (featureId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await createSubtaskMutation.mutateAsync({
+      return await createSubtaskMutation.mutateAsync({
         featureId,
         data,
       });
-      return result;
     } finally {
       store.setLoading(false);
     }
@@ -607,12 +734,12 @@ export const useProjects = () => {
   const updateSubtask = async (subtaskId, data) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await updateSubtaskMutation.mutateAsync({
+      return await updateSubtaskMutation.mutateAsync({
         subtaskId,
         data,
       });
-      return result;
     } finally {
       store.setLoading(false);
     }
@@ -621,58 +748,72 @@ export const useProjects = () => {
   const deleteSubtask = async (subtaskId) => {
     store.clearError();
     store.setLoading(true);
+
     try {
-      const result = await deleteSubtaskMutation.mutateAsync(subtaskId);
-      return result;
+      return await deleteSubtaskMutation.mutateAsync(subtaskId);
     } finally {
       store.setLoading(false);
     }
   };
 
-  // ============ Store Actions ============
+  /*
+   * ============================================================
+   * STORE ACTIONS
+   * ============================================================
+   */
 
   const clearError = () => store.clearError();
   const clearProjects = () => store.clearProjects();
   const reset = () => store.reset();
-  const setFilters = (filters) => store.setFilters(filters);
-  const setPagination = (pagination) => store.setPagination(pagination);
+  const setFilters = (newFilters) => store.setFilters(newFilters);
+  const setPagination = (newPagination) => store.setPagination(newPagination);
+
+  /*
+   * ============================================================
+   * RETURN
+   * ============================================================
+   */
 
   return {
-    // State from store
-    projects: store.projects,
-    currentProject: store.currentProject,
-    features: store.features,
-    bugs: store.bugs,
-    subtasks: store.subtasks,
-    projectStats: store.projectStats,
-    isLoading: store.isLoading,
-    error: store.error,
-    pagination: store.pagination,
-    filters: store.filters,
+    // Zustand state
+    projects,
+    currentProject,
+    features,
+    bugs,
+    subtasks,
+    projectStats,
+    isLoading,
+    error,
+    pagination,
+    filters,
 
-    // Query loading states
-    isProjectsLoading: getProjectsQuery({}).isLoading,
-    isProjectLoading: getProjectQuery("").isLoading,
-    isStatsLoading: getProjectStatsQuery("").isLoading,
-    isFeaturesLoading: getFeaturesQuery("").isLoading,
-    isBugsLoading: getBugsQuery("").isLoading,
-    isSubtasksLoading: getSubtasksQuery("").isLoading,
+    // React Query states
+    isProjectsLoading: projectsQuery.isLoading,
+    isProjectsFetching: projectsQuery.isFetching,
+    isProjectLoading: projectQuery.isLoading,
+    isStatsLoading: projectStatsQuery.isLoading,
+    isFeaturesLoading: featuresQuery.isLoading,
+    isBugsLoading: bugsQuery.isLoading,
+    isSubtasksLoading: subtasksQuery.isLoading,
 
-    // Mutation loading states
+    // Mutations
     isCreatingProject: createProjectMutation.isPending,
     isUpdatingProject: updateProjectMutation.isPending,
     isDeletingProject: deleteProjectMutation.isPending,
+
     isCreatingFeature: createFeatureMutation.isPending,
     isUpdatingFeature: updateFeatureMutation.isPending,
     isDeletingFeature: deleteFeatureMutation.isPending,
+
     isCreatingBug: createBugMutation.isPending,
     isUpdatingBug: updateBugMutation.isPending,
     isDeletingBug: deleteBugMutation.isPending,
+
     isCreatingSubtask: createSubtaskMutation.isPending,
     isUpdatingSubtask: updateSubtaskMutation.isPending,
     isDeletingSubtask: deleteSubtaskMutation.isPending,
 
-    // Query methods
+    // Queries
     getProjects,
     getProject,
     getProjectStats,
@@ -680,16 +821,19 @@ export const useProjects = () => {
     getBugs,
     getSubtasks,
 
-    // Mutation methods
+    // Mutations
     createProject,
     updateProject,
     deleteProject,
+
     createFeature,
     updateFeature,
     deleteFeature,
+
     createBug,
     updateBug,
     deleteBug,
+
     createSubtask,
     updateSubtask,
     deleteSubtask,

@@ -2,53 +2,35 @@
 import axiosInstance from "./axiosInstance";
 
 class ProjectService {
-  constructor() {
-    this.basePath = "/api";
-  }
-
   // ============ Projects ============
 
   async getProjects(params = {}) {
-    const response = await axiosInstance.get(`${this.basePath}/projects`, {
-      params,
-    });
+    const response = await axiosInstance.get(`/projects`, { params });
     return response.data;
   }
 
   async getProject(projectId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}`
-    );
+    const response = await axiosInstance.get(`/projects/${projectId}`);
     return response.data;
   }
 
   async createProject(data) {
-    const response = await axiosInstance.post(
-      `${this.basePath}/projects`,
-      data
-    );
+    const response = await axiosInstance.post(`/projects`, data);
     return response.data;
   }
 
   async updateProject(projectId, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/projects/${projectId}`,
-      data
-    );
+    const response = await axiosInstance.put(`/projects/${projectId}`, data);
     return response.data;
   }
 
   async deleteProject(projectId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/projects/${projectId}`
-    );
+    const response = await axiosInstance.delete(`/projects/${projectId}`);
     return response.data;
   }
 
   async getProjectStats(projectId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/stats`
-    );
+    const response = await axiosInstance.get(`/projects/${projectId}/stats`);
     return response.data;
   }
 
@@ -56,45 +38,38 @@ class ProjectService {
 
   async getFeatures(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/features`,
+      `/projects/${projectId}/features`,
       { params }
     );
     return response.data;
   }
 
   async getFeature(featureId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/features/${featureId}`
-    );
+    const response = await axiosInstance.get(`/features/${featureId}`);
     return response.data;
   }
 
   async createFeature(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/features`,
+      `/projects/${projectId}/features`,
       data
     );
     return response.data;
   }
 
   async updateFeature(featureId, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/features/${featureId}`,
-      data
-    );
+    const response = await axiosInstance.put(`/features/${featureId}`, data);
     return response.data;
   }
 
   async deleteFeature(featureId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/features/${featureId}`
-    );
+    const response = await axiosInstance.delete(`/features/${featureId}`);
     return response.data;
   }
 
   async reorderFeatures(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/features/reorder`,
+      `/projects/${projectId}/features/reorder`,
       data
     );
     return response.data;
@@ -103,38 +78,32 @@ class ProjectService {
   // ============ Bugs ============
 
   async getBugs(projectId, params = {}) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/bugs`,
-      { params }
-    );
+    const response = await axiosInstance.get(`/projects/${projectId}/bugs`, {
+      params,
+    });
     return response.data;
   }
 
   async getBug(bugId) {
-    const response = await axiosInstance.get(`${this.basePath}/bugs/${bugId}`);
+    const response = await axiosInstance.get(`/bugs/${bugId}`);
     return response.data;
   }
 
   async createBug(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/bugs`,
+      `/projects/${projectId}/bugs`,
       data
     );
     return response.data;
   }
 
   async updateBug(bugId, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/bugs/${bugId}`,
-      data
-    );
+    const response = await axiosInstance.put(`/bugs/${bugId}`, data);
     return response.data;
   }
 
   async deleteBug(bugId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/bugs/${bugId}`
-    );
+    const response = await axiosInstance.delete(`/bugs/${bugId}`);
     return response.data;
   }
 
@@ -142,45 +111,38 @@ class ProjectService {
 
   async getSubtasks(featureId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/features/${featureId}/subtasks`,
+      `/features/${featureId}/subtasks`,
       { params }
     );
     return response.data;
   }
 
   async getSubtask(subtaskId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/subtasks/${subtaskId}`
-    );
+    const response = await axiosInstance.get(`/subtasks/${subtaskId}`);
     return response.data;
   }
 
   async createSubtask(featureId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/features/${featureId}/subtasks`,
+      `/features/${featureId}/subtasks`,
       data
     );
     return response.data;
   }
 
   async updateSubtask(subtaskId, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/subtasks/${subtaskId}`,
-      data
-    );
+    const response = await axiosInstance.put(`/subtasks/${subtaskId}`, data);
     return response.data;
   }
 
   async deleteSubtask(subtaskId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/subtasks/${subtaskId}`
-    );
+    const response = await axiosInstance.delete(`/subtasks/${subtaskId}`);
     return response.data;
   }
 
   async reorderSubtasks(featureId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/features/${featureId}/subtasks/reorder`,
+      `/features/${featureId}/subtasks/reorder`,
       data
     );
     return response.data;

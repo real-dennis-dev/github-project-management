@@ -1,10 +1,8 @@
 // src/routes/techDebtRoutes.jsx
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const TechDebtDashboard = React.lazy(() =>
   import("../components/techdebt/TechDebtDashboard")
 );
@@ -41,12 +39,18 @@ const LoadingFallback = () => (
 
 const techDebtRoutes = [
   {
+    path: "/tech-debt",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <TechDebtList /> {/* or project picker */}
+      </Suspense>
+    ),
+  },
+  {
     path: "/tech-debt/:projectId/dashboard",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtDashboard />
-        </ProtectedRoute>
+        <TechDebtDashboard />
       </Suspense>
     ),
   },
@@ -54,9 +58,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtList />
-        </ProtectedRoute>
+        <TechDebtList />
       </Suspense>
     ),
   },
@@ -64,9 +66,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/new",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtForm />
-        </ProtectedRoute>
+        <TechDebtForm />
       </Suspense>
     ),
   },
@@ -74,9 +74,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/:id",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtDetail />
-        </ProtectedRoute>
+        <TechDebtDetail />
       </Suspense>
     ),
   },
@@ -84,9 +82,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/:id/edit",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtForm />
-        </ProtectedRoute>
+        <TechDebtForm />
       </Suspense>
     ),
   },
@@ -94,9 +90,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/overview",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtOverview />
-        </ProtectedRoute>
+        <TechDebtOverview />
       </Suspense>
     ),
   },
@@ -104,9 +98,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/score",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtScore />
-        </ProtectedRoute>
+        <TechDebtScore />
       </Suspense>
     ),
   },
@@ -114,9 +106,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/statistics",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtStatistics />
-        </ProtectedRoute>
+        <TechDebtStatistics />
       </Suspense>
     ),
   },
@@ -124,9 +114,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/suggestions",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <RefactoringSuggestions />
-        </ProtectedRoute>
+        <RefactoringSuggestions />
       </Suspense>
     ),
   },
@@ -134,9 +122,7 @@ const techDebtRoutes = [
     path: "/tech-debt/:projectId/export",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <TechDebtExport />
-        </ProtectedRoute>
+        <TechDebtExport />
       </Suspense>
     ),
   },

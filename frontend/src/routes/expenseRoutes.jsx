@@ -1,25 +1,28 @@
 // src/routes/expenseRoutes.jsx
+
 import React, { Suspense } from "react";
-import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const ExpenseList = React.lazy(() =>
   import("../components/expenses/ExpenseList")
 );
+
 const ExpenseSummary = React.lazy(() =>
   import("../components/expenses/ExpenseSummary")
 );
+
 const ExpenseCategories = React.lazy(() =>
   import("../components/expenses/ExpenseCategories")
 );
+
 const ExpenseMonthly = React.lazy(() =>
   import("../components/expenses/ExpenseMonthly")
 );
+
 const ExpenseStatistics = React.lazy(() =>
   import("../components/expenses/ExpenseStatistics")
 );
+
 const ExpenseExport = React.lazy(() =>
   import("../components/expenses/ExpenseExport")
 );
@@ -30,70 +33,36 @@ const LoadingFallback = () => (
   </div>
 );
 
+const withSuspense = (Component) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Component />
+  </Suspense>
+);
+
 const expenseRoutes = [
   {
-    path: "/projects/:projectId/expenses",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ExpenseList />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "expenses",
+    element: withSuspense(ExpenseList),
   },
   {
-    path: "/projects/:projectId/expenses/summary",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ExpenseSummary />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "expenses/summary",
+    element: withSuspense(ExpenseSummary),
   },
   {
-    path: "/projects/:projectId/expenses/categories",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ExpenseCategories />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "expenses/categories",
+    element: withSuspense(ExpenseCategories),
   },
   {
-    path: "/projects/:projectId/expenses/monthly",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ExpenseMonthly />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "expenses/monthly",
+    element: withSuspense(ExpenseMonthly),
   },
   {
-    path: "/projects/:projectId/expenses/statistics",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ExpenseStatistics />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "expenses/statistics",
+    element: withSuspense(ExpenseStatistics),
   },
   {
-    path: "/projects/:projectId/expenses/export",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ExpenseExport />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/expenses/*",
-    element: <Navigate to="/dashboard" replace />,
+    path: "expenses/export",
+    element: withSuspense(ExpenseExport),
   },
 ];
 

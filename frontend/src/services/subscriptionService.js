@@ -2,52 +2,38 @@
 import axiosInstance from "./axiosInstance";
 
 class SubscriptionService {
-  constructor() {
-    this.basePath = "/api/v1";
-  }
-
   // ============ Subscription Endpoints ============
 
   async getSubscriptions(params = {}) {
-    const response = await axiosInstance.get(`${this.basePath}/subscriptions`, {
+    const response = await axiosInstance.get(`/subscriptions`, {
       params,
     });
     return response.data;
   }
 
   async getCurrentSubscription() {
-    const response = await axiosInstance.get(
-      `${this.basePath}/subscriptions/current`
-    );
+    const response = await axiosInstance.get(`/subscriptions/current`);
     return response.data;
   }
 
   async getSubscription(id) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/subscriptions/${id}`
-    );
+    const response = await axiosInstance.get(`/subscriptions/${id}`);
     return response.data;
   }
 
   async createSubscription(data) {
-    const response = await axiosInstance.post(
-      `${this.basePath}/subscriptions`,
-      data
-    );
+    const response = await axiosInstance.post(`/subscriptions`, data);
     return response.data;
   }
 
   async updateSubscription(id, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/subscriptions/${id}`,
-      data
-    );
+    const response = await axiosInstance.put(`/subscriptions/${id}`, data);
     return response.data;
   }
 
   async cancelSubscription(id, data = {}) {
     const response = await axiosInstance.post(
-      `${this.basePath}/subscriptions/${id}/cancel`,
+      `/subscriptions/${id}/cancel`,
       data
     );
     return response.data;
@@ -56,47 +42,44 @@ class SubscriptionService {
   // ============ Plan Endpoints ============
 
   async getPlans(params = {}) {
-    const response = await axiosInstance.get(`${this.basePath}/plans`, {
+    const response = await axiosInstance.get(`/plans`, {
       params,
     });
     return response.data;
   }
 
   async getPublicPlans() {
-    const response = await axiosInstance.get(`${this.basePath}/plans/public`);
+    const response = await axiosInstance.get(`/plans/public`);
     return response.data;
   }
 
   async getDefaultPlan() {
-    const response = await axiosInstance.get(`${this.basePath}/plans/default`);
+    const response = await axiosInstance.get(`/plans/default`);
     return response.data;
   }
 
   async getPlanOptions() {
-    const response = await axiosInstance.get(`${this.basePath}/plans/options`);
+    const response = await axiosInstance.get(`/plans/options`);
     return response.data;
   }
 
   async getPlan(id) {
-    const response = await axiosInstance.get(`${this.basePath}/plans/${id}`);
+    const response = await axiosInstance.get(`/plans/${id}`);
     return response.data;
   }
 
   async createPlan(data) {
-    const response = await axiosInstance.post(`${this.basePath}/plans`, data);
+    const response = await axiosInstance.post(`/plans`, data);
     return response.data;
   }
 
   async updatePlan(id, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/plans/${id}`,
-      data
-    );
+    const response = await axiosInstance.put(`/plans/${id}`, data);
     return response.data;
   }
 
   async deletePlan(id) {
-    const response = await axiosInstance.delete(`${this.basePath}/plans/${id}`);
+    const response = await axiosInstance.delete(`/plans/${id}`);
     return response.data;
   }
 
@@ -104,32 +87,25 @@ class SubscriptionService {
 
   async checkFeatureAccess(featureName) {
     const response = await axiosInstance.get(
-      `${this.basePath}/subscriptions/feature/${featureName}/check`
+      `/subscriptions/feature/${featureName}/check`
     );
     return response.data;
   }
 
   async getFeatureUsage() {
-    const response = await axiosInstance.get(
-      `${this.basePath}/subscriptions/features/usage`
-    );
+    const response = await axiosInstance.get(`/subscriptions/features/usage`);
     return response.data;
   }
 
   // ============ Webhook Endpoints ============
 
   async getWebhookEvents(params = {}) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/webhooks/events`,
-      { params }
-    );
+    const response = await axiosInstance.get(`/webhooks/events`, { params });
     return response.data;
   }
 
   async retryWebhook(id) {
-    const response = await axiosInstance.post(
-      `${this.basePath}/webhooks/${id}/retry`
-    );
+    const response = await axiosInstance.post(`/webhooks/${id}/retry`);
     return response.data;
   }
 }

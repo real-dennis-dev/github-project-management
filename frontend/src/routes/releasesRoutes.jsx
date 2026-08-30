@@ -1,10 +1,7 @@
 // src/routes/releasesRoutes.jsx
 import React, { Suspense } from "react";
-import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const ReleaseList = React.lazy(() =>
   import("../components/releases/ReleaseList")
 );
@@ -32,136 +29,62 @@ const MilestoneStats = React.lazy(() =>
 const BulkUpdateProgress = React.lazy(() =>
   import("../components/releases/BulkUpdateProgress")
 );
-
+// const ReleaseHome = React.lazy(() =>
+//   import("../components/releases/ReleaseHome")
+// );
 const LoadingFallback = () => (
   <div className="flex justify-center items-center min-h-[400px]">
     <LoadingSpinner size="lg" />
   </div>
 );
 
+const withSuspense = (Component, props = {}) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Component {...props} />
+  </Suspense>
+);
+
 const releasesRoutes = [
-  // Release routes
+  // Sidebar: /releases
+  { path: "releases", element: withSuspense(ReleaseDetail) },
+
+  // Project-scoped
+  { path: "projects/:projectId/releases", element: withSuspense(ReleaseList) },
   {
-    path: "/projects/:projectId/releases",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ReleaseList />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "projects/:projectId/releases/create",
+    element: withSuspense(ReleaseForm),
   },
   {
-    path: "/projects/:projectId/releases/create",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ReleaseForm />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "projects/:projectId/releases/stats",
+    element: withSuspense(ReleaseStats),
   },
   {
-    path: "/releases/:id",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ReleaseDetail />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "projects/:projectId/milestones",
+    element: withSuspense(MilestoneList),
   },
   {
-    path: "/releases/:id/edit",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ReleaseForm editMode />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "projects/:projectId/milestones/create",
+    element: withSuspense(MilestoneForm),
   },
   {
-    path: "/projects/:projectId/releases/stats",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ReleaseStats />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "projects/:projectId/milestones/stats",
+    element: withSuspense(MilestoneStats),
+  },
+  {
+    path: "projects/:projectId/milestones/bulk-update",
+    element: withSuspense(BulkUpdateProgress),
   },
 
-  // Milestone routes
+  // By id
+  { path: "releases/:id", element: withSuspense(ReleaseDetail) },
   {
-    path: "/projects/:projectId/milestones",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <MilestoneList />
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "releases/:id/edit",
+    element: withSuspense(ReleaseForm, { editMode: true }),
   },
+  { path: "milestones/:id", element: withSuspense(MilestoneDetail) },
   {
-    path: "/projects/:projectId/milestones/create",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <MilestoneForm />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/milestones/:id",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <MilestoneDetail />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/milestones/:id/edit",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <MilestoneForm editMode />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/projects/:projectId/milestones/stats",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <MilestoneStats />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/projects/:projectId/milestones/bulk-update",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <BulkUpdateProgress />
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-
-  // Catch-all redirect
-  {
-    path: "/releases/*",
-    element: <Navigate to="/dashboard" replace />,
-  },
-  {
-    path: "/milestones/*",
-    element: <Navigate to="/dashboard" replace />,
+    path: "milestones/:id/edit",
+    element: withSuspense(MilestoneForm, { editMode: true }),
   },
 ];
 

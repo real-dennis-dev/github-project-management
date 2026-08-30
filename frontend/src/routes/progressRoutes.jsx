@@ -1,25 +1,9 @@
 // src/routes/progressRoutes.jsx
 import React, { Suspense } from "react";
-import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
+import { useParams, Link } from "react-router-dom";
 import { LoadingSpinner } from "../components/common";
-
-// Lazy load components
-const TimelineList = React.lazy(() =>
-  import("../components/progress-timeline/TimelineList")
-);
-const ProgressOverview = React.lazy(() =>
-  import("../components/progress-timeline/ProgressOverview")
-);
-const MonthlyProgress = React.lazy(() =>
-  import("../components/progress-timeline/MonthlyProgress")
-);
-const ProgressReport = React.lazy(() =>
-  import("../components/progress-timeline/ProgressReport")
-);
-const TimelineBulkAdd = React.lazy(() =>
-  import("../components/progress-timeline/TimelineBulkAdd")
-);
+import ProgressReport from "../components/progress-timeline/ProgressReport";
+// If you have list/timeline components, import them the same way
 
 const LoadingFallback = () => (
   <div className="flex justify-center items-center min-h-[400px]">
@@ -27,73 +11,46 @@ const LoadingFallback = () => (
   </div>
 );
 
+const withSuspense = (Component, props = {}) => (
+  <Suspense fallback={<LoadingFallback />}>
+    <Component {...props} />
+  </Suspense>
+);
+
+// Simple hub so /progress does not 404
+const ProgressHub = () => (
+  <div className="space-y-4">
+    <h2 className="text-xl font-bold text-neutral-900">Progress</h2>
+    <p className="text-neutral-600">
+      Open a project and go to its progress report, or use a direct link like{" "}
+      <code className="text-sm bg-neutral-200 px-1 rounded">
+        /progress/:projectId
+      </code>
+      .
+    </p>
+    <Link
+      to="/projects"
+      className="text-primary-500 hover:underline text-sm font-medium"
+    >
+      Go to Projects →
+    </Link>
+  </div>
+);
+
+const ProgressReportPage = () => {
+  const { projectId } = useParams();
+  return <ProgressReport projectId={projectId} />;
+};
+
 const progressRoutes = [
+  { path: "progress", element: withSuspense(ProgressHub) },
   {
-    path: "/projects/:projectId/timeline",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <div className="container mx-auto p-4 space-y-6">
-            <TimelineList />
-          </div>
-        </ProtectedRoute>
-      </Suspense>
-    ),
+    path: "progress/:projectId",
+    element: withSuspense(ProgressReportPage),
   },
   {
-    path: "/projects/:projectId/progress",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <div className="container mx-auto p-4 space-y-6">
-            <ProgressOverview />
-          </div>
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/projects/:projectId/progress/monthly",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <div className="container mx-auto p-4 space-y-6">
-            <MonthlyProgress />
-          </div>
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/projects/:projectId/progress/report",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <div className="container mx-auto p-4 space-y-6">
-            <ProgressReport />
-          </div>
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/projects/:projectId/timeline/bulk-add",
-    element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <div className="container mx-auto p-4 space-y-6">
-            <h1 className="text-2xl font-bold text-neutral-900">
-              Bulk Add Timeline Entries
-            </h1>
-            <TimelineBulkAdd />
-          </div>
-        </ProtectedRoute>
-      </Suspense>
-    ),
-  },
-  {
-    path: "/progress/*",
-    element: <Navigate to="/dashboard" replace />,
+    path: "projects/:projectId/progress",
+    element: withSuspense(ProgressReportPage),
   },
 ];
 

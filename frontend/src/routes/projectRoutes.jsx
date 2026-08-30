@@ -1,10 +1,8 @@
 // src/routes/projectRoutes.jsx
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const ProjectList = React.lazy(() =>
   import("../components/projects/ProjectList")
 );
@@ -26,9 +24,7 @@ const projectRoutes = [
     path: "/projects",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ProjectList />
-        </ProtectedRoute>
+        <ProjectList />
       </Suspense>
     ),
   },
@@ -36,9 +32,7 @@ const projectRoutes = [
     path: "/projects/create",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ProjectForm />
-        </ProtectedRoute>
+        <ProjectForm />
       </Suspense>
     ),
   },
@@ -46,9 +40,7 @@ const projectRoutes = [
     path: "/projects/:projectId",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ProjectDetails />
-        </ProtectedRoute>
+        <ProjectDetails />
       </Suspense>
     ),
   },
@@ -56,9 +48,7 @@ const projectRoutes = [
     path: "/projects/:projectId/edit",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <ProjectForm isEditing />
-        </ProtectedRoute>
+        <ProjectForm isEditing />
       </Suspense>
     ),
   },

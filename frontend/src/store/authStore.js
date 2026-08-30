@@ -1,6 +1,5 @@
 // src/store/authStore.js
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 const initialState = {
   user: null,
@@ -13,20 +12,40 @@ const initialState = {
   sessionStats: null,
 };
 
-const authStore = (set, get) => ({
+const authStore = (set) => ({
   ...initialState,
 
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
+  setUser: (user) =>
+    set({
+      user,
+      isAuthenticated: !!user,
+    }),
 
-  setSession: (session) => set({ session }),
+  setSession: (session) =>
+    set({
+      session,
+    }),
 
-  setLoading: (isLoading) => set({ isLoading }),
+  setLoading: (isLoading) =>
+    set({
+      isLoading,
+    }),
 
-  setError: (error) => set({ error }),
+  setError: (error) =>
+    set({
+      error,
+    }),
 
-  setSessions: (sessions, meta) => set({ sessions, sessionsMeta: meta }),
+  setSessions: (sessions, meta) =>
+    set({
+      sessions,
+      sessionsMeta: meta,
+    }),
 
-  setSessionStats: (stats) => set({ sessionStats: stats }),
+  setSessionStats: (stats) =>
+    set({
+      sessionStats: stats,
+    }),
 
   clearAuth: () =>
     set({
@@ -36,7 +55,7 @@ const authStore = (set, get) => ({
 
   updateUser: (userData) =>
     set((state) => ({
-      user: { ...state.user, ...userData },
+      user: state.user ? { ...state.user, ...userData } : null,
     })),
 
   addSession: (session) =>
@@ -57,12 +76,4 @@ const authStore = (set, get) => ({
     })),
 });
 
-export const useAuthStore = create(
-  persist(authStore, {
-    name: "auth-storage",
-    partialize: (state) => ({
-      user: state.user,
-      isAuthenticated: state.isAuthenticated,
-    }),
-  })
-);
+export const useAuthStore = create(authStore);

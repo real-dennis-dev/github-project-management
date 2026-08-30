@@ -7,7 +7,7 @@ const GitHubUtils = require("../utils/github.utils");
  */
 class GitHubMiddleware {
   constructor() {
-    this.githubUtils = new GitHubUtils({});
+    this.githubUtils = GitHubUtils;
   }
 
   /**

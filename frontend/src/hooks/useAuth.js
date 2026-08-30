@@ -1,43 +1,52 @@
 // src/hooks/useAuth.js
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthStore } from '../store/authStore';
-import { authService } from '../services/authService';
-import { 
-  loginSchema, 
-  registerSchema, 
-  resetPasswordSchema, 
+import { useEffect } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "../store/authStore";
+import { authService } from "../services/authService";
+import {
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
   updatePasswordSchema,
   socialLoginSchema,
   sessionFilterSchema,
   extendSessionSchema,
-  validateForm 
-} from '../utils/authValidation';
+  validateForm,
+} from "../utils/authValidation";
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
   const store = useAuthStore();
 
-  // Queries
   const currentUserQuery = useQuery({
-    queryKey: ['auth', 'me'],
+    queryKey: ["auth", "me"],
     queryFn: authService.getCurrentUser,
-    enabled: store.isAuthenticated,
-    staleTime: 5 * 60 * 1000, // 5 minutes
     retry: false,
-    onSuccess: (data) => {
-      if (data.success && data.data) {
-        store.setUser(data.data.user);
-        store.setSession(data.data.session);
-      }
-    },
-    onError: () => {
-      store.clearAuth();
-    },
   });
 
+  useEffect(() => {
+    if (currentUserQuery.isSuccess) {
+      const data = currentUserQuery.data;
+
+      if (data?.success && data?.data) {
+        store.setUser(data.data);
+      } else {
+        store.clearAuth();
+      }
+    }
+
+    if (currentUserQuery.isError) {
+      store.clearAuth();
+    }
+  }, [
+    currentUserQuery.isSuccess,
+    currentUserQuery.isError,
+    currentUserQuery.data,
+  ]);
+
   const sessionsQuery = useQuery({
-    queryKey: ['auth', 'sessions'],
-    queryFn: () => authService.getSessions({ status: 'active' }),
+    queryKey: ["auth", "sessions"],
+    queryFn: () => authService.getSessions({ status: "active" }),
     enabled: store.isAuthenticated,
     staleTime: 60 * 1000, // 1 minute
     onSuccess: (data) => {
@@ -48,7 +57,7 @@ export const useAuth = () => {
   });
 
   const sessionStatsQuery = useQuery({
-    queryKey: ['auth', 'sessions', 'stats'],
+    queryKey: ["auth", "sessions", "stats"],
     queryFn: authService.getSessionStats,
     enabled: store.isAuthenticated,
     staleTime: 60 * 1000,
@@ -60,7 +69,7 @@ export const useAuth = () => {
   });
 
   const validateSessionQuery = useQuery({
-    queryKey: ['auth', 'validate'],
+    queryKey: ["auth", "validate"],
     queryFn: authService.validateSession,
     enabled: store.isAuthenticated,
     staleTime: 30 * 1000, // 30 seconds
@@ -77,11 +86,11 @@ export const useAuth = () => {
       if (data.success && data.data) {
         store.setUser(data.data.user);
         store.setSession({ expires_in: data.data.expires_in });
-        queryClient.invalidateQueries(['auth']);
+        queryClient.invalidateQueries(["auth"]);
       }
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Login failed');
+      store.setError(error.response?.data?.error || "Login failed");
     },
   });
 
@@ -91,11 +100,11 @@ export const useAuth = () => {
       if (data.success && data.data) {
         store.setUser(data.data.user);
         store.setSession({ expires_in: data.data.expires_in });
-        queryClient.invalidateQueries(['auth']);
+        queryClient.invalidateQueries(["auth"]);
       }
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Registration failed');
+      store.setError(error.response?.data?.error || "Registration failed");
     },
   });
 
@@ -104,10 +113,10 @@ export const useAuth = () => {
     onSuccess: () => {
       store.clearAuth();
       queryClient.clear();
-      window.dispatchEvent(new Event('auth:logout'));
+      window.dispatchEvent(new Event("auth:logout"));
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Logout failed');
+      store.setError(error.response?.data?.error || "Logout failed");
     },
   });
 
@@ -129,7 +138,7 @@ export const useAuth = () => {
       store.setError(null);
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Password reset failed');
+      store.setError(error.response?.data?.error || "Password reset failed");
     },
   });
 
@@ -140,7 +149,7 @@ export const useAuth = () => {
       return data;
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Password update failed');
+      store.setError(error.response?.data?.error || "Password update failed");
     },
   });
 
@@ -150,11 +159,11 @@ export const useAuth = () => {
       if (data.success && data.data) {
         store.setUser(data.data.user);
         store.setSession({ expires_in: data.data.expires_in });
-        queryClient.invalidateQueries(['auth']);
+        queryClient.invalidateQueries(["auth"]);
       }
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Social login failed');
+      store.setError(error.response?.data?.error || "Social login failed");
     },
   });
 
@@ -162,10 +171,10 @@ export const useAuth = () => {
     mutationFn: authService.revokeSession,
     onSuccess: (_, sessionId) => {
       store.removeSession(sessionId);
-      queryClient.invalidateQueries(['auth', 'sessions']);
+      queryClient.invalidateQueries(["auth", "sessions"]);
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Failed to revoke session');
+      store.setError(error.response?.data?.error || "Failed to revoke session");
     },
   });
 
@@ -175,12 +184,14 @@ export const useAuth = () => {
       if (data.success && data.data) {
         const currentSession = store.session;
         store.setSessions(currentSession ? [currentSession] : [], null);
-        queryClient.invalidateQueries(['auth', 'sessions']);
+        queryClient.invalidateQueries(["auth", "sessions"]);
         return data;
       }
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Failed to revoke sessions');
+      store.setError(
+        error.response?.data?.error || "Failed to revoke sessions"
+      );
     },
   });
 
@@ -188,15 +199,17 @@ export const useAuth = () => {
     mutationFn: authService.extendSession,
     onSuccess: (data, variables) => {
       if (variables.sessionId) {
-        store.updateSession(variables.sessionId, { 
-          expiresAt: new Date(Date.now() + variables.hours * 3600000).toISOString() 
+        store.updateSession(variables.sessionId, {
+          expiresAt: new Date(
+            Date.now() + variables.hours * 3600000
+          ).toISOString(),
         });
       }
-      queryClient.invalidateQueries(['auth', 'sessions']);
+      queryClient.invalidateQueries(["auth", "sessions"]);
       return data;
     },
     onError: (error) => {
-      store.setError(error.response?.data?.error || 'Failed to extend session');
+      store.setError(error.response?.data?.error || "Failed to extend session");
     },
   });
 

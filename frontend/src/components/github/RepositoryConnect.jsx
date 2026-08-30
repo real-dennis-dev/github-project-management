@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { useGithub } from "../../hooks/useGithub";
 import { useToast } from "../../hooks/useToast";
 import { Button, Input, Alert } from "../common";
-import { Github, Link } from "lucide-react";
+import { Link } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
 
 const RepositoryConnect = ({ projectId }) => {
   const [repoUrl, setRepoUrl] = useState("");
@@ -97,7 +98,7 @@ const RepositoryConnect = ({ projectId }) => {
           fullWidth
           className="flex items-center justify-center gap-2"
         >
-          <Github className="w-5 h-5" />
+          <FaGithub className="w-5 h-5" />
           <Link className="w-4 h-4" />
           Connect Repository
         </Button>

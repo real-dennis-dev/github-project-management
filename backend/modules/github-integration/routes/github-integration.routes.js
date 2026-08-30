@@ -7,8 +7,8 @@ const ValidationMiddleware = require("../../../common/middleware/validation.midd
 const AuthMiddleware = require("../../../common/middleware/auth.middleware");
 const SecurityMiddleware = require("../../../common/middleware/security.middleware");
 
-const controller = new GitHubController();
-const middleware = new GitHubMiddleware();
+const controller = GitHubController;
+const middleware = GitHubMiddleware;
 
 /**
  * @route   GET /api/projects/:projectId/repositories

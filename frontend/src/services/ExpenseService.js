@@ -2,14 +2,10 @@
 import axiosInstance from "./axiosInstance";
 
 class ExpenseService {
-  constructor() {
-    this.basePath = "/api";
-  }
-
   // Get all expenses for a project
   async getExpenses(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses`,
+      `/projects/${projectId}/expenses`,
       { params }
     );
     return response.data;
@@ -18,7 +14,7 @@ class ExpenseService {
   // Create a new expense
   async createExpense(projectId, data) {
     const response = await axiosInstance.post(
-      `${this.basePath}/projects/${projectId}/expenses`,
+      `/projects/${projectId}/expenses`,
       data
     );
     return response.data;
@@ -26,33 +22,26 @@ class ExpenseService {
 
   // Get an expense by ID
   async getExpense(expenseId) {
-    const response = await axiosInstance.get(
-      `${this.basePath}/expenses/${expenseId}`
-    );
+    const response = await axiosInstance.get(`/expenses/${expenseId}`);
     return response.data;
   }
 
   // Update an expense
   async updateExpense(expenseId, data) {
-    const response = await axiosInstance.put(
-      `${this.basePath}/expenses/${expenseId}`,
-      data
-    );
+    const response = await axiosInstance.put(`/expenses/${expenseId}`, data);
     return response.data;
   }
 
   // Delete an expense
   async deleteExpense(expenseId) {
-    const response = await axiosInstance.delete(
-      `${this.basePath}/expenses/${expenseId}`
-    );
+    const response = await axiosInstance.delete(`/expenses/${expenseId}`);
     return response.data;
   }
 
   // Get expense summary
   async getSummary(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses/summary`,
+      `/projects/${projectId}/expenses/summary`,
       { params }
     );
     return response.data;
@@ -61,7 +50,7 @@ class ExpenseService {
   // Get expenses by category
   async getCategories(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses/categories`,
+      `/projects/${projectId}/expenses/categories`,
       { params }
     );
     return response.data;
@@ -70,7 +59,7 @@ class ExpenseService {
   // Get total expenses
   async getTotal(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses/total`,
+      `/projects/${projectId}/expenses/total`,
       { params }
     );
     return response.data;
@@ -79,7 +68,7 @@ class ExpenseService {
   // Get monthly expenses
   async getMonthly(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses/monthly`,
+      `/projects/${projectId}/expenses/monthly`,
       { params }
     );
     return response.data;
@@ -88,7 +77,7 @@ class ExpenseService {
   // Export expenses
   async exportExpenses(projectId, params = {}) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses/export`,
+      `/projects/${projectId}/expenses/export`,
       { params }
     );
     return response.data;
@@ -97,7 +86,7 @@ class ExpenseService {
   // Get expense statistics
   async getStatistics(projectId) {
     const response = await axiosInstance.get(
-      `${this.basePath}/projects/${projectId}/expenses/statistics`
+      `/projects/${projectId}/expenses/statistics`
     );
     return response.data;
   }

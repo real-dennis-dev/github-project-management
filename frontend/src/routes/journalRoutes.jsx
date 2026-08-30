@@ -1,10 +1,8 @@
 // src/routes/journalRoutes.jsx
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth/ProtectedRoute";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
 
-// Lazy load components
 const JournalList = React.lazy(() =>
   import("../components/journal/JournalList")
 );
@@ -41,42 +39,44 @@ const withSuspense = (Component) => (
 
 const journalRoutes = [
   {
+    path: "/journal",
+    element: withSuspense(JournalList), // or a project-picker page
+  },
+  {
     path: "/projects/:projectId/journal",
-    element: <ProtectedRoute>{withSuspense(JournalList)}</ProtectedRoute>,
+    element: withSuspense(JournalList),
   },
   {
     path: "/projects/:projectId/journal/new",
-    element: <ProtectedRoute>{withSuspense(JournalEntryForm)}</ProtectedRoute>,
+    element: withSuspense(JournalEntryForm),
   },
   {
     path: "/projects/:projectId/journal/edit/:entryId",
-    element: <ProtectedRoute>{withSuspense(JournalEntryForm)}</ProtectedRoute>,
+    element: withSuspense(JournalEntryForm),
   },
   {
     path: "/projects/:projectId/journal/:entryId",
-    element: (
-      <ProtectedRoute>{withSuspense(JournalEntryDetail)}</ProtectedRoute>
-    ),
+    element: withSuspense(JournalEntryDetail),
   },
   {
     path: "/projects/:projectId/journal/stats",
-    element: <ProtectedRoute>{withSuspense(JournalStats)}</ProtectedRoute>,
+    element: withSuspense(JournalStats),
   },
   {
     path: "/projects/:projectId/journal/calendar",
-    element: <ProtectedRoute>{withSuspense(JournalCalendar)}</ProtectedRoute>,
+    element: withSuspense(JournalCalendar),
   },
   {
     path: "/projects/:projectId/journal/export",
-    element: <ProtectedRoute>{withSuspense(JournalExport)}</ProtectedRoute>,
+    element: withSuspense(JournalExport),
   },
   {
     path: "/projects/:projectId/journal/charts",
-    element: <ProtectedRoute>{withSuspense(JournalChart)}</ProtectedRoute>,
+    element: withSuspense(JournalChart),
   },
   {
     path: "/journal/*",
-    element: <Navigate to="/login" replace />,
+    element: <Navigate to="/dashboard" replace />,
   },
 ];
 

@@ -1,10 +1,8 @@
 // src/routes/visionRoutes.jsx
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
-import { ProtectedRoute } from "../components/auth";
 import { LoadingSpinner } from "../components/common";
 
-// Lazy load components
 const VisionBoard = React.lazy(() =>
   import("../components/vision/VisionBoard")
 );
@@ -32,9 +30,7 @@ const visionRoutes = [
     path: "/vision",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <VisionBoard />
-        </ProtectedRoute>
+        <VisionBoard />
       </Suspense>
     ),
   },
@@ -42,9 +38,7 @@ const visionRoutes = [
     path: "/vision/new",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <VisionGoalForm />
-        </ProtectedRoute>
+        <VisionGoalForm />
       </Suspense>
     ),
   },
@@ -52,9 +46,7 @@ const visionRoutes = [
     path: "/vision/:id",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <VisionGoalDetail />
-        </ProtectedRoute>
+        <VisionGoalDetail />
       </Suspense>
     ),
   },
@@ -62,9 +54,7 @@ const visionRoutes = [
     path: "/vision/:id/edit",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <VisionGoalForm />
-        </ProtectedRoute>
+        <VisionGoalForm />
       </Suspense>
     ),
   },
@@ -72,9 +62,7 @@ const visionRoutes = [
     path: "/vision/statistics",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <VisionStatistics />
-        </ProtectedRoute>
+        <VisionStatistics />
       </Suspense>
     ),
   },
@@ -82,9 +70,7 @@ const visionRoutes = [
     path: "/vision/options",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <ProtectedRoute>
-          <VisionOptions />
-        </ProtectedRoute>
+        <VisionOptions />
       </Suspense>
     ),
   },

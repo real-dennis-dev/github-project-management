@@ -8,7 +8,7 @@ const { Octokit } = require("@octokit/rest");
  */
 class GitHubService {
   constructor() {
-    this.utils = new GitHubUtils({});
+    this.utils = GitHubUtils;
     this.octokit = null;
   }
 

@@ -290,5 +290,5 @@ class ProgressMiddleware {
 
 const progressMiddleware = new ProgressMiddleware();
 
-module.exports = progressMiddleware;
-module.exports.progressMiddleware = progressMiddleware;
+module.exports = ProgressMiddleware;
+// module.exports.progressMiddleware = progressMiddleware;

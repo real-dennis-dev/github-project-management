@@ -32,7 +32,7 @@ const { visionSchemas } = require("../validations/vision-board.validation");
 
 /**
  * @swagger
- * /api/vision-board:
+ * /:
  *   get:
  *     summary: Get all vision goals
  *     tags: [Vision Board]
@@ -61,7 +61,7 @@ const { visionSchemas } = require("../validations/vision-board.validation");
  *         description: List of vision goals
  */
 router.get(
-  "/vision-board",
+  "/",
   authenticate,
   pagination,
   filterParser,
@@ -72,7 +72,7 @@ router.get(
 
 /**
  * @swagger
- * /api/vision-board:
+ * /:
  *   post:
  *     summary: Create a new vision goal
  *     tags: [Vision Board]
@@ -105,7 +105,7 @@ router.get(
  *         description: Vision goal created
  */
 router.post(
-  "/vision-board",
+  "/",
   authenticate,
   rateLimiter(),
   VisionBoardMiddleware.sanitizeGoalData,
@@ -115,7 +115,78 @@ router.post(
 
 /**
  * @swagger
- * /api/vision-board/{id}:
+ * /categories:
+ *   get:
+ *     summary: Get all categories
+ *     tags: [Vision Board]
+ *     responses:
+ *       200:
+ *         description: Categories list
+ */
+router.get(
+  "/categories",
+  authenticate,
+  VisionBoardController.getCategories.bind(VisionBoardController)
+);
+
+/**
+ * @swagger
+ * /statistics:
+ *   get:
+ *     summary: Get vision board statistics
+ *     tags: [Vision Board]
+ *     responses:
+ *       200:
+ *         description: Statistics
+ */
+router.get(
+  "/statistics",
+  authenticate,
+  VisionBoardController.getStatistics.bind(VisionBoardController)
+);
+
+/**
+ * @swagger
+ * /options:
+ *   get:
+ *     summary: Get options for UI
+ *     tags: [Vision Board]
+ *     responses:
+ *       200:
+ *         description: UI options
+ */
+router.get(
+  "/options",
+  authenticate,
+  VisionBoardController.getOptions.bind(VisionBoardController)
+);
+
+/**
+ * @swagger
+ * /export:
+ *   get:
+ *     summary: Export vision goals
+ *     tags: [Vision Board]
+ *     parameters:
+ *       - in: query
+ *         name: format
+ *         schema:
+ *           type: string
+ *           enum: [json, csv]
+ *           default: json
+ *     responses:
+ *       200:
+ *         description: Exported data
+ */
+router.get(
+  "/export",
+  authenticate,
+  VisionBoardController.exportGoals.bind(VisionBoardController)
+);
+
+/**
+ * @swagger
+ * /{id}:
  *   get:
  *     summary: Get a vision goal by ID
  *     tags: [Vision Board]
@@ -131,7 +202,7 @@ router.post(
  *         description: Vision goal details
  */
 router.get(
-  "/vision-board/:id",
+  "/:id",
   authenticate,
   VisionBoardMiddleware.validateVisionGoalExists,
   VisionBoardController.getGoalById.bind(VisionBoardController)
@@ -139,7 +210,7 @@ router.get(
 
 /**
  * @swagger
- * /api/vision-board/{id}:
+ * /{id}:
  *   put:
  *     summary: Update a vision goal
  *     tags: [Vision Board]
@@ -177,7 +248,7 @@ router.get(
  *         description: Vision goal updated
  */
 router.put(
-  "/vision-board/:id",
+  "/:id",
   authenticate,
   VisionBoardMiddleware.validateVisionGoalExists,
   VisionBoardMiddleware.checkModificationPermission,
@@ -188,7 +259,7 @@ router.put(
 
 /**
  * @swagger
- * /api/vision-board/{id}:
+ * /{id}:
  *   delete:
  *     summary: Delete a vision goal
  *     tags: [Vision Board]
@@ -204,7 +275,7 @@ router.put(
  *         description: Vision goal deleted
  */
 router.delete(
-  "/vision-board/:id",
+  "/:id",
   authenticate,
   authorize(["admin", "project_manager"]),
   VisionBoardMiddleware.validateVisionGoalExists,
@@ -213,7 +284,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/vision-board/{id}/projects:
+ * /{id}/projects:
  *   post:
  *     summary: Link a project to a vision goal
  *     tags: [Vision Board]
@@ -241,7 +312,7 @@ router.delete(
  *         description: Project linked successfully
  */
 router.post(
-  "/vision-board/:id/projects",
+  "/:id/projects",
   authenticate,
   VisionBoardMiddleware.validateVisionGoalExists,
   VisionBoardMiddleware.validateProjectExists,
@@ -252,7 +323,7 @@ router.post(
 
 /**
  * @swagger
- * /api/vision-board/{id}/projects/{projectId}:
+ * /{id}/projects/{projectId}:
  *   delete:
  *     summary: Unlink a project from a vision goal
  *     tags: [Vision Board]
@@ -274,7 +345,7 @@ router.post(
  *         description: Project unlinked successfully
  */
 router.delete(
-  "/vision-board/:id/projects/:projectId",
+  "/:id/projects/:projectId",
   authenticate,
   VisionBoardMiddleware.validateVisionGoalExists,
   VisionBoardMiddleware.validateProjectExists,
@@ -284,7 +355,7 @@ router.delete(
 
 /**
  * @swagger
- * /api/vision-board/{id}/progress:
+ * /{id}/progress:
  *   get:
  *     summary: Get goal progress
  *     tags: [Vision Board]
@@ -300,7 +371,7 @@ router.delete(
  *         description: Goal progress
  */
 router.get(
-  "/vision-board/:id/progress",
+  "/:id/progress",
   authenticate,
   VisionBoardMiddleware.validateVisionGoalExists,
   VisionBoardController.getGoalProgress.bind(VisionBoardController)
@@ -308,7 +379,7 @@ router.get(
 
 /**
  * @swagger
- * /api/vision-board/{id}/available-projects:
+ * /{id}/available-projects:
  *   get:
  *     summary: Get available projects for linking
  *     tags: [Vision Board]
@@ -324,81 +395,10 @@ router.get(
  *         description: Available projects
  */
 router.get(
-  "/vision-board/:id/available-projects",
+  "/:id/available-projects",
   authenticate,
   VisionBoardMiddleware.validateVisionGoalExists,
   VisionBoardController.getAvailableProjects.bind(VisionBoardController)
-);
-
-/**
- * @swagger
- * /api/vision-board/categories:
- *   get:
- *     summary: Get all categories
- *     tags: [Vision Board]
- *     responses:
- *       200:
- *         description: Categories list
- */
-router.get(
-  "/vision-board/categories",
-  authenticate,
-  VisionBoardController.getCategories.bind(VisionBoardController)
-);
-
-/**
- * @swagger
- * /api/vision-board/statistics:
- *   get:
- *     summary: Get vision board statistics
- *     tags: [Vision Board]
- *     responses:
- *       200:
- *         description: Statistics
- */
-router.get(
-  "/vision-board/statistics",
-  authenticate,
-  VisionBoardController.getStatistics.bind(VisionBoardController)
-);
-
-/**
- * @swagger
- * /api/vision-board/options:
- *   get:
- *     summary: Get options for UI
- *     tags: [Vision Board]
- *     responses:
- *       200:
- *         description: UI options
- */
-router.get(
-  "/vision-board/options",
-  authenticate,
-  VisionBoardController.getOptions.bind(VisionBoardController)
-);
-
-/**
- * @swagger
- * /api/vision-board/export:
- *   get:
- *     summary: Export vision goals
- *     tags: [Vision Board]
- *     parameters:
- *       - in: query
- *         name: format
- *         schema:
- *           type: string
- *           enum: [json, csv]
- *           default: json
- *     responses:
- *       200:
- *         description: Exported data
- */
-router.get(
-  "/vision-board/export",
-  authenticate,
-  VisionBoardController.exportGoals.bind(VisionBoardController)
 );
 
 module.exports = router;

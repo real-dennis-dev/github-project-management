@@ -156,7 +156,20 @@ router.get(
   AuthMiddleware.optionalAuth,
   AuthController.getAuthState.bind(AuthController)
 );
-
+/**
+ * @swagger
+ * /api/auth/sessions/stats:
+ *   get:
+ *     summary: Get session statistics
+ *     security:
+ *       - cookieAuth: []
+ *     tags: [Auth]
+ */
+router.get(
+  "/sessions/stats",
+  AuthMiddleware.authenticate,
+  AuthController.getSessionStats.bind(AuthController)
+);
 /**
  * @swagger
  * /api/auth/logout:

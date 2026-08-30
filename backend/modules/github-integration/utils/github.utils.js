@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const { Octokit } = require("@octokit/rest");
 const { createAppAuth } = require("@octokit/auth-app");
 const logger = require("../../../common/config/logger");
@@ -8,12 +10,17 @@ const logger = require("../../../common/config/logger");
 class GitHubUtils {
   /**
    * Initialize GitHub Utils
-   * @param {Object} config - GitHub configuration
+   *
    */
-  constructor(config) {
-    this.config = config;
+  constructor() {
+    const accessToken = process.env.GITHUB_ACCESS_TOKEN;
+    if (!accessToken) {
+      throw new Error(
+        "GITHUB_ACCESS_TOKEN is not defined in environment variables"
+      );
+    }
     this.octokit = new Octokit({
-      auth: config.accessToken,
+      auth: accessToken,
       userAgent: "ProjectManagementApp v1.0.0",
     });
   }

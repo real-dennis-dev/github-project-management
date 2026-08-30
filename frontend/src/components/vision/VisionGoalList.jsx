@@ -2,25 +2,29 @@
 import React, { useState, useEffect } from "react";
 import { useVision } from "../../hooks/useVision";
 import VisionGoalCard from "./VisionGoalCard";
-import { Pagination, EmptyState, LoadingSpinner, Alert } from "../common";
-import { Target } from "lucide-react";
+import {
+  Pagination,
+  Button,
+  EmptyState,
+  LoadingSpinner,
+  Alert,
+} from "../common";
+import { Target, Plus } from "lucide-react";
 
 const VisionGoalList = ({ viewMode = "grid" }) => {
   const {
     goals,
-    pagination,
+    getGoals,
+    getStatistics,
+    getCategories,
+    getOptions,
     isLoading,
     error,
     clearError,
-    getGoals,
     filters,
     setFilters,
   } = useVision();
   const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    getGoals({ ...filters, page, limit: 12 });
-  }, [page, filters]);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);

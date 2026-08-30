@@ -19,7 +19,7 @@ class AuthService {
   }
 
   async refreshToken() {
-    const response = await axiosInstance.post("/auth/refresh");
+    const response = await axiosInstance.post("/auth/refresh-token");
     return response.data;
   }
 
@@ -52,34 +52,34 @@ class AuthService {
 
   // Session endpoints
   async getSessions(params = {}) {
-    const response = await axiosInstance.get("/sessions", { params });
+    const response = await axiosInstance.get("/auth/sessions", { params });
     return response.data;
   }
 
   async getSession(sessionId) {
-    const response = await axiosInstance.get(`/sessions/${sessionId}`);
+    const response = await axiosInstance.get(`/auth/sessions/${sessionId}`);
     return response.data;
   }
 
   async revokeSession(sessionId) {
-    const response = await axiosInstance.delete(`/sessions/${sessionId}`);
+    const response = await axiosInstance.delete(`/auth/sessions/${sessionId}`);
     return response.data;
   }
 
   async revokeAllSessions(excludeCurrent = true) {
-    const response = await axiosInstance.post("/sessions/revoke-all", {
+    const response = await axiosInstance.post("/auth/sessions/revoke-all", {
       excludeCurrent,
     });
     return response.data;
   }
 
   async getSessionStats() {
-    const response = await axiosInstance.get("/sessions/stats");
+    const response = await axiosInstance.get("/auth/sessions/stats");
     return response.data;
   }
 
   async extendSession(data) {
-    const response = await axiosInstance.post("/sessions/extend", data);
+    const response = await axiosInstance.post("/auth/sessions/extend", data);
     return response.data;
   }
 }
