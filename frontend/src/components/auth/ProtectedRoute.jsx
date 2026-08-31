@@ -1,12 +1,13 @@
 // src/components/auth/ProtectedRoute.jsx
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 
 export const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
-  const { isAuthenticated, isUserLoading } = useAuth();
+  const { isLoading, user } = useAuth(); // use the REAL flag from your hook
+  const location = useLocation();
 
-  if (isUserLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner size="lg" />
@@ -14,8 +15,15 @@ export const ProtectedRoute = ({ children, redirectTo = "/login" }) => {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+  if (!user) {
+    // Important: pass the current location so we can come back
+    return (
+      <Navigate
+        to="/login" // or whatever your login path is
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   return children;

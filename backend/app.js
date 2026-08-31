@@ -155,11 +155,11 @@ app.use("/api/github", githubIntegrationRoutes);
 
 // Project Management
 app.use("/api/progress", progressRoutes);
-app.use("/api/bugs", bugRoutes);
-app.use("/api/features", featureRoutes);
+app.use("/api", bugRoutes);
+app.use("/api", featureRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/releases", releaseMilestoneRoutes);
-app.use("/api/tech-debt", techDebtRoutes);
+app.use("/api", techDebtRoutes);
 app.use("/api/vision-board", visionBoardRoutes);
 
 // =======================

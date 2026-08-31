@@ -1,6 +1,6 @@
 // src/components/auth/AuthGuard.jsx
 
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 
@@ -10,6 +10,7 @@ const AuthGuard = ({
   redirectTo = "/dashboard",
 }) => {
   const { isAuthenticated, isUserLoading } = useAuth();
+  const location = useLocation();
 
   if (isUserLoading) {
     return (
@@ -20,7 +21,9 @@ const AuthGuard = ({
   }
 
   if (requireGuest && isAuthenticated) {
-    return <Navigate to={redirectTo} replace />;
+    // If the user explicitly navigated to a specific URL (like a project), send them there instead of forcing /dashboard
+    const origin = location.state?.from?.pathname || redirectTo;
+    return <Navigate to={origin} replace />;
   }
 
   return children;

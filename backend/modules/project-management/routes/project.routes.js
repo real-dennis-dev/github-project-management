@@ -265,7 +265,7 @@ router.delete(
  *         description: Project analytics
  */
 router.get(
-  "/:id/analytics",
+  "/:id/stats",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectAnalytics

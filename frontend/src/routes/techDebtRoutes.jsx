@@ -42,7 +42,7 @@ const techDebtRoutes = [
     path: "/tech-debt",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <TechDebtList /> {/* or project picker */}
+        <TechDebtOverview /> {/* or project picker */}
       </Suspense>
     ),
   },

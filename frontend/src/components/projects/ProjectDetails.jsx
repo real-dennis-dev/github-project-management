@@ -3,12 +3,20 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useProjects } from "../../hooks/useProjects";
 import { useToast } from "../../hooks/useToast";
-import { LoadingSpinner, Alert, Badge, Button, Tabs, Tab } from "../common";
+import { LoadingSpinner, Alert, Badge, Button, Modal } from "../common";
 import ProjectStatusBadge from "./ProjectStatusBadge";
 import FeatureList from "./FeatureList";
 import BugList from "./BugList";
 import ProjectStats from "./ProjectStats";
-import { ArrowLeft, Edit, Calendar, GitBranch, Code2 } from "lucide-react";
+import ProjectForm from "./ProjectForm";
+import {
+  ArrowLeft,
+  Edit,
+  Calendar,
+  GitBranch,
+  Code2,
+  Trash2,
+} from "lucide-react";
 
 const ProjectDetails = () => {
   const { projectId } = useParams();
@@ -24,9 +32,13 @@ const ProjectDetails = () => {
     isLoading,
     error,
     clearError,
+    deleteProject,
+    isDeletingProject,
   } = useProjects();
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (projectId) {
@@ -36,6 +48,23 @@ const ProjectDetails = () => {
       getBugs(projectId);
     }
   }, [projectId]);
+
+  const handleUpdateSuccess = (updatedProject) => {
+    setShowEditModal(false);
+    toast.success("Project updated successfully");
+    getProject(projectId);
+    getProjectStats(projectId);
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteProject(projectId);
+      toast.success("Project deleted successfully");
+      navigate("/projects");
+    } catch (error) {
+      toast.error(error.message || "Failed to delete project");
+    }
+  };
 
   if (isLoading && !currentProject) {
     return <LoadingSpinner size="lg" className="my-12" />;
@@ -66,7 +95,8 @@ const ProjectDetails = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
@@ -83,16 +113,27 @@ const ProjectDetails = () => {
             {currentProject.priority || "Medium"} Priority
           </Badge>
         </div>
-        <Button
-          variant="secondary"
-          onClick={() => navigate(`/projects/${projectId}/edit`)}
-          className="flex items-center space-x-2"
-        >
-          <Edit className="w-4 h-4" />
-          <span>Edit</span>
-        </Button>
+        <div className="flex items-center space-x-3">
+          <Button
+            variant="secondary"
+            onClick={() => setShowEditModal(true)}
+            className="flex items-center space-x-2"
+          >
+            <Edit className="w-4 h-4" />
+            <span>Edit</span>
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center space-x-2"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Delete</span>
+          </Button>
+        </div>
       </div>
 
+      {/* Project Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-neutral-100 border border-neutral-300 rounded-lg p-4">
           <p className="text-sm text-neutral-500">Description</p>
@@ -147,6 +188,7 @@ const ProjectDetails = () => {
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="border-b border-neutral-300">
         <nav className="flex space-x-4">
           {tabs.map((tab) => (
@@ -165,6 +207,7 @@ const ProjectDetails = () => {
         </nav>
       </div>
 
+      {/* Tab Content */}
       <div className="mt-6">
         {activeTab === "overview" && (
           <ProjectStats stats={projectStats} project={currentProject} />
@@ -172,6 +215,55 @@ const ProjectDetails = () => {
         {activeTab === "features" && <FeatureList projectId={projectId} />}
         {activeTab === "bugs" && <BugList projectId={projectId} />}
       </div>
+
+      {/* Edit Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Project"
+        size="lg"
+      >
+        <ProjectForm
+          initialData={currentProject}
+          onSubmit={handleUpdateSuccess}
+          onCancel={() => setShowEditModal(false)}
+          isEditing
+        />
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        title="Delete Project"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-neutral-700">
+            Are you sure you want to delete{" "}
+            <span className="font-semibold">{currentProject.name}</span>? This
+            action cannot be undone and will remove all associated features,
+            bugs, and subtasks.
+          </p>
+          <div className="flex justify-end space-x-3">
+            <Button
+              variant="ghost"
+              onClick={() => setShowDeleteModal(false)}
+              disabled={isDeletingProject}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleDeleteConfirm}
+              loading={isDeletingProject}
+              disabled={isDeletingProject}
+            >
+              Delete Project
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

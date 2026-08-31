@@ -29,21 +29,7 @@ import { useAuth } from "../../hooks/useAuth"; // adjust path if needed
 const DashboardLayout = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = React.useState(false);
   const location = useLocation();
-  const { user, isAuthenticated, isLoading } = useAuth();
-
-  // ── Auth guard ──────────────────────────────────────────────
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100">
-        <div className="text-neutral-600 text-sm">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    // Redirect to login and remember where the user wanted to go
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  const { user } = useAuth();
 
   // Derive a friendly first name
   const displayName =
@@ -282,7 +268,7 @@ const DashboardLayout = () => {
             <Outlet />
           </div>
 
-          <Footer />
+          {/* <Footer /> */}
         </main>
       </div>
     </div>
