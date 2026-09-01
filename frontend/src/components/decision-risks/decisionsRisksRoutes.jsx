@@ -3,7 +3,7 @@ import React, { Suspense, lazy } from "react";
 import { Navigate } from "react-router-dom";
 import { ProtectedRoute } from "../../components/auth/ProtectedRoute";
 import { LoadingSpinner } from "../../components/common/LoadingSpinner";
-
+import DecisionRisksDashboard from "./DecisionRisksDashboard";
 // Lazy load components
 const DecisionList = lazy(() => import("./components/DecisionList"));
 const RiskList = lazy(() => import("./components/RiskList"));
@@ -53,10 +53,10 @@ const DecisionStatsWrapper = () => {
 
 const decisionsRisksRoutes = [
   {
-    path: "/decisions",
+    path: "/decisions-risks",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <DecisionListWrapper />
+        <DecisionRisksDashboard />
       </Suspense>
     ),
   },

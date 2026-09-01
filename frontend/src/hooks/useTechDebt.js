@@ -22,9 +22,10 @@ export const useTechDebt = () => {
     score: (projectId) => ["techDebt", "score", projectId],
     statistics: (projectId) => ["techDebt", "statistics", projectId],
     suggestions: (projectId) => ["techDebt", "suggestions", projectId],
+    globalStats: (params) => ["techDebt", "globalStats", params], // NEW
   };
 
-  // ============ Queries ============
+  // ============ Existing Queries ============
 
   // Get tech debt items query
   const getItemsQuery = (projectId, params = {}) => {
@@ -133,7 +134,39 @@ export const useTechDebt = () => {
     });
   };
 
-  // ============ Mutations ============
+  // ============ NEW: Global Stats Query ============
+
+  /**
+   * Get global tech debt statistics across all projects
+   * Endpoint: GET /api/tech-debt/stats
+   * @param {Object} params - Query parameters (page, limit)
+   */
+  const getGlobalStatsQuery = (params = {}) => {
+    const { page = 1, limit = 20 } = params;
+    return useQuery({
+      queryKey: TD_KEYS.globalStats({ page, limit }),
+      queryFn: () => techDebtService.getGlobalStats({ page, limit }),
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setGlobalStats(response.data);
+          // Update pagination if needed
+          if (response.data?.latest?.pagination) {
+            store.setPagination({
+              page: response.data.latest.pagination.page || page,
+              limit: response.data.latest.pagination.limit || limit,
+              total: response.data.latest.pagination.total || 0,
+              pages: response.data.latest.pagination.totalPages || 0,
+            });
+          }
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch global statistics");
+      },
+    });
+  };
+
+  // ============ Existing Mutations ============
 
   // Create tech debt item mutation
   const createItemMutation = useMutation({
@@ -152,6 +185,9 @@ export const useTechDebt = () => {
         queryClient.invalidateQueries({ queryKey: ["techDebt", "overview"] });
         queryClient.invalidateQueries({ queryKey: ["techDebt", "score"] });
         queryClient.invalidateQueries({ queryKey: ["techDebt", "statistics"] });
+        queryClient.invalidateQueries({
+          queryKey: ["techDebt", "globalStats"],
+        }); // NEW
       }
     },
     onError: (error) => {
@@ -186,6 +222,9 @@ export const useTechDebt = () => {
         queryClient.invalidateQueries({ queryKey: ["techDebt", "overview"] });
         queryClient.invalidateQueries({ queryKey: ["techDebt", "score"] });
         queryClient.invalidateQueries({ queryKey: ["techDebt", "statistics"] });
+        queryClient.invalidateQueries({
+          queryKey: ["techDebt", "globalStats"],
+        }); // NEW
       }
     },
     onError: (error) => {
@@ -220,6 +259,9 @@ export const useTechDebt = () => {
         queryClient.invalidateQueries({ queryKey: ["techDebt", "overview"] });
         queryClient.invalidateQueries({ queryKey: ["techDebt", "score"] });
         queryClient.invalidateQueries({ queryKey: ["techDebt", "statistics"] });
+        queryClient.invalidateQueries({
+          queryKey: ["techDebt", "globalStats"],
+        }); // NEW
       }
     },
     onError: (error) => {
@@ -236,6 +278,7 @@ export const useTechDebt = () => {
       queryClient.invalidateQueries({ queryKey: ["techDebt", "overview"] });
       queryClient.invalidateQueries({ queryKey: ["techDebt", "score"] });
       queryClient.invalidateQueries({ queryKey: ["techDebt", "statistics"] });
+      queryClient.invalidateQueries({ queryKey: ["techDebt", "globalStats"] }); // NEW
     },
     onError: (error) => {
       store.setError(error.message || "Failed to delete tech debt item");
@@ -272,6 +315,12 @@ export const useTechDebt = () => {
   const getSuggestions = (projectId) => {
     store.clearError();
     return getSuggestionsQuery(projectId);
+  };
+
+  // NEW: Get global stats
+  const getGlobalStats = (params = {}) => {
+    store.clearError();
+    return getGlobalStatsQuery(params);
   };
 
   const createItem = async (projectId, data) => {
@@ -332,6 +381,7 @@ export const useTechDebt = () => {
     overview: store.overview,
     score: store.score,
     statistics: store.statistics,
+    globalStats: store.globalStats, // NEW
     suggestions: store.suggestions,
     isLoading: store.isLoading,
     error: store.error,
@@ -344,6 +394,7 @@ export const useTechDebt = () => {
     isScoreLoading: getScoreQuery("").isLoading,
     isStatisticsLoading: getStatisticsQuery("").isLoading,
     isSuggestionsLoading: getSuggestionsQuery("").isLoading,
+    isGlobalStatsLoading: getGlobalStatsQuery({}).isLoading, // NEW
 
     // Mutation loading states
     isCreating: createItemMutation.isPending,
@@ -358,6 +409,7 @@ export const useTechDebt = () => {
     getScore,
     getStatistics,
     getSuggestions,
+    getGlobalStats, // NEW
 
     // Mutation methods
     createItem,

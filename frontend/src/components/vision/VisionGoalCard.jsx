@@ -1,9 +1,9 @@
-// src/components/vision/VisionGoalCard.jsx
+// src/components/vision/VisionGoalCard.jsx (updated)
 import React from "react";
 import { Link } from "react-router-dom";
 import { useVision } from "../../hooks/useVision";
 import { useToast } from "../../hooks/useToast";
-import { Badge, Button, ProgressBar } from "../common";
+import { Badge, Button, ProgressBar, Checkbox } from "../common";
 import {
   Target,
   Calendar,
@@ -14,7 +14,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-const VisionGoalCard = ({ goal, viewMode = "grid" }) => {
+const VisionGoalCard = ({
+  goal,
+  viewMode = "grid",
+  isSelected = false,
+  onSelect,
+}) => {
   const { deleteGoal } = useVision();
   const { toast } = useToast();
 
@@ -39,12 +44,6 @@ const VisionGoalCard = ({ goal, viewMode = "grid" }) => {
     archived: "neutral",
   };
 
-  const priorityLabels = {
-    0: "Low",
-    5: "Medium",
-    10: "High",
-  };
-
   const getPriorityLabel = (value) => {
     if (value <= 3) return "Low";
     if (value <= 7) return "Medium";
@@ -65,7 +64,7 @@ const VisionGoalCard = ({ goal, viewMode = "grid" }) => {
   const cardContent = (
     <div className="space-y-3">
       <div className="flex items-start justify-between">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <h3 className="text-lg font-semibold text-neutral-900 line-clamp-2">
             {title}
           </h3>
@@ -147,13 +146,24 @@ const VisionGoalCard = ({ goal, viewMode = "grid" }) => {
 
   if (viewMode === "list") {
     return (
-      <div className="bg-neutral-100 border border-neutral-300 rounded-lg p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
+      <div
+        className={`bg-neutral-100 border rounded-lg p-4 transition-colors ${
+          isSelected ? "border-primary-500 bg-primary-50" : "border-neutral-300"
+        }`}
+      >
+        <div className="flex items-center gap-4">
+          {onSelect && (
+            <Checkbox
+              checked={isSelected}
+              onChange={() => onSelect(id)}
+              className="flex-shrink-0"
+            />
+          )}
+          <div className="flex-1 min-w-0">
             <h3 className="text-lg font-semibold text-neutral-900">{title}</h3>
             <p className="text-sm text-neutral-600 mt-1">{description}</p>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             <Badge variant={statusColors[status] || "neutral"} size="sm">
               {status}
             </Badge>
@@ -173,7 +183,18 @@ const VisionGoalCard = ({ goal, viewMode = "grid" }) => {
   }
 
   return (
-    <div className="bg-neutral-100 border border-neutral-300 rounded-lg p-6 hover:border-primary-400 transition-colors">
+    <div
+      className={`bg-neutral-100 border rounded-lg p-6 transition-colors ${
+        isSelected
+          ? "border-primary-500 bg-primary-50"
+          : "border-neutral-300 hover:border-primary-400"
+      }`}
+    >
+      {onSelect && (
+        <div className="mb-3">
+          <Checkbox checked={isSelected} onChange={() => onSelect(id)} />
+        </div>
+      )}
       {cardContent}
     </div>
   );

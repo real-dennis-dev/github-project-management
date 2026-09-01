@@ -1,6 +1,6 @@
 // src/modules/progress-timeline/controllers/progress.controller.js
 const ProgressService = require("../services/progress.service");
-const { ResponseUtils } = require("../../../common/utils/response.utils");
+const ResponseUtils = require("../../../common/utils/response.utils");
 const { ProgressUtils } = require("../utils/progress.utils");
 
 class ProgressController {

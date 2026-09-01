@@ -9,3 +9,4 @@ export { default as PullRequestList } from "./PullRequestList";
 export { default as IssueList } from "./IssueList";
 export { default as WebhookSetup } from "./WebhookSetup";
 export { default as SyncButton } from "./SyncButton";
+//export { default as GithubDashboard } from './GithubDashboard';

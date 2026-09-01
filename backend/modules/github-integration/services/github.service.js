@@ -1015,6 +1015,704 @@ class GitHubService {
       throw error;
     }
   }
+  /**
+   * Get aggregated GitHub dashboard statistics across all accessible projects
+   *
+   * This endpoint intentionally does NOT accept a projectId.
+   *
+   * @param {string} userId - Authenticated user ID
+   * @param {boolean} isAdmin - Whether authenticated user is an admin
+   * @param {Object} filters - { page, limit }
+   * @returns {Promise<Object>} Aggregated GitHub dashboard statistics
+   */
+  async getGitHubStats(userId, isAdmin = false, filters = {}) {
+    try {
+      const { page = 1, limit = 20 } = filters;
+
+      const offset = (page - 1) * limit;
+
+      /*
+       * ---------------------------------------------------------
+       * 1. Get projects accessible to the current user
+       * ---------------------------------------------------------
+       */
+
+      let projectsQuery = supabase
+        .from("projects")
+        .select("id, name, owner_id, created_at");
+
+      if (!isAdmin) {
+        projectsQuery = projectsQuery.eq("owner_id", userId);
+      }
+
+      const { data: projects, error: projectsError } = await projectsQuery;
+
+      if (projectsError) {
+        throw new Error(
+          `Failed to fetch accessible projects: ${projectsError.message}`
+        );
+      }
+
+      const projectList = projects || [];
+
+      if (projectList.length === 0) {
+        return {
+          summary: {
+            projects: 0,
+            repositories: 0,
+            commits: 0,
+            branches: 0,
+            pullRequests: 0,
+            issues: 0,
+            openPullRequests: 0,
+            mergedPullRequests: 0,
+            closedPullRequests: 0,
+            openIssues: 0,
+            closedIssues: 0,
+          },
+
+          projects: [],
+
+          activity: [],
+
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            pages: 0,
+          },
+
+          generatedAt: new Date().toISOString(),
+        };
+      }
+
+      const projectIds = projectList.map((project) => project.id);
+
+      /*
+       * ---------------------------------------------------------
+       * 2. Get all GitHub repositories belonging to those projects
+       * ---------------------------------------------------------
+       */
+
+      const { data: repositories, error: repositoriesError } = await supabase
+        .from("github_repositories")
+        .select(
+          `
+        id,
+        project_id,
+        repo_name,
+        repo_owner,
+        repo_url,
+        github_id,
+        default_branch,
+        last_synced_at,
+        created_at
+      `
+        )
+        .in("project_id", projectIds)
+        .order("last_synced_at", { ascending: false, nullsFirst: false });
+
+      if (repositoriesError) {
+        throw new Error(
+          `Failed to fetch GitHub repositories: ${repositoriesError.message}`
+        );
+      }
+
+      const repositoryList = repositories || [];
+
+      if (repositoryList.length === 0) {
+        return {
+          summary: {
+            projects: projectList.length,
+            repositories: 0,
+            commits: 0,
+            branches: 0,
+            pullRequests: 0,
+            issues: 0,
+            openPullRequests: 0,
+            mergedPullRequests: 0,
+            closedPullRequests: 0,
+            openIssues: 0,
+            closedIssues: 0,
+          },
+
+          projects: projectList.map((project) => ({
+            projectId: project.id,
+            projectName: project.name,
+            repositories: [],
+            stats: {
+              repositories: 0,
+              commits: 0,
+              branches: 0,
+              pullRequests: 0,
+              issues: 0,
+            },
+            latestActivityAt: null,
+          })),
+
+          activity: [],
+
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            pages: 0,
+          },
+
+          generatedAt: new Date().toISOString(),
+        };
+      }
+
+      const repositoryIds = repositoryList.map((repo) => repo.id);
+
+      /*
+       * ---------------------------------------------------------
+       * 3. Fetch all GitHub data
+       *
+       * We fetch only the columns required by the dashboard.
+       * ---------------------------------------------------------
+       */
+
+      const [commitsResult, branchesResult, pullRequestsResult, issuesResult] =
+        await Promise.all([
+          supabase
+            .from("github_commits")
+            .select(
+              `
+          id,
+          repository_id,
+          commit_sha,
+          author_name,
+          commit_message,
+          committed_at,
+          added_lines,
+          removed_lines
+        `
+            )
+            .in("repository_id", repositoryIds),
+
+          supabase
+            .from("github_branches")
+            .select(
+              `
+          id,
+          repository_id,
+          branch_name,
+          is_default,
+          updated_at
+        `
+            )
+            .in("repository_id", repositoryIds),
+
+          supabase
+            .from("github_pull_requests")
+            .select(
+              `
+          id,
+          repository_id,
+          pr_number,
+          title,
+          state,
+          author,
+          created_at_github,
+          updated_at_github,
+          merged_at,
+          additions,
+          deletions
+        `
+            )
+            .in("repository_id", repositoryIds),
+
+          supabase
+            .from("github_issues")
+            .select(
+              `
+          id,
+          repository_id,
+          issue_number,
+          title,
+          state,
+          author,
+          created_at_github,
+          updated_at_github,
+          closed_at
+        `
+            )
+            .in("repository_id", repositoryIds),
+        ]);
+
+      if (commitsResult.error) {
+        throw new Error(
+          `Failed to fetch commits: ${commitsResult.error.message}`
+        );
+      }
+
+      if (branchesResult.error) {
+        throw new Error(
+          `Failed to fetch branches: ${branchesResult.error.message}`
+        );
+      }
+
+      if (pullRequestsResult.error) {
+        throw new Error(
+          `Failed to fetch pull requests: ${pullRequestsResult.error.message}`
+        );
+      }
+
+      if (issuesResult.error) {
+        throw new Error(
+          `Failed to fetch issues: ${issuesResult.error.message}`
+        );
+      }
+
+      const commits = commitsResult.data || [];
+      const branches = branchesResult.data || [];
+      const pullRequests = pullRequestsResult.data || [];
+      const issues = issuesResult.data || [];
+
+      /*
+       * ---------------------------------------------------------
+       * 4. Create lookup maps
+       * ---------------------------------------------------------
+       */
+
+      const projectMap = new Map(
+        projectList.map((project) => [project.id, project])
+      );
+
+      const repositoryMap = new Map(
+        repositoryList.map((repository) => [repository.id, repository])
+      );
+
+      /*
+       * ---------------------------------------------------------
+       * 5. Overall summary
+       * ---------------------------------------------------------
+       */
+
+      const summary = {
+        projects: projectList.length,
+
+        repositories: repositoryList.length,
+
+        commits: commits.length,
+
+        branches: branches.length,
+
+        pullRequests: pullRequests.length,
+
+        issues: issues.length,
+
+        openPullRequests: pullRequests.filter((pr) => pr.state === "open")
+          .length,
+
+        mergedPullRequests: pullRequests.filter((pr) => pr.state === "merged")
+          .length,
+
+        closedPullRequests: pullRequests.filter((pr) => pr.state === "closed")
+          .length,
+
+        openIssues: issues.filter((issue) => issue.state === "open").length,
+
+        closedIssues: issues.filter((issue) => issue.state === "closed").length,
+
+        totalAdditions: commits.reduce(
+          (total, commit) => total + (commit.added_lines || 0),
+          0
+        ),
+
+        totalDeletions: commits.reduce(
+          (total, commit) => total + (commit.removed_lines || 0),
+          0
+        ),
+      };
+
+      summary.totalChanges = summary.totalAdditions + summary.totalDeletions;
+
+      /*
+       * ---------------------------------------------------------
+       * 6. Build project statistics
+       * ---------------------------------------------------------
+       */
+
+      const projectStatsMap = new Map();
+
+      for (const project of projectList) {
+        projectStatsMap.set(project.id, {
+          projectId: project.id,
+          projectName: project.name,
+
+          repositories: [],
+
+          stats: {
+            repositories: 0,
+            commits: 0,
+            branches: 0,
+            pullRequests: 0,
+            issues: 0,
+            openPullRequests: 0,
+            mergedPullRequests: 0,
+            openIssues: 0,
+            closedIssues: 0,
+          },
+
+          latestActivityAt: null,
+        });
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * 7. Build repository statistics
+       * ---------------------------------------------------------
+       */
+
+      for (const repository of repositoryList) {
+        const projectStats = projectStatsMap.get(repository.project_id);
+
+        if (!projectStats) {
+          continue;
+        }
+
+        const repositoryCommits = commitsByRepository.get(repository.id) || [];
+
+        const repositoryBranches =
+          branchesByRepository.get(repository.id) || [];
+
+        const repositoryPRs = prsByRepository.get(repository.id) || [];
+
+        const repositoryIssues = issuesByRepository.get(repository.id) || [];
+
+        const commitDates = repositoryCommits
+          .map((commit) => commit.committed_at)
+          .filter(Boolean);
+
+        const prDates = repositoryPRs
+          .map((pr) => pr.updated_at_github || pr.created_at_github)
+          .filter(Boolean);
+
+        const issueDates = repositoryIssues
+          .map((issue) => issue.updated_at_github || issue.created_at_github)
+          .filter(Boolean);
+
+        const allDates = [...commitDates, ...prDates, ...issueDates]
+          .map((date) => new Date(date))
+          .filter((date) => !isNaN(date));
+
+        const latestActivityAt =
+          allDates.length > 0
+            ? new Date(
+                Math.max(...allDates.map((date) => date.getTime()))
+              ).toISOString()
+            : repository.last_synced_at;
+
+        const repositoryStats = {
+          repositoryId: repository.id,
+
+          projectId: repository.project_id,
+
+          name: repository.repo_name,
+
+          owner: repository.repo_owner,
+
+          url: repository.repo_url,
+
+          defaultBranch: repository.default_branch,
+
+          lastSyncedAt: repository.last_synced_at,
+
+          latestActivityAt,
+
+          stats: {
+            commits: repositoryCommits.length,
+
+            branches: repositoryBranches.length,
+
+            pullRequests: repositoryPRs.length,
+
+            issues: repositoryIssues.length,
+
+            openPullRequests: repositoryPRs.filter((pr) => pr.state === "open")
+              .length,
+
+            mergedPullRequests: repositoryPRs.filter(
+              (pr) => pr.state === "merged"
+            ).length,
+
+            closedPullRequests: repositoryPRs.filter(
+              (pr) => pr.state === "closed"
+            ).length,
+
+            openIssues: repositoryIssues.filter(
+              (issue) => issue.state === "open"
+            ).length,
+
+            closedIssues: repositoryIssues.filter(
+              (issue) => issue.state === "closed"
+            ).length,
+
+            additions: repositoryCommits.reduce(
+              (total, commit) => total + (commit.added_lines || 0),
+              0
+            ),
+
+            deletions: repositoryCommits.reduce(
+              (total, commit) => total + (commit.removed_lines || 0),
+              0
+            ),
+          },
+        };
+
+        repositoryStats.stats.totalChanges =
+          repositoryStats.stats.additions + repositoryStats.stats.deletions;
+
+        projectStats.repositories.push(repositoryStats);
+
+        projectStats.stats.repositories += 1;
+
+        projectStats.stats.commits += repositoryStats.stats.commits;
+        projectStats.stats.branches += repositoryStats.stats.branches;
+        projectStats.stats.pullRequests += repositoryStats.stats.pullRequests;
+        projectStats.stats.issues += repositoryStats.stats.issues;
+
+        projectStats.stats.openPullRequests +=
+          repositoryStats.stats.openPullRequests;
+
+        projectStats.stats.mergedPullRequests +=
+          repositoryStats.stats.mergedPullRequests;
+
+        projectStats.stats.openIssues += repositoryStats.stats.openIssues;
+
+        projectStats.stats.closedIssues += repositoryStats.stats.closedIssues;
+
+        if (
+          latestActivityAt &&
+          (!projectStats.latestActivityAt ||
+            new Date(latestActivityAt) >
+              new Date(projectStats.latestActivityAt))
+        ) {
+          projectStats.latestActivityAt = latestActivityAt;
+        }
+      }
+
+      const projectStats = Array.from(projectStatsMap.values())
+        .filter((project) => project.repositories.length > 0)
+        .sort(
+          (a, b) =>
+            new Date(b.latestActivityAt || 0) -
+            new Date(a.latestActivityAt || 0)
+        );
+
+      /*
+       * ---------------------------------------------------------
+       * 8. Build unified activity feed
+       *
+       * This is what the dashboard can display as a
+       * "latest activity" / "latest stats" list.
+       * ---------------------------------------------------------
+       */
+
+      const activity = [];
+
+      /*
+       * Commits
+       */
+
+      for (const commit of commits) {
+        const repository = repositoryMap.get(commit.repository_id);
+
+        if (!repository) continue;
+
+        const project = projectMap.get(repository.project_id);
+
+        if (!project) continue;
+
+        activity.push({
+          id: commit.id,
+
+          type: "commit",
+
+          timestamp: commit.committed_at,
+
+          project: {
+            id: project.id,
+            name: project.name,
+          },
+
+          repository: {
+            id: repository.id,
+            name: repository.repo_name,
+            owner: repository.repo_owner,
+            url: repository.repo_url,
+          },
+
+          data: {
+            sha: commit.commit_sha,
+            author: commit.author_name,
+            message: commit.commit_message,
+            additions: commit.added_lines || 0,
+            deletions: commit.removed_lines || 0,
+          },
+
+          navigation: {
+            repositoryId: repository.id,
+            projectId: project.id,
+            resource: "commits",
+          },
+        });
+      }
+
+      /*
+       * Pull requests
+       */
+
+      for (const pr of pullRequests) {
+        const repository = repositoryMap.get(pr.repository_id);
+
+        if (!repository) continue;
+
+        const project = projectMap.get(repository.project_id);
+
+        if (!project) continue;
+
+        activity.push({
+          id: pr.id,
+
+          type: "pull_request",
+
+          timestamp: pr.updated_at_github || pr.created_at_github,
+
+          project: {
+            id: project.id,
+            name: project.name,
+          },
+
+          repository: {
+            id: repository.id,
+            name: repository.repo_name,
+            owner: repository.repo_owner,
+            url: repository.repo_url,
+          },
+
+          data: {
+            number: pr.pr_number,
+            title: pr.title,
+            state: pr.state,
+            author: pr.author,
+            createdAt: pr.created_at_github,
+            updatedAt: pr.updated_at_github,
+            mergedAt: pr.merged_at,
+            additions: pr.additions || 0,
+            deletions: pr.deletions || 0,
+          },
+
+          navigation: {
+            repositoryId: repository.id,
+            projectId: project.id,
+            resource: "pull-requests",
+            resourceId: pr.id,
+          },
+        });
+      }
+
+      /*
+       * Issues
+       */
+
+      for (const issue of issues) {
+        const repository = repositoryMap.get(issue.repository_id);
+
+        if (!repository) continue;
+
+        const project = projectMap.get(repository.project_id);
+
+        if (!project) continue;
+
+        activity.push({
+          id: issue.id,
+
+          type: "issue",
+
+          timestamp: issue.updated_at_github || issue.created_at_github,
+
+          project: {
+            id: project.id,
+            name: project.name,
+          },
+
+          repository: {
+            id: repository.id,
+            name: repository.repo_name,
+            owner: repository.repo_owner,
+            url: repository.repo_url,
+          },
+
+          data: {
+            number: issue.issue_number,
+            title: issue.title,
+            state: issue.state,
+            author: issue.author,
+            createdAt: issue.created_at_github,
+            updatedAt: issue.updated_at_github,
+            closedAt: issue.closed_at,
+          },
+
+          navigation: {
+            repositoryId: repository.id,
+            projectId: project.id,
+            resource: "issues",
+            resourceId: issue.id,
+          },
+        });
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * 9. Sort ALL activity by latest
+       * ---------------------------------------------------------
+       */
+
+      activity.sort((a, b) => {
+        return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+      });
+
+      /*
+       * ---------------------------------------------------------
+       * 10. Paginate activity
+       * ---------------------------------------------------------
+       */
+
+      const totalActivity = activity.length;
+
+      const paginatedActivity = activity.slice(offset, offset + limit);
+
+      /*
+       * ---------------------------------------------------------
+       * 11. Return dashboard response
+       * ---------------------------------------------------------
+       */
+
+      return {
+        summary,
+
+        projects: projectStats,
+
+        activity: paginatedActivity,
+
+        pagination: {
+          page,
+          limit,
+          total: totalActivity,
+          pages: Math.ceil(totalActivity / limit),
+        },
+
+        generatedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      logger.error("Error getting GitHub dashboard statistics:", error);
+
+      throw error;
+    }
+  }
 }
 
 const gitHubService = new GitHubService();

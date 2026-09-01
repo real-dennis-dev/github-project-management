@@ -2,6 +2,8 @@
 import axiosInstance from "./axiosInstance";
 
 class TechDebtService {
+  // ============ Existing Methods ============
+
   // Get all tech debt items for a project
   async getItems(projectId, params = {}) {
     const response = await axiosInstance.get(
@@ -82,6 +84,34 @@ class TechDebtService {
     const response = await axiosInstance.get(
       `/projects/${projectId}/tech-debt/refactoring-suggestions`
     );
+    return response.data;
+  }
+
+  /**
+   * Get global technical debt statistics across all projects
+   * @param {Object} params - Query parameters
+   * @param {number} params.page - Page number for latest items (default: 1)
+   * @param {number} params.limit - Items per page (default: 20)
+   * @param {string} params.search - Search term for filtering
+   * @param {string} params.priority - Filter by priority
+   * @param {string} params.status - Filter by status
+   * @returns {Promise<Object>} Global tech debt stats
+   */
+  async getGlobalStats(params = {}) {
+    const response = await axiosInstance.get(`/tech-debt/stats`, { params });
+    return response.data;
+  }
+
+  /**
+   * Export all tech debt items across projects
+   * @param {Object} params - Export parameters
+   * @param {string} params.format - 'json' or 'csv'
+   * @returns {Promise<Object>} Exported data
+   */
+  async exportAllItems(params = {}) {
+    const response = await axiosInstance.get(`/tech-debt/export-all`, {
+      params,
+    });
     return response.data;
   }
 }

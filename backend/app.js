@@ -145,16 +145,16 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use("/api/auth", authRoutes);
 
 // Personal Management
-app.use("/api/daily-journal", dailyJournalRoutes);
-app.use("/api/decision-risks", decisionRisksRoutes);
+app.use("/api", dailyJournalRoutes);
+app.use("/api", decisionRisksRoutes);
 app.use("/api/documentation", documentationRoutes);
-app.use("/api/expenses", expensesRoutes);
+app.use("/api", expensesRoutes);
 
 // Integrations
 app.use("/api/github", githubIntegrationRoutes);
 
 // Project Management
-app.use("/api/progress", progressRoutes);
+app.use("/api", progressRoutes);
 app.use("/api", bugRoutes);
 app.use("/api", featureRoutes);
 app.use("/api", projectRoutes);

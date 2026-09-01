@@ -83,6 +83,12 @@ class JournalService {
     );
     return response.data;
   }
+  async getDashboardStats(params = {}) {
+    const response = await axiosInstance.get(`/daily-journal/stats`, {
+      params,
+    });
+    return response.data;
+  }
 }
 
 export const journalService = new JournalService();

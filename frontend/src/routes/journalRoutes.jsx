@@ -24,6 +24,9 @@ const JournalExport = React.lazy(() =>
 const JournalChart = React.lazy(() =>
   import("../components/journal/JournalChart")
 );
+const JournalDashboard = React.lazy(() =>
+  import("../components/journal/JournalDashboard")
+);
 
 const LoadingFallback = () => (
   <div className="flex items-center justify-center min-h-[400px]">
@@ -40,7 +43,7 @@ const withSuspense = (Component) => (
 const journalRoutes = [
   {
     path: "/journal",
-    element: withSuspense(JournalList), // or a project-picker page
+    element: withSuspense(JournalDashboard), // or a project-picker page
   },
   {
     path: "/projects/:projectId/journal",

@@ -68,7 +68,7 @@ const DashboardLayout = () => {
       icon: faWallet,
     },
     {
-      to: "/decisions",
+      to: "/decisions-risks",
       label: "Decisions & Risks",
       icon: faShieldHalved,
     },
@@ -78,12 +78,12 @@ const DashboardLayout = () => {
       icon: faBug,
     },
     {
-      to: "/releases",
+      to: "/releases-milestones",
       label: "Releases",
       icon: faRocket,
     },
     {
-      to: "/progress",
+      to: "/progress-timeline",
       label: "Progress",
       icon: faChartLine,
     },

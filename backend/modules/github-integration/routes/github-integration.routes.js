@@ -174,5 +174,15 @@ router.post(
   middleware.validateWebhookSignature.bind(middleware),
   controller.webhookHandler.bind(controller)
 );
-
+/**
+ * @route   GET /api/github/stats
+ * @desc    Get aggregated GitHub dashboard statistics across all accessible projects
+ * @access  Private
+ */
+router.get(
+  "/github/stats",
+  AuthMiddleware.authenticate,
+  ValidationMiddleware.validateQuery(GitHubValidation.getGitHubStats),
+  controller.getGitHubStats.bind(controller)
+);
 module.exports = router;

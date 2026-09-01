@@ -1,30 +1,36 @@
-// src/routes/expenseRoutes.jsx
-
+// src/routes/releasesRoutes.jsx
 import React, { Suspense } from "react";
 import { LoadingSpinner } from "../components/common";
 
-const ExpenseList = React.lazy(() =>
-  import("../components/expenses/ExpenseList")
+const ReleasesDashboard = React.lazy(() =>
+  import("../components/releases/ReleasesDashboard")
 );
-
-const ExpenseSummary = React.lazy(() =>
-  import("../components/expenses/ExpenseSummary")
+const ReleaseList = React.lazy(() =>
+  import("../components/releases/ReleaseList")
 );
-
-const ExpenseCategories = React.lazy(() =>
-  import("../components/expenses/ExpenseCategories")
+const ReleaseForm = React.lazy(() =>
+  import("../components/releases/ReleaseForm")
 );
-
-const ExpenseMonthly = React.lazy(() =>
-  import("../components/expenses/ExpenseMonthly")
+const ReleaseDetail = React.lazy(() =>
+  import("../components/releases/ReleaseDetail")
 );
-
-const ExpenseStatistics = React.lazy(() =>
-  import("../components/expenses/ExpenseStatistics")
+const ReleaseStats = React.lazy(() =>
+  import("../components/releases/ReleaseStats")
 );
-
-const ExpenseExport = React.lazy(() =>
-  import("../components/expenses/ExpenseExport")
+const MilestoneList = React.lazy(() =>
+  import("../components/releases/MilestoneList")
+);
+const MilestoneForm = React.lazy(() =>
+  import("../components/releases/MilestoneForm")
+);
+const MilestoneDetail = React.lazy(() =>
+  import("../components/releases/MilestoneDetail")
+);
+const MilestoneStats = React.lazy(() =>
+  import("../components/releases/MilestoneStats")
+);
+const BulkUpdateProgress = React.lazy(() =>
+  import("../components/releases/BulkUpdateProgress")
 );
 
 const LoadingFallback = () => (
@@ -33,37 +39,69 @@ const LoadingFallback = () => (
   </div>
 );
 
-const withSuspense = (Component) => (
+// Matches the working expenseRoutes pattern, with optional extraProps support
+const withSuspense = (Component, extraProps = {}) => (
   <Suspense fallback={<LoadingFallback />}>
-    <Component />
+    <Component {...extraProps} />
   </Suspense>
 );
 
-const expenseRoutes = [
+const releasesRoutes = [
+  // Top-level dashboard
   {
-    path: "expenses",
-    element: withSuspense(ExpenseList),
+    path: "releases-milestones",
+    element: withSuspense(ReleasesDashboard),
+  },
+
+  // Project-scoped releases
+  {
+    path: "projects/:projectId/releases",
+    element: withSuspense(ReleaseList),
   },
   {
-    path: "expenses/summary",
-    element: withSuspense(ExpenseSummary),
+    path: "projects/:projectId/releases/create",
+    element: withSuspense(ReleaseForm),
   },
   {
-    path: "expenses/categories",
-    element: withSuspense(ExpenseCategories),
+    path: "projects/:projectId/releases/stats",
+    element: withSuspense(ReleaseStats),
+  },
+
+  // Project-scoped milestones
+  {
+    path: "projects/:projectId/milestones",
+    element: withSuspense(MilestoneList),
   },
   {
-    path: "expenses/monthly",
-    element: withSuspense(ExpenseMonthly),
+    path: "projects/:projectId/milestones/create",
+    element: withSuspense(MilestoneForm),
   },
   {
-    path: "expenses/statistics",
-    element: withSuspense(ExpenseStatistics),
+    path: "projects/:projectId/milestones/stats",
+    element: withSuspense(MilestoneStats),
   },
   {
-    path: "expenses/export",
-    element: withSuspense(ExpenseExport),
+    path: "projects/:projectId/milestones/bulk-update",
+    element: withSuspense(BulkUpdateProgress),
+  },
+
+  // By-id routes
+  {
+    path: "releases/:id",
+    element: withSuspense(ReleaseDetail),
+  },
+  {
+    path: "releases/:id/edit",
+    element: withSuspense(ReleaseForm, { editMode: true }),
+  },
+  {
+    path: "milestones/:id",
+    element: withSuspense(MilestoneDetail),
+  },
+  {
+    path: "milestones/:id/edit",
+    element: withSuspense(MilestoneForm, { editMode: true }),
   },
 ];
 
-export default expenseRoutes;
+export default releasesRoutes;

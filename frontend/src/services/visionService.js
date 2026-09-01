@@ -3,7 +3,7 @@ import axiosInstance from "./axiosInstance";
 
 class VisionService {
   constructor() {
-    this.basePath = "/vision-board";
+    this.basePath = "/api/vision-board";
   }
 
   // ============ Goal Endpoints ============
@@ -33,6 +33,21 @@ class VisionService {
     return response.data;
   }
 
+  async bulkDeleteGoals(ids) {
+    const response = await axiosInstance.delete(`${this.basePath}/bulk`, {
+      data: { ids },
+    });
+    return response.data;
+  }
+
+  async bulkUpdateStatus(ids, status) {
+    const response = await axiosInstance.patch(`${this.basePath}/bulk/status`, {
+      ids,
+      status,
+    });
+    return response.data;
+  }
+
   // ============ Project Linking ============
 
   async linkProject(goalId, data) {
@@ -57,6 +72,13 @@ class VisionService {
     return response.data;
   }
 
+  async getGoalLinkedProjects(goalId) {
+    const response = await axiosInstance.get(
+      `${this.basePath}/${goalId}/linked-projects`
+    );
+    return response.data;
+  }
+
   // ============ Progress & Statistics ============
 
   async getGoalProgress(goalId) {
@@ -68,6 +90,13 @@ class VisionService {
 
   async getStatistics() {
     const response = await axiosInstance.get(`${this.basePath}/statistics`);
+    return response.data;
+  }
+
+  async getRecentActivities(limit = 10) {
+    const response = await axiosInstance.get(`${this.basePath}/activities`, {
+      params: { limit },
+    });
     return response.data;
   }
 
@@ -85,10 +114,49 @@ class VisionService {
 
   // ============ Export ============
 
-  async exportGoals(format = "json") {
+  async exportGoals(format = "json", filters = {}) {
     const response = await axiosInstance.get(`${this.basePath}/export`, {
-      params: { format },
+      params: { format, ...filters },
     });
+    return response.data;
+  }
+
+  // ============ Dashboard ============
+
+  async getDashboardData() {
+    const [statistics, recentGoals, categories, options] = await Promise.all([
+      this.getStatistics(),
+      this.getGoals({ limit: 5, sortBy: "created_at", sortOrder: "DESC" }),
+      this.getCategories(),
+      this.getOptions(),
+    ]);
+
+    return {
+      statistics: statistics.data,
+      recentGoals: recentGoals.data,
+      categories: categories.data,
+      options: options.data,
+    };
+  }
+
+  async getGoalsByStatus(status) {
+    const response = await axiosInstance.get(this.basePath, {
+      params: { status, limit: 100 },
+    });
+    return response.data;
+  }
+
+  async getCompletedGoalsCount() {
+    const response = await axiosInstance.get(
+      `${this.basePath}/statistics/completed`
+    );
+    return response.data;
+  }
+
+  async getActiveGoalsCount() {
+    const response = await axiosInstance.get(
+      `${this.basePath}/statistics/active`
+    );
     return response.data;
   }
 }

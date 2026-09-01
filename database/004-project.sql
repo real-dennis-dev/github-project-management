@@ -1,0 +1,2 @@
+ALTER TABLE projects 
+ADD COLUMN owner_id UUID REFERENCES user_profiles(id) ON DELETE CASCADE;

@@ -584,6 +584,38 @@ class GitHubController {
       return this.response.sendError(res, error.message, 400);
     }
   }
+  /**
+   * Get GitHub dashboard statistics across all accessible projects
+   *
+   * @route   GET /api/github/stats
+   * @access  Private
+   */
+  async getGitHubStats(req, res) {
+    try {
+      const userId = req.user?.id;
+      const isAdmin = req.user?.role === "admin";
+
+      const filters = req.query;
+
+      const result = await this.service.getGitHubStats(
+        userId,
+        isAdmin,
+        filters
+      );
+
+      return this.response.sendSuccess(res, {
+        data: result,
+      });
+    } catch (error) {
+      logger.error("Error getting GitHub dashboard stats:", error);
+
+      return this.response.sendError(
+        res,
+        error.message || "Failed to get GitHub dashboard statistics",
+        500
+      );
+    }
+  }
 }
 
 const gitHubController = new GitHubController();

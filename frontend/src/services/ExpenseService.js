@@ -90,6 +90,24 @@ class ExpenseService {
     );
     return response.data;
   }
+  /**
+   * Get expenses dashboard with statistics across all projects
+   * @param {Object} params - Query parameters
+   * @param {string} params.category - Filter by category
+   * @param {string} params.fromDate - Filter from date
+   * @param {string} params.toDate - Filter to date
+   * @param {number} params.minAmount - Filter minimum amount
+   * @param {number} params.maxAmount - Filter maximum amount
+   * @param {string} params.vendor - Filter by vendor
+   * @param {boolean} params.recurring - Filter by recurring status
+   * @param {number} params.page - Page number
+   * @param {number} params.limit - Items per page
+   * @returns {Promise<Object>} Dashboard data
+   */
+  async getDashboard(params = {}) {
+    const response = await axiosInstance.get(`/expenses/dashboard`, { params });
+    return response.data;
+  }
 }
 
 export const expenseService = new ExpenseService();

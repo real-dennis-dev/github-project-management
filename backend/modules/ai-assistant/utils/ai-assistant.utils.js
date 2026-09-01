@@ -678,18 +678,7 @@ class AIUtils {
         created_at: new Date().toISOString(),
       };
 
-      // Store in a usage table (you may need to create this)
-      // Using ai_conversations as a proxy
-      const { error } = await supabase.from("ai_conversations").insert([
-        {
-          project_id: projectId,
-          user_id: userId,
-          question: `[${action}] ${metadata.question || "No question"}`,
-          answer: "[usage tracking]",
-          context_data: metadata,
-          created_at: new Date().toISOString(),
-        },
-      ]);
+      const { error } = await supabase.from("ai_usage").insert([usageData]);
 
       if (error) {
         logger.warn("Failed to track AI usage:", error);

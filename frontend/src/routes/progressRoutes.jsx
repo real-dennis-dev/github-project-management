@@ -4,7 +4,9 @@ import { useParams, Link } from "react-router-dom";
 import { LoadingSpinner } from "../components/common";
 import ProgressReport from "../components/progress-timeline/ProgressReport";
 // If you have list/timeline components, import them the same way
-
+const ProgressTimelineDashboard = React.lazy(() =>
+  import("../components/progress-timeline/ProgressTimelineDashboard")
+);
 const LoadingFallback = () => (
   <div className="flex justify-center items-center min-h-[400px]">
     <LoadingSpinner size="lg" />
@@ -43,6 +45,10 @@ const ProgressReportPage = () => {
 };
 
 const progressRoutes = [
+  {
+    path: "progress-timeline",
+    element: withSuspense(ProgressTimelineDashboard),
+  },
   { path: "progress", element: withSuspense(ProgressHub) },
   {
     path: "progress/:projectId",

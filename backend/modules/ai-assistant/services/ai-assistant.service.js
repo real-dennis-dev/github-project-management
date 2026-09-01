@@ -310,7 +310,7 @@ Your question: ${prompt.substring(0, 100)}...
    * @param {Object} contextOptions - Context options
    * @returns {Promise<Object>} - AI response
    */
-  async askQuestion(projectId, question, contextOptions = {}) {
+  async askQuestion(projectId, userId, question, contextOptions = {}) {
     try {
       // Validate question
       const validation = AIUtils.validateQuestion(question);
@@ -387,7 +387,7 @@ If you need more information, ask clarifying questions.
       }
 
       // Track usage
-      await AIUtils.trackUsage(projectId, "unknown", "ask_question", {
+      await AIUtils.trackUsage(projectId, userId, "ask_question", {
         question: sanitizedQuestion,
         responseLength: response.length,
         quality: quality.isValid,
@@ -406,7 +406,7 @@ If you need more information, ask clarifying questions.
    * @param {Object} options - Analysis options
    * @returns {Promise<Object>} - Project analysis
    */
-  async analyzeProject(projectId, options = {}) {
+  async analyzeProject(projectId, userId, options = {}) {
     try {
       const { focus = "overall", depth = "standard" } = options;
 
@@ -474,7 +474,7 @@ Be specific and actionable.
       };
 
       // Track usage
-      await AIUtils.trackUsage(projectId, "unknown", "analyze_project", {
+      await AIUtils.trackUsage(projectId, userId, "analyze_project", {
         focus,
         depth,
         responseLength: response.length,
@@ -575,7 +575,7 @@ Requirements:
       };
 
       // Track usage
-      await AIUtils.trackUsage(null, "unknown", "summarize_text", {
+      await AIUtils.trackUsage(null, userId, "summarize_text", {
         originalLength: text.length,
         summaryLength: response.length,
         format,
@@ -595,7 +595,12 @@ Requirements:
    * @param {Object} options - Report options
    * @returns {Promise<Object>} - Generated report
    */
-  async generateReport(projectId, type = "comprehensive", options = {}) {
+  async generateReport(
+    projectId,
+    userId,
+    type = "comprehensive",
+    options = {}
+  ) {
     try {
       // Extract project context
       const projectContext = await AIUtils.extractProjectContext(projectId);
@@ -706,7 +711,7 @@ Focus on:
       };
 
       // Track usage
-      await AIUtils.trackUsage(projectId, "unknown", "generate_report", {
+      await AIUtils.trackUsage(projectId, userId, "generate_report", {
         type,
         responseLength: response.length,
         sectionsCount: sections.length,
@@ -724,7 +729,7 @@ Focus on:
    * @param {string} projectId - Project UUID
    * @returns {Promise<Object>} - Suggested actions
    */
-  async suggestNextActions(projectId) {
+  async suggestNextActions(projectId, userId) {
     try {
       // Extract project context
       const projectContext = await AIUtils.extractProjectContext(projectId);
@@ -796,7 +801,7 @@ For each action, include:
       };
 
       // Track usage
-      await AIUtils.trackUsage(projectId, "unknown", "suggest_next_actions", {
+      await AIUtils.trackUsage(projectId, userId, "suggest_next_actions", {
         actionsCount: actions.length,
       });
 
@@ -812,7 +817,7 @@ For each action, include:
    * @param {string} projectId - Project UUID
    * @returns {Promise<Object>} - Trend analysis
    */
-  async analyzeTrends(projectId) {
+  async analyzeTrends(projectId, userId) {
     try {
       // Extract project context
       const projectContext = await AIUtils.extractProjectContext(projectId);
@@ -887,7 +892,7 @@ Include specific metrics and data points to support your analysis.
       };
 
       // Track usage
-      await AIUtils.trackUsage(projectId, "unknown", "analyze_trends", {
+      await AIUtils.trackUsage(projectId, userId, "analyze_trends", {
         responseLength: response.length,
       });
 
@@ -919,6 +924,346 @@ Include specific metrics and data points to support your analysis.
     });
 
     return predictions;
+  }
+
+  /**
+   * Gets global AI dashboard statistics
+   *
+   * Aggregates AI activity across all projects belonging to
+   * the authenticated user.
+   *
+   * @param {string} userId - Authenticated user ID
+   * @param {Object} options - Dashboard options
+   * @returns {Promise<Object>} Dashboard statistics
+   */
+  async getAIStats(userId, options = {}) {
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        fromDate,
+        toDate,
+        type,
+        projectId,
+      } = options;
+
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      const offset = (page - 1) * limit;
+
+      /*
+       * ---------------------------------------------------------
+       * BASE QUERY
+       * ---------------------------------------------------------
+       *
+       * ai_conversations is currently being used as the AI
+       * activity/usage table by your existing implementation.
+       */
+      let baseQuery = supabase
+        .from("ai_conversations")
+        .select(
+          "id, project_id, user_id, question, answer, context_data, created_at",
+          { count: "exact" }
+        )
+        .eq("user_id", userId);
+
+      /*
+       * Date filters
+       */
+      if (fromDate) {
+        baseQuery = baseQuery.gte(
+          "created_at",
+          new Date(fromDate).toISOString()
+        );
+      }
+
+      if (toDate) {
+        baseQuery = baseQuery.lte("created_at", new Date(toDate).toISOString());
+      }
+
+      /*
+       * Optional project filter
+       */
+      if (projectId) {
+        baseQuery = baseQuery.eq("project_id", projectId);
+      }
+
+      /*
+       * ---------------------------------------------------------
+       * GET ALL RECORDS FOR AGGREGATION
+       * ---------------------------------------------------------
+       *
+       * We need totals for the dashboard, therefore we fetch
+       * lightweight activity records for aggregation.
+       *
+       * For very large systems, replace this with database
+       * aggregate functions/materialized statistics.
+       */
+      const { data: allActivities, error: aggregateError } = await baseQuery
+        .select(
+          "id, project_id, user_id, question, answer, context_data, created_at"
+        )
+        .order("created_at", {
+          ascending: false,
+        });
+
+      if (aggregateError) {
+        throw aggregateError;
+      }
+
+      const activities = allActivities || [];
+
+      /*
+       * ---------------------------------------------------------
+       * CALCULATE STATISTICS
+       * ---------------------------------------------------------
+       */
+
+      const stats = {
+        totalInteractions: activities.length,
+
+        totalProjects: new Set(
+          activities.map((activity) => activity.project_id).filter(Boolean)
+        ).size,
+
+        questions: 0,
+        analyses: 0,
+        reports: 0,
+        summaries: 0,
+        actions: 0,
+        trends: 0,
+
+        lastActivityAt: activities.length > 0 ? activities[0].created_at : null,
+      };
+
+      /*
+       * Count AI operations
+       */
+      activities.forEach((activity) => {
+        const action = this.getAIActivityType(activity);
+
+        switch (action) {
+          case "ask_question":
+            stats.questions++;
+            break;
+
+          case "analyze_project":
+            stats.analyses++;
+            break;
+
+          case "generate_report":
+            stats.reports++;
+            break;
+
+          case "summarize_text":
+            stats.summaries++;
+            break;
+
+          case "suggest_next_actions":
+            stats.actions++;
+            break;
+
+          case "analyze_trends":
+            stats.trends++;
+            break;
+
+          default:
+            break;
+        }
+      });
+
+      /*
+       * ---------------------------------------------------------
+       * PROJECT INFORMATION
+       * ---------------------------------------------------------
+       *
+       * Get all project IDs represented in the activity list,
+       * then fetch their names in one query.
+       */
+      const projectIds = [
+        ...new Set(
+          activities.map((activity) => activity.project_id).filter(Boolean)
+        ),
+      ];
+
+      let projects = [];
+
+      if (projectIds.length > 0) {
+        const { data, error: projectsError } = await supabase
+          .from("projects")
+          .select("id, name, status")
+          .in("id", projectIds);
+
+        if (projectsError) {
+          logger.warn(
+            "Unable to retrieve project information for AI stats:",
+            projectsError
+          );
+        } else {
+          projects = data || [];
+        }
+      }
+
+      const projectMap = new Map(
+        projects.map((project) => [project.id, project])
+      );
+
+      /*
+       * ---------------------------------------------------------
+       * PAGINATION
+       * ---------------------------------------------------------
+       */
+
+      const total = activities.length;
+
+      const paginatedActivities = activities.slice(offset, offset + limit);
+
+      /*
+       * ---------------------------------------------------------
+       * FORMAT ACTIVITY LIST
+       * ---------------------------------------------------------
+       *
+       * This is the list the dashboard displays.
+       *
+       * The frontend can use:
+       *
+       * activity.id
+       * activity.projectId
+       *
+       * to open the detailed view.
+       */
+      const activityList = paginatedActivities.map((activity) => {
+        const activityType = this.getAIActivityType(activity);
+        const project = projectMap.get(activity.project_id);
+
+        return {
+          id: activity.id,
+
+          conversationId: activity.id,
+
+          projectId: activity.project_id || null,
+
+          projectName: project?.name || "Unknown Project",
+
+          projectStatus: project?.status || null,
+
+          type: activityType,
+
+          title: this.getAIActivityTitle(activityType),
+
+          question: activity.question || null,
+
+          answer: activity.answer || null,
+
+          /*
+           * Keep metadata available to the frontend.
+           */
+          metadata: activity.context_data || {},
+
+          createdAt: activity.created_at,
+        };
+      });
+
+      /*
+       * ---------------------------------------------------------
+       * RESPONSE
+       * ---------------------------------------------------------
+       */
+
+      return {
+        stats,
+
+        activities: activityList,
+
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page < Math.ceil(total / limit),
+          hasPreviousPage: page > 1,
+        },
+
+        filters: {
+          fromDate: fromDate || null,
+          toDate: toDate || null,
+          type: type || null,
+          projectId: projectId || null,
+        },
+      };
+    } catch (error) {
+      logger.error("Error getting global AI statistics:", error);
+
+      throw error;
+    }
+  }
+
+  /**
+   * Determines the AI activity type.
+   *
+   * Your existing trackUsage() stores the action inside
+   * the question as:
+   *
+   * [action] question
+   *
+   * It also stores metadata in context_data.
+   *
+   * @param {Object} activity
+   * @returns {string}
+   */
+  getAIActivityType(activity) {
+    /*
+     * First try metadata.
+     */
+    const metadata = activity.context_data || {};
+
+    if (metadata.action) {
+      return metadata.action;
+    }
+
+    /*
+     * Extract action from:
+     *
+     * [ask_question] ...
+     */
+    const question = activity.question || "";
+
+    const match = question.match(/^\[([a-zA-Z0-9_]+)\]/);
+
+    if (match) {
+      return match[1];
+    }
+
+    /*
+     * Fallback.
+     */
+    return "ask_question";
+  }
+
+  /**
+   * Gets a human-readable title for an AI activity.
+   *
+   * @param {string} type
+   * @returns {string}
+   */
+  getAIActivityTitle(type) {
+    const titles = {
+      ask_question: "AI Question",
+
+      analyze_project: "Project Analysis",
+
+      summarize_text: "Text Summary",
+
+      generate_report: "AI Report",
+
+      suggest_next_actions: "Suggested Next Actions",
+
+      analyze_trends: "Trend Analysis",
+    };
+
+    return titles[type] || "AI Activity";
   }
 }
 

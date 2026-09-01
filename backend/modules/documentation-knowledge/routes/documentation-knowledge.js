@@ -123,9 +123,12 @@ router.delete(
 
 router.get(
   "/documentation-knowledge/stats",
-  validateRequest(documentationSchemas.getDocumentationKnowledgeStats, "query"),
-  documentationMiddleware.logDocumentationAccess, // optional
-  documentationController.getDocumentationKnowledgeStats
+  ValidationMiddleware.validateRequest(
+    documentationSchemas.getDocumentationKnowledgeStats,
+    "query"
+  ),
+  DocumentationMiddleware.logDocumentationAccess, // optional
+  DocumentationController.getDocumentationKnowledgeStats
 );
 
 module.exports = router;

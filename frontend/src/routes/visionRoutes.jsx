@@ -18,7 +18,9 @@ const VisionStatistics = React.lazy(() =>
 const VisionOptions = React.lazy(() =>
   import("../components/vision/VisionOptions")
 );
-
+const VisionBoardDashboard = React.lazy(() =>
+  import("../components/vision/VisionBoardDashboard")
+);
 const LoadingFallback = () => (
   <div className="flex justify-center items-center min-h-[400px]">
     <LoadingSpinner size="lg" />
@@ -30,7 +32,7 @@ const visionRoutes = [
     path: "/vision",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <VisionBoard />
+        <VisionBoardDashboard />
       </Suspense>
     ),
   },

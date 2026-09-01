@@ -943,5 +943,5 @@ class ProgressService {
 
 const progressService = new ProgressService();
 
-module.exports = progressService;
+module.exports = ProgressService;
 module.exports.progressService = progressService;

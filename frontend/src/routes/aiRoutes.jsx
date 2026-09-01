@@ -1,7 +1,7 @@
 // src/routes/aiRoutes.jsx
 import React, { Suspense } from "react";
 import { LoadingSpinner } from "../components/common";
-
+// const AIDashboard = React.lazy(() => import('../components/ai/AIDashboard'));
 const AIAssistant = React.lazy(() => import("../components/ai/AIAssistant"));
 const ProjectAnalysis = React.lazy(() =>
   import("../components/ai/ProjectAnalysis")

@@ -149,6 +149,35 @@ class ReleasesService {
     );
     return response.data;
   }
+  /**
+   * Get combined dashboard data for releases and milestones across all projects
+   * @param {Object} params - Query parameters
+   * @param {number} params.page - Page number (default: 1)
+   * @param {number} params.limit - Items per page (default: 20)
+   * @param {string} params.search - Search term
+   * @param {string} params.type - Filter by type ('release' | 'milestone')
+   * @returns {Promise<Object>} Dashboard data
+   */
+  async getDashboard(params = {}) {
+    const response = await axiosInstance.get(`/releases-milestones/dashboard`, {
+      params,
+    });
+    return response.data;
+  }
+
+  /**
+   * Export all releases and milestones across projects
+   * @param {Object} params - Export parameters
+   * @param {string} params.format - 'json' or 'csv'
+   * @param {string} params.type - Filter by type
+   * @returns {Promise<Object>} Exported data
+   */
+  async exportAll(params = {}) {
+    const response = await axiosInstance.get(`/releases-milestones/export`, {
+      params,
+    });
+    return response.data;
+  }
 }
 
 export const releasesService = new ReleasesService();

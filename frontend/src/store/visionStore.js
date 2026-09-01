@@ -8,6 +8,9 @@ const initialState = {
   statistics: null,
   categories: [],
   options: null,
+  availableProjects: [],
+  linkedProjects: [],
+  goalProgress: null,
   isLoading: false,
   error: null,
   pagination: {
@@ -19,7 +22,10 @@ const initialState = {
   filters: {
     status: null,
     category: null,
+    search: null,
   },
+  viewMode: "grid",
+  selectedGoalIds: [],
 };
 
 export const useVisionStore = create(
@@ -67,6 +73,12 @@ export const useVisionStore = create(
 
       setOptions: (options) => set({ options }),
 
+      setAvailableProjects: (projects) => set({ availableProjects: projects }),
+
+      setLinkedProjects: (projects) => set({ linkedProjects: projects }),
+
+      setGoalProgress: (progress) => set({ goalProgress: progress }),
+
       setLoading: (isLoading) => set({ isLoading }),
 
       setError: (error) => set({ error }),
@@ -81,11 +93,25 @@ export const useVisionStore = create(
           filters: { ...state.filters, ...filters },
         })),
 
+      setViewMode: (viewMode) => set({ viewMode }),
+
+      setSelectedGoalIds: (selectedGoalIds) => set({ selectedGoalIds }),
+
+      toggleGoalSelection: (id) =>
+        set((state) => ({
+          selectedGoalIds: state.selectedGoalIds.includes(id)
+            ? state.selectedGoalIds.filter((goalId) => goalId !== id)
+            : [...state.selectedGoalIds, id],
+        })),
+
+      clearSelection: () => set({ selectedGoalIds: [] }),
+
       clearError: () => set({ error: null }),
 
       clearVision: () =>
         set({
           currentGoal: null,
+          goalProgress: null,
           error: null,
         }),
 
@@ -98,6 +124,7 @@ export const useVisionStore = create(
         categories: state.categories,
         filters: state.filters,
         pagination: state.pagination,
+        viewMode: state.viewMode,
       }),
     }
   )

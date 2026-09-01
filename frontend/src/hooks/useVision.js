@@ -10,256 +10,448 @@ import {
   validateForm,
 } from "../utils/visionValidation";
 
-const VISION_KEYS = {
-  goals: (params) => ["vision", "goals", params],
-  goal: (id) => ["vision", "goal", id],
-  statistics: ["vision", "statistics"],
-  categories: ["vision", "categories"],
-  options: ["vision", "options"],
-  progress: (id) => ["vision", "progress", id],
-  availableProjects: (id) => ["vision", "available-projects", id],
-};
-
 export const useVision = () => {
   const queryClient = useQueryClient();
   const store = useVisionStore();
 
-  /*
-   * --------------------------------------------------
-   * QUERIES
-   * --------------------------------------------------
-   */
+  // Query Keys
+  const VISION_KEYS = {
+    goals: (params) => ["vision", "goals", params],
+    goal: (id) => ["vision", "goal", id],
+    statistics: ["vision", "statistics"],
+    categories: ["vision", "categories"],
+    options: ["vision", "options"],
+    progress: (id) => ["vision", "progress", id],
+    availableProjects: (id) => ["vision", "available-projects", id],
+    linkedProjects: (id) => ["vision", "linked-projects", id],
+    activities: (limit) => ["vision", "activities", limit],
+    dashboard: ["vision", "dashboard"],
+    goalsByStatus: (status) => ["vision", "goals-by-status", status],
+  };
 
-  const goalsParams = visionFilterSchema.cast(store.filters || {});
+  // ============ Queries ============
 
-  const goalsQuery = useQuery({
-    queryKey: VISION_KEYS.goals(goalsParams),
-    queryFn: () => visionService.getGoals(goalsParams),
-  });
+  // Get goals query
+  const getGoalsQuery = (params = {}) => {
+    const validatedParams = visionFilterSchema.cast(params);
+    return useQuery({
+      queryKey: VISION_KEYS.goals(validatedParams),
+      queryFn: () => visionService.getGoals(validatedParams),
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setGoals(response.data, response.meta);
+          if (response.meta?.statistics) {
+            store.setStatistics(response.meta.statistics);
+          }
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch vision goals");
+      },
+    });
+  };
 
-  const statisticsQuery = useQuery({
-    queryKey: VISION_KEYS.statistics,
-    queryFn: () => visionService.getStatistics(),
-    staleTime: 1000 * 60 * 2,
-  });
+  // Get single goal query
+  const getGoalQuery = (id) => {
+    return useQuery({
+      queryKey: VISION_KEYS.goal(id),
+      queryFn: () => visionService.getGoal(id),
+      enabled: !!id,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setCurrentGoal(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch vision goal");
+      },
+    });
+  };
 
-  const categoriesQuery = useQuery({
-    queryKey: VISION_KEYS.categories,
-    queryFn: () => visionService.getCategories(),
-    staleTime: 1000 * 60 * 5,
-  });
+  // Get statistics query
+  const getStatisticsQuery = () => {
+    return useQuery({
+      queryKey: VISION_KEYS.statistics,
+      queryFn: () => visionService.getStatistics(),
+      staleTime: 1000 * 60 * 2,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setStatistics(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch statistics");
+      },
+    });
+  };
 
-  const optionsQuery = useQuery({
-    queryKey: VISION_KEYS.options,
-    queryFn: () => visionService.getOptions(),
-    staleTime: 1000 * 60 * 10,
-  });
+  // Get categories query
+  const getCategoriesQuery = () => {
+    return useQuery({
+      queryKey: VISION_KEYS.categories,
+      queryFn: () => visionService.getCategories(),
+      staleTime: 1000 * 60 * 5,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setCategories(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch categories");
+      },
+    });
+  };
 
-  /*
-   * --------------------------------------------------
-   * MUTATIONS
-   * --------------------------------------------------
-   */
+  // Get options query
+  const getOptionsQuery = () => {
+    return useQuery({
+      queryKey: VISION_KEYS.options,
+      queryFn: () => visionService.getOptions(),
+      staleTime: 1000 * 60 * 10,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setOptions(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch options");
+      },
+    });
+  };
 
+  // Get goal progress query
+  const getGoalProgressQuery = (id) => {
+    return useQuery({
+      queryKey: VISION_KEYS.progress(id),
+      queryFn: () => visionService.getGoalProgress(id),
+      enabled: !!id,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setGoalProgress(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch goal progress");
+      },
+    });
+  };
+
+  // Get available projects query
+  const getAvailableProjectsQuery = (id) => {
+    return useQuery({
+      queryKey: VISION_KEYS.availableProjects(id),
+      queryFn: () => visionService.getAvailableProjects(id),
+      enabled: !!id,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setAvailableProjects(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch available projects");
+      },
+    });
+  };
+
+  // Get linked projects query
+  const getLinkedProjectsQuery = (id) => {
+    return useQuery({
+      queryKey: VISION_KEYS.linkedProjects(id),
+      queryFn: () => visionService.getGoalLinkedProjects(id),
+      enabled: !!id,
+      onSuccess: (response) => {
+        if (response.success) {
+          store.setLinkedProjects(response.data);
+        }
+      },
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch linked projects");
+      },
+    });
+  };
+
+  // Get activities query
+  const getActivitiesQuery = (limit = 10) => {
+    return useQuery({
+      queryKey: VISION_KEYS.activities(limit),
+      queryFn: () => visionService.getRecentActivities(limit),
+      staleTime: 1000 * 60 * 2,
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch activities");
+      },
+    });
+  };
+
+  // Get dashboard query
+  const getDashboardQuery = () => {
+    return useQuery({
+      queryKey: VISION_KEYS.dashboard,
+      queryFn: () => visionService.getDashboardData(),
+      staleTime: 1000 * 60 * 2,
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch dashboard data");
+      },
+    });
+  };
+
+  // Get goals by status query
+  const getGoalsByStatusQuery = (status) => {
+    return useQuery({
+      queryKey: VISION_KEYS.goalsByStatus(status),
+      queryFn: () => visionService.getGoalsByStatus(status),
+      enabled: !!status,
+      onError: (error) => {
+        store.setError(error.message || "Failed to fetch goals by status");
+      },
+    });
+  };
+
+  // ============ Mutations ============
+
+  // Create goal mutation
   const createGoalMutation = useMutation({
-    mutationFn: async (data) => {
-      const validation = await validateForm(visionGoalCreateSchema, data);
-
-      if (!validation.isValid) {
-        throw new Error(JSON.stringify(validation.errors));
-      }
-
-      return visionService.createGoal(data);
+    mutationFn: (data) => {
+      return validateForm(visionGoalCreateSchema, data).then((validation) => {
+        if (!validation.isValid) {
+          throw new Error(JSON.stringify(validation.errors));
+        }
+        return visionService.createGoal(data);
+      });
     },
-
     onSuccess: (response) => {
       if (response.success) {
         store.addGoal(response.data);
-
-        queryClient.invalidateQueries({
-          queryKey: ["vision", "goals"],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: VISION_KEYS.statistics,
-        });
+        queryClient.invalidateQueries({ queryKey: ["vision", "goals"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "statistics"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "dashboard"] });
       }
     },
-
     onError: (error) => {
       let message = error.message;
-
       try {
         const errors = JSON.parse(error.message);
         message = Object.values(errors).join(", ");
       } catch {
-        // Keep original message
+        // Use error message as is
       }
-
       store.setError(message || "Failed to create vision goal");
     },
   });
 
+  // Update goal mutation
   const updateGoalMutation = useMutation({
-    mutationFn: async ({ id, data }) => {
-      const validation = await validateForm(visionGoalUpdateSchema, data);
-
-      if (!validation.isValid) {
-        throw new Error(JSON.stringify(validation.errors));
-      }
-
-      return visionService.updateGoal(id, data);
+    mutationFn: ({ id, data }) => {
+      return validateForm(visionGoalUpdateSchema, data).then((validation) => {
+        if (!validation.isValid) {
+          throw new Error(JSON.stringify(validation.errors));
+        }
+        return visionService.updateGoal(id, data);
+      });
     },
-
     onSuccess: (response) => {
       if (response.success) {
-        const id = response.data.id || response.data._id;
-
-        store.updateGoal(id, response.data);
-
+        store.updateGoal(response.data.id, response.data);
+        queryClient.invalidateQueries({ queryKey: ["vision", "goals"] });
         queryClient.invalidateQueries({
-          queryKey: ["vision", "goals"],
+          queryKey: ["vision", "goal", response.data.id],
         });
-
-        queryClient.invalidateQueries({
-          queryKey: ["vision", "goal", id],
-        });
-
-        queryClient.invalidateQueries({
-          queryKey: VISION_KEYS.statistics,
-        });
+        queryClient.invalidateQueries({ queryKey: ["vision", "statistics"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "dashboard"] });
       }
     },
-
     onError: (error) => {
       let message = error.message;
-
       try {
         const errors = JSON.parse(error.message);
         message = Object.values(errors).join(", ");
       } catch {
-        // Keep original message
+        // Use error message as is
       }
-
       store.setError(message || "Failed to update vision goal");
     },
   });
 
+  // Delete goal mutation
   const deleteGoalMutation = useMutation({
     mutationFn: (id) => visionService.deleteGoal(id),
-
     onSuccess: (_, id) => {
       store.removeGoal(id);
-
-      queryClient.invalidateQueries({
-        queryKey: ["vision", "goals"],
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: VISION_KEYS.statistics,
-      });
+      queryClient.invalidateQueries({ queryKey: ["vision", "goals"] });
+      queryClient.invalidateQueries({ queryKey: ["vision", "statistics"] });
+      queryClient.invalidateQueries({ queryKey: ["vision", "dashboard"] });
     },
-
     onError: (error) => {
       store.setError(error.message || "Failed to delete vision goal");
     },
   });
 
-  const linkProjectMutation = useMutation({
-    mutationFn: async ({ goalId, data }) => {
-      const validation = await validateForm(linkProjectSchema, data);
-
-      if (!validation.isValid) {
-        throw new Error(JSON.stringify(validation.errors));
-      }
-
-      return visionService.linkProject(goalId, data);
-    },
-
+  // Bulk delete mutation
+  const bulkDeleteGoalsMutation = useMutation({
+    mutationFn: (ids) => visionService.bulkDeleteGoals(ids),
     onSuccess: (response) => {
       if (response.success) {
-        const goal = response.data.goal;
-        const id = goal.id || goal._id;
+        // Remove all deleted goals from store
+        const deletedIds = response.data?.deleted_ids || [];
+        deletedIds.forEach((id) => store.removeGoal(id));
+        store.clearSelection();
+        queryClient.invalidateQueries({ queryKey: ["vision", "goals"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "statistics"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "dashboard"] });
+      }
+    },
+    onError: (error) => {
+      store.setError(error.message || "Failed to delete selected goals");
+    },
+  });
 
-        store.updateGoal(id, goal);
+  // Bulk update status mutation
+  const bulkUpdateStatusMutation = useMutation({
+    mutationFn: ({ ids, status }) =>
+      visionService.bulkUpdateStatus(ids, status),
+    onSuccess: (response) => {
+      if (response.success) {
+        // Update all affected goals in store
+        const updatedGoals = response.data?.updated_goals || [];
+        updatedGoals.forEach((goal) => store.updateGoal(goal.id, goal));
+        store.clearSelection();
+        queryClient.invalidateQueries({ queryKey: ["vision", "goals"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "statistics"] });
+        queryClient.invalidateQueries({ queryKey: ["vision", "dashboard"] });
+      }
+    },
+    onError: (error) => {
+      store.setError(error.message || "Failed to update status");
+    },
+  });
 
+  // Link project mutation
+  const linkProjectMutation = useMutation({
+    mutationFn: ({ goalId, data }) => {
+      return validateForm(linkProjectSchema, data).then((validation) => {
+        if (!validation.isValid) {
+          throw new Error(JSON.stringify(validation.errors));
+        }
+        return visionService.linkProject(goalId, data);
+      });
+    },
+    onSuccess: (response) => {
+      if (response.success) {
+        store.updateGoal(response.data.goal.id, response.data.goal);
         queryClient.invalidateQueries({
-          queryKey: ["vision", "goal", id],
+          queryKey: ["vision", "goal", response.data.goal.id],
         });
-
         queryClient.invalidateQueries({
-          queryKey: ["vision", "progress", id],
+          queryKey: ["vision", "progress", response.data.goal.id],
         });
-
         queryClient.invalidateQueries({
-          queryKey: ["vision", "available-projects", id],
+          queryKey: ["vision", "available-projects", response.data.goal.id],
         });
-
         queryClient.invalidateQueries({
-          queryKey: ["vision", "goals"],
+          queryKey: ["vision", "linked-projects", response.data.goal.id],
         });
       }
     },
-
     onError: (error) => {
       let message = error.message;
-
       try {
         const errors = JSON.parse(error.message);
         message = Object.values(errors).join(", ");
       } catch {
-        // Keep original message
+        // Use error message as is
       }
-
       store.setError(message || "Failed to link project");
     },
   });
 
+  // Unlink project mutation
   const unlinkProjectMutation = useMutation({
     mutationFn: ({ goalId, projectId }) =>
       visionService.unlinkProject(goalId, projectId),
-
     onSuccess: (response) => {
       if (response.success) {
-        const id = response.data.id || response.data._id;
-
-        store.updateGoal(id, response.data);
-
+        store.updateGoal(response.data.id, response.data);
         queryClient.invalidateQueries({
-          queryKey: ["vision", "goals"],
+          queryKey: ["vision", "goal", response.data.id],
         });
-
         queryClient.invalidateQueries({
-          queryKey: ["vision", "goal", id],
+          queryKey: ["vision", "progress", response.data.id],
         });
-
         queryClient.invalidateQueries({
-          queryKey: ["vision", "progress", id],
+          queryKey: ["vision", "available-projects", response.data.id],
         });
-
         queryClient.invalidateQueries({
-          queryKey: ["vision", "available-projects", id],
+          queryKey: ["vision", "linked-projects", response.data.id],
         });
       }
     },
-
     onError: (error) => {
       store.setError(error.message || "Failed to unlink project");
     },
   });
 
-  /*
-   * --------------------------------------------------
-   * ACTIONS
-   * --------------------------------------------------
-   */
+  // ============ API Methods ============
+
+  const getGoals = (params = {}) => {
+    store.clearError();
+    return getGoalsQuery(params);
+  };
+
+  const getGoal = (id) => {
+    store.clearError();
+    return getGoalQuery(id);
+  };
+
+  const getStatistics = () => {
+    store.clearError();
+    return getStatisticsQuery();
+  };
+
+  const getCategories = () => {
+    store.clearError();
+    return getCategoriesQuery();
+  };
+
+  const getOptions = () => {
+    store.clearError();
+    return getOptionsQuery();
+  };
+
+  const getGoalProgress = (id) => {
+    store.clearError();
+    return getGoalProgressQuery(id);
+  };
+
+  const getAvailableProjects = (id) => {
+    store.clearError();
+    return getAvailableProjectsQuery(id);
+  };
+
+  const getLinkedProjects = (id) => {
+    store.clearError();
+    return getLinkedProjectsQuery(id);
+  };
+
+  const getActivities = (limit = 10) => {
+    store.clearError();
+    return getActivitiesQuery(limit);
+  };
+
+  const getDashboard = () => {
+    store.clearError();
+    return getDashboardQuery();
+  };
+
+  const getGoalsByStatus = (status) => {
+    store.clearError();
+    return getGoalsByStatusQuery(status);
+  };
 
   const createGoal = async (data) => {
     store.clearError();
     store.setLoading(true);
-
     try {
-      return await createGoalMutation.mutateAsync(data);
+      const result = await createGoalMutation.mutateAsync(data);
+      return result;
     } finally {
       store.setLoading(false);
     }
@@ -268,12 +460,9 @@ export const useVision = () => {
   const updateGoal = async (id, data) => {
     store.clearError();
     store.setLoading(true);
-
     try {
-      return await updateGoalMutation.mutateAsync({
-        id,
-        data,
-      });
+      const result = await updateGoalMutation.mutateAsync({ id, data });
+      return result;
     } finally {
       store.setLoading(false);
     }
@@ -282,9 +471,34 @@ export const useVision = () => {
   const deleteGoal = async (id) => {
     store.clearError();
     store.setLoading(true);
-
     try {
-      return await deleteGoalMutation.mutateAsync(id);
+      const result = await deleteGoalMutation.mutateAsync(id);
+      return result;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const bulkDeleteGoals = async (ids) => {
+    store.clearError();
+    store.setLoading(true);
+    try {
+      const result = await bulkDeleteGoalsMutation.mutateAsync(ids);
+      return result;
+    } finally {
+      store.setLoading(false);
+    }
+  };
+
+  const bulkUpdateStatus = async (ids, status) => {
+    store.clearError();
+    store.setLoading(true);
+    try {
+      const result = await bulkUpdateStatusMutation.mutateAsync({
+        ids,
+        status,
+      });
+      return result;
     } finally {
       store.setLoading(false);
     }
@@ -293,12 +507,9 @@ export const useVision = () => {
   const linkProject = async (goalId, data) => {
     store.clearError();
     store.setLoading(true);
-
     try {
-      return await linkProjectMutation.mutateAsync({
-        goalId,
-        data,
-      });
+      const result = await linkProjectMutation.mutateAsync({ goalId, data });
+      return result;
     } finally {
       store.setLoading(false);
     }
@@ -307,145 +518,67 @@ export const useVision = () => {
   const unlinkProject = async (goalId, projectId) => {
     store.clearError();
     store.setLoading(true);
-
     try {
-      return await unlinkProjectMutation.mutateAsync({
+      const result = await unlinkProjectMutation.mutateAsync({
         goalId,
         projectId,
       });
+      return result;
     } finally {
       store.setLoading(false);
     }
   };
 
-  const getGoals = () => {
-    store.clearError();
-
-    return queryClient.invalidateQueries({
-      queryKey: ["vision", "goals"],
-    });
-  };
-
-  const getGoal = async (id) => {
-    store.clearError();
-
-    return queryClient.fetchQuery({
-      queryKey: VISION_KEYS.goal(id),
-      queryFn: () => visionService.getGoal(id),
-    });
-  };
-
-  const getStatistics = () => {
-    store.clearError();
-
-    return queryClient.invalidateQueries({
-      queryKey: VISION_KEYS.statistics,
-    });
-  };
-
-  const getCategories = () => {
-    store.clearError();
-
-    return queryClient.invalidateQueries({
-      queryKey: VISION_KEYS.categories,
-    });
-  };
-
-  const getOptions = () => {
-    store.clearError();
-
-    return queryClient.invalidateQueries({
-      queryKey: VISION_KEYS.options,
-    });
-  };
-
-  const getGoalProgress = async (id) => {
-    store.clearError();
-
-    return queryClient.fetchQuery({
-      queryKey: VISION_KEYS.progress(id),
-      queryFn: () => visionService.getGoalProgress(id),
-    });
-  };
-
-  const getAvailableProjects = async (id) => {
-    store.clearError();
-
-    return queryClient.fetchQuery({
-      queryKey: VISION_KEYS.availableProjects(id),
-      queryFn: () => visionService.getAvailableProjects(id),
-    });
-  };
+  // ============ Store Actions ============
 
   const clearError = () => store.clearError();
   const clearVision = () => store.clearVision();
   const reset = () => store.reset();
   const setFilters = (filters) => store.setFilters(filters);
-
-  /*
-   * --------------------------------------------------
-   * STORE + QUERY RESULT SYNC
-   * --------------------------------------------------
-   */
-
-  useEffectSync(goalsQuery, (response) => {
-    if (response?.success) {
-      store.setGoals(response.data, response.meta);
-
-      if (response.meta?.statistics) {
-        store.setStatistics(response.meta.statistics);
-      }
-    }
-  });
-
-  useEffectSync(statisticsQuery, (response) => {
-    if (response?.success) {
-      store.setStatistics(response.data);
-    }
-  });
-
-  useEffectSync(categoriesQuery, (response) => {
-    if (response?.success) {
-      store.setCategories(response.data);
-    }
-  });
-
-  useEffectSync(optionsQuery, (response) => {
-    if (response?.success) {
-      store.setOptions(response.data);
-    }
-  });
+  const setViewMode = (viewMode) => store.setViewMode(viewMode);
+  const toggleGoalSelection = (id) => store.toggleGoalSelection(id);
+  const clearSelection = () => store.clearSelection();
+  const setSelectedGoalIds = (ids) => store.setSelectedGoalIds(ids);
 
   return {
-    // State
+    // State from store
     goals: store.goals,
     currentGoal: store.currentGoal,
     statistics: store.statistics,
     categories: store.categories,
     options: store.options,
+    availableProjects: store.availableProjects,
+    linkedProjects: store.linkedProjects,
+    goalProgress: store.goalProgress,
     isLoading: store.isLoading,
     error: store.error,
     pagination: store.pagination,
     filters: store.filters,
+    viewMode: store.viewMode,
+    selectedGoalIds: store.selectedGoalIds,
 
-    // Query states
-    isGoalsLoading: goalsQuery.isLoading,
-    isGoalsFetching: goalsQuery.isFetching,
-    isGoalLoading: false,
-    isStatisticsLoading: statisticsQuery.isLoading,
-    isCategoriesLoading: categoriesQuery.isLoading,
-    isOptionsLoading: optionsQuery.isLoading,
-    isProgressLoading: false,
-    isAvailableProjectsLoading: false,
+    // Query loading states
+    isGoalsLoading: getGoalsQuery({}).isLoading,
+    isGoalLoading: getGoalQuery("").isLoading,
+    isStatisticsLoading: getStatisticsQuery().isLoading,
+    isCategoriesLoading: getCategoriesQuery().isLoading,
+    isOptionsLoading: getOptionsQuery().isLoading,
+    isProgressLoading: getGoalProgressQuery("").isLoading,
+    isAvailableProjectsLoading: getAvailableProjectsQuery("").isLoading,
+    isLinkedProjectsLoading: getLinkedProjectsQuery("").isLoading,
+    isActivitiesLoading: getActivitiesQuery().isLoading,
+    isDashboardLoading: getDashboardQuery().isLoading,
 
-    // Mutations
+    // Mutation loading states
     isCreating: createGoalMutation.isPending,
     isUpdating: updateGoalMutation.isPending,
     isDeleting: deleteGoalMutation.isPending,
+    isBulkDeleting: bulkDeleteGoalsMutation.isPending,
+    isBulkUpdating: bulkUpdateStatusMutation.isPending,
     isLinking: linkProjectMutation.isPending,
     isUnlinking: unlinkProjectMutation.isPending,
 
-    // Query actions
+    // Query methods
     getGoals,
     getGoal,
     getStatistics,
@@ -453,11 +586,17 @@ export const useVision = () => {
     getOptions,
     getGoalProgress,
     getAvailableProjects,
+    getLinkedProjects,
+    getActivities,
+    getDashboard,
+    getGoalsByStatus,
 
-    // Mutations
+    // Mutation methods
     createGoal,
     updateGoal,
     deleteGoal,
+    bulkDeleteGoals,
+    bulkUpdateStatus,
     linkProject,
     unlinkProject,
 
@@ -466,25 +605,11 @@ export const useVision = () => {
     clearVision,
     reset,
     setFilters,
+    setViewMode,
+    toggleGoalSelection,
+    clearSelection,
+    setSelectedGoalIds,
   };
 };
-
-/*
- * Keeps React Query results synchronized with Zustand
- * without calling hooks dynamically.
- */
-import { useEffect } from "react";
-
-function useEffectSync(query, callback) {
-  useEffect(() => {
-    if (query.data) {
-      callback(query.data);
-    }
-
-    if (query.error) {
-      // handled below through the query result
-    }
-  }, [query.data]);
-}
 
 export default useVision;

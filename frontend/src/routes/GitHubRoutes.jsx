@@ -2,6 +2,7 @@
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import { LoadingSpinner } from "../components/common";
+//const GithubDashboard = React.lazy(() => import('../components/github/GithubDashboard'));
 
 const GitHubIntegration = React.lazy(() =>
   import("../components/github/GitHubIntegration")

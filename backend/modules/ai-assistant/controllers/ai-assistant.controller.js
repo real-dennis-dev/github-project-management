@@ -19,6 +19,7 @@ class AIAssistantController {
   async askQuestion(req, res) {
     try {
       const { projectId } = req.params;
+      const userId = req.user?.id;
       const { question, context } = req.body;
 
       // Validate UUID
@@ -37,6 +38,7 @@ class AIAssistantController {
 
       const result = await AIAssistantService.askQuestion(
         projectId,
+        userId,
         value.question,
         value.context
       );
@@ -61,6 +63,7 @@ class AIAssistantController {
   async analyzeProject(req, res) {
     try {
       const { projectId } = req.params;
+      const userId = req.user?.id;
       const { focus, depth } = req.body || {};
 
       // Validate UUID
@@ -77,7 +80,11 @@ class AIAssistantController {
         return ResponseUtils.sendValidationError(res, error.details);
       }
 
-      const result = await AIAssistantService.analyzeProject(projectId, value);
+      const result = await AIAssistantService.analyzeProject(
+        projectId,
+        userId,
+        value
+      );
 
       return ResponseUtils.sendSuccess(
         res,
@@ -100,6 +107,7 @@ class AIAssistantController {
     try {
       const { projectId } = req.params;
       const queryParams = req.query;
+      const userId = req.user?.id;
 
       // Validate UUID
       if (!ValidationUtils.validateUUID(projectId)) {
@@ -114,6 +122,7 @@ class AIAssistantController {
 
       const conversations = await AIAssistantService.getConversations(
         projectId,
+        userId,
         value.limit,
         {
           questionContains: value.questionContains,
@@ -142,6 +151,7 @@ class AIAssistantController {
   async getConversation(req, res) {
     try {
       const { id } = req.params;
+      const userId = req.user?.id;
 
       // Validate UUID
       if (!ValidationUtils.validateUUID(id)) {
@@ -174,6 +184,7 @@ class AIAssistantController {
   async summarizeText(req, res) {
     try {
       const { text, maxLength, format } = req.body;
+      const userId = req.user?.id;
 
       // Validate request body
       const { error, value } = aiSchemas.summarizeText.validate({
@@ -211,6 +222,7 @@ class AIAssistantController {
    */
   async generateReport(req, res) {
     try {
+      const userId = req.user?.id;
       const { projectId } = req.params;
       const { type, format, includeCharts, period } = req.body || {};
 
@@ -233,6 +245,7 @@ class AIAssistantController {
 
       const result = await AIAssistantService.generateReport(
         projectId,
+        userId,
         value.type,
         {
           format: value.format,
@@ -274,13 +287,17 @@ class AIAssistantController {
   async suggestNextActions(req, res) {
     try {
       const { projectId } = req.params;
+      const userId = req.user?.id;
 
       // Validate UUID
       if (!ValidationUtils.validateUUID(projectId)) {
         return ResponseUtils.sendError(res, "Invalid project ID", 400);
       }
 
-      const result = await AIAssistantService.suggestNextActions(projectId);
+      const result = await AIAssistantService.suggestNextActions(
+        projectId,
+        userId
+      );
 
       return ResponseUtils.sendSuccess(
         res,
@@ -302,13 +319,14 @@ class AIAssistantController {
   async analyzeTrends(req, res) {
     try {
       const { projectId } = req.params;
+      const userId = req.user?.id;
 
       // Validate UUID
       if (!ValidationUtils.validateUUID(projectId)) {
         return ResponseUtils.sendError(res, "Invalid project ID", 400);
       }
 
-      const result = await AIAssistantService.analyzeTrends(projectId);
+      const result = await AIAssistantService.analyzeTrends(projectId, userId);
 
       return ResponseUtils.sendSuccess(
         res,
@@ -329,6 +347,7 @@ class AIAssistantController {
    */
   async getStatus(req, res) {
     try {
+      const userId = req.user?.id;
       const status = {
         provider: AIAssistantService.provider,
         isFallback: AIAssistantService.isFallback || false,
@@ -358,6 +377,68 @@ class AIAssistantController {
       );
     } catch (error) {
       logger.error("Error in getStatus:", error);
+      return ResponseUtils.sendError(res, error.message, 500);
+    }
+  }
+
+  /**
+   * Get global AI dashboard statistics
+   *
+   * This endpoint intentionally does NOT use req.params.projectId.
+   *
+   * It aggregates AI activity across all projects for the
+   * authenticated user.
+   *
+   * @param {Object} req
+   * @param {Object} res
+   * @returns {Promise<Object>}
+   */
+  async getAIStats(req, res) {
+    try {
+      /*
+       * Depending on your auth middleware, this may be:
+       *
+       * req.user.id
+       * req.user.userId
+       * req.user.sub
+       *
+       * Your existing middleware appears to use req.user.id.
+       */
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return ResponseUtils.sendError(
+          res,
+          "Authenticated user not found",
+          401
+        );
+      }
+
+      /*
+       * Validate query parameters.
+       */
+      const { error, value } = aiSchemas.getAIStats.validate(req.query, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
+      if (error) {
+        return ResponseUtils.sendValidationError(res, error.details);
+      }
+
+      /*
+       * Get dashboard data.
+       */
+      const result = await AIAssistantService.getAIStats(userId, value);
+
+      return ResponseUtils.sendSuccess(
+        res,
+        result,
+        "AI dashboard statistics retrieved successfully"
+      );
+    } catch (error) {
+      logger.error("Error in getAIStats:", error);
+
       return ResponseUtils.sendError(res, error.message, 500);
     }
   }

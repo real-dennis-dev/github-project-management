@@ -2,6 +2,10 @@
 import React, { Suspense } from "react";
 import { LoadingSpinner } from "../components/common";
 
+// Lazy-loaded components
+const ReleasesDashboard = React.lazy(() =>
+  import("../components/releases/ReleasesDashboard")
+);
 const ReleaseList = React.lazy(() =>
   import("../components/releases/ReleaseList")
 );
@@ -29,27 +33,35 @@ const MilestoneStats = React.lazy(() =>
 const BulkUpdateProgress = React.lazy(() =>
   import("../components/releases/BulkUpdateProgress")
 );
-// const ReleaseHome = React.lazy(() =>
-//   import("../components/releases/ReleaseHome")
-// );
+
 const LoadingFallback = () => (
   <div className="flex justify-center items-center min-h-[400px]">
     <LoadingSpinner size="lg" />
   </div>
 );
 
-const withSuspense = (Component, props = {}) => (
-  <Suspense fallback={<LoadingFallback />}>
-    <Component {...props} />
-  </Suspense>
-);
+// Proper HOC that returns a component
+const withSuspense = (LazyComponent, extraProps = {}) => {
+  const Wrapped = (props) => (
+    <Suspense fallback={<LoadingFallback />}>
+      <LazyComponent {...extraProps} {...props} />
+    </Suspense>
+  );
+  return <Wrapped />;
+};
 
 const releasesRoutes = [
-  // Sidebar: /releases
-  { path: "releases", element: withSuspense(ReleaseDetail) },
+  // Top-level dashboard
+  {
+    path: "/releases-milestones",
+    element: withSuspense(ReleasesDashboard),
+  },
 
-  // Project-scoped
-  { path: "projects/:projectId/releases", element: withSuspense(ReleaseList) },
+  // ========== Project-scoped routes ==========
+  {
+    path: "projects/:projectId/releases",
+    element: withSuspense(ReleaseList),
+  },
   {
     path: "projects/:projectId/releases/create",
     element: withSuspense(ReleaseForm),
@@ -75,13 +87,19 @@ const releasesRoutes = [
     element: withSuspense(BulkUpdateProgress),
   },
 
-  // By id
-  { path: "releases/:id", element: withSuspense(ReleaseDetail) },
+  // ========== By ID routes ==========
+  {
+    path: "releases/:id",
+    element: withSuspense(ReleaseDetail),
+  },
   {
     path: "releases/:id/edit",
     element: withSuspense(ReleaseForm, { editMode: true }),
   },
-  { path: "milestones/:id", element: withSuspense(MilestoneDetail) },
+  {
+    path: "milestones/:id",
+    element: withSuspense(MilestoneDetail),
+  },
   {
     path: "milestones/:id/edit",
     element: withSuspense(MilestoneForm, { editMode: true }),

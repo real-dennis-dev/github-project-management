@@ -399,7 +399,10 @@ class ExpenseController {
        * Notice:
        * No projectId is passed.
        */
-      const dashboard = await ExpenseService.getExpenseDashboard(userId, value);
+      const dashboard = await ExpenseDashboardService.getExpenseDashboard(
+        userId,
+        value
+      );
 
       return ResponseUtils.sendSuccess(
         res,

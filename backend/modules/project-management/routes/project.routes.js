@@ -163,7 +163,7 @@ router.post(
  *         description: Project not found
  */
 router.get(
-  "/projects:id",
+  "/projects/:id",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectById
@@ -187,7 +187,7 @@ router.get(
  *         description: Project updated
  */
 router.put(
-  "/projects:id",
+  "/projects/:id",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
@@ -214,7 +214,7 @@ router.put(
  *         description: Status updated
  */
 router.patch(
-  "/projects:id/status",
+  "/projects/:id/status",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
@@ -240,7 +240,7 @@ router.patch(
  *         description: Project deleted
  */
 router.delete(
-  "/projects:id",
+  "/projects/:id",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
@@ -265,7 +265,7 @@ router.delete(
  *         description: Project analytics
  */
 router.get(
-  "/projects:id/stats",
+  "/projects/:id/stats",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectAnalytics

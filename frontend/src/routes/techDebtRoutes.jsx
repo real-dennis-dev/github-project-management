@@ -2,7 +2,9 @@
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
 import { LoadingSpinner } from "../components/common";
-
+const AllTechDebtDashboard = React.lazy(() =>
+  import("../components/techdebt/AllTechDebtDashboard")
+);
 const TechDebtDashboard = React.lazy(() =>
   import("../components/techdebt/TechDebtDashboard")
 );
@@ -42,7 +44,7 @@ const techDebtRoutes = [
     path: "/tech-debt",
     element: (
       <Suspense fallback={<LoadingFallback />}>
-        <TechDebtOverview /> {/* or project picker */}
+        <AllTechDebtDashboard /> {/* or project picker */}
       </Suspense>
     ),
   },

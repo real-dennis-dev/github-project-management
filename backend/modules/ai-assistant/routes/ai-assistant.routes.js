@@ -29,6 +29,111 @@ const { aiSchemas } = require("../validations/ai-assistant.validation");
 
 /**
  * @swagger
+ * /api/ai/stats:
+ *   get:
+ *     summary: Get global AI dashboard statistics
+ *     description: |
+ *       Returns aggregated AI assistant statistics and recent AI
+ *       activity across all projects accessible to the authenticated user.
+ *
+ *       This endpoint does not require a project ID.
+ *       Each activity item contains the projectId and conversationId
+ *       so the client can navigate to detailed information.
+ *     tags: [AI Assistant]
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for AI activity
+ *
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of activities to return
+ *
+ *       - in: query
+ *         name: fromDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Return activity created after this date
+ *
+ *       - in: query
+ *         name: toDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Return activity created before this date
+ *
+ *       - in: query
+ *         name: type
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - ask_question
+ *             - analyze_project
+ *             - summarize_text
+ *             - generate_report
+ *             - suggest_next_actions
+ *             - analyze_trends
+ *         description: Filter activities by AI operation
+ *
+ *       - in: query
+ *         name: projectId
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Optional project filter. The endpoint remains global.
+ *
+ *     responses:
+ *       200:
+ *         description: AI dashboard statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *
+ *                 message:
+ *                   type: string
+ *                   example: AI dashboard statistics retrieved successfully
+ *
+ *                 data:
+ *                   $ref: '#/components/schemas/AIDashboardStats'
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/ai/stats",
+  authenticate,
+  AIMiddleware.logAIActivity,
+  AIAssistantController.getAIStats.bind(AIAssistantController)
+);
+/**
+ * @swagger
  * /api/projects/{projectId}/ai/ask:
  *   post:
  *     summary: Ask AI a question about the project

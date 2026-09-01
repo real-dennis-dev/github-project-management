@@ -84,6 +84,17 @@ class GithubService {
     );
     return response.data;
   }
+  /**
+   * Get GitHub dashboard statistics across all accessible projects
+   * @param {Object} params - Query parameters
+   * @param {number} params.page - Page number for activity (default: 1)
+   * @param {number} params.limit - Items per page (default: 20)
+   * @returns {Promise<Object>} GitHub dashboard stats
+   */
+  async getDashboardStats(params = {}) {
+    const response = await axiosInstance.get(`/github/stats`, { params });
+    return response.data;
+  }
 }
 
 export const githubService = new GithubService();

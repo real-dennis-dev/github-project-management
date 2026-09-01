@@ -1,267 +1,168 @@
 /**
  * @swagger
- * /api/tech-debt/stats:
- *   get:
- *     summary: Get global technical debt dashboard statistics
- *     description: >
- *       Returns technical debt statistics aggregated across
- *       every project accessible to the authenticated user.
- *       No project ID is required.
- *     tags:
- *       - TechDebt
- *     security:
- *       - bearerAuth: []
+ * components:
+ *   schemas:
  *
- *     parameters:
- *       - in: query
- *         name: page
- *         required: false
- *         description: Page number for latest tech debt items
- *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
+ *     AIDashboardStats:
+ *       type: object
+ *       properties:
  *
- *       - in: query
- *         name: limit
- *         required: false
- *         description: Number of latest items
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 100
- *           default: 20
+ *         stats:
+ *           type: object
+ *           properties:
  *
- *     responses:
- *       200:
- *         description: Global tech debt dashboard statistics
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ *             totalInteractions:
+ *               type: integer
+ *               example: 124
  *
- *                 message:
- *                   type: string
- *                   example: Global tech debt statistics retrieved successfully
+ *             totalProjects:
+ *               type: integer
+ *               example: 8
  *
- *                 data:
- *                   type: object
+ *             questions:
+ *               type: integer
+ *               example: 73
  *
- *                   properties:
- *                     stats:
- *                       type: object
- *                       properties:
- *                         totalItems:
- *                           type: integer
- *                           example: 145
+ *             analyses:
+ *               type: integer
+ *               example: 21
  *
- *                         totalProjects:
- *                           type: integer
- *                           example: 12
+ *             reports:
+ *               type: integer
+ *               example: 12
  *
- *                         unresolvedItems:
- *                           type: integer
- *                           example: 98
+ *             summaries:
+ *               type: integer
+ *               example: 8
  *
- *                         resolvedItems:
- *                           type: integer
- *                           example: 47
+ *             actions:
+ *               type: integer
+ *               example: 6
  *
- *                         resolutionRate:
- *                           type: number
- *                           example: 32
+ *             trends:
+ *               type: integer
+ *               example: 4
  *
- *                         estimatedEffortHours:
- *                           type: number
- *                           example: 1240
+ *             lastActivityAt:
+ *               type: string
+ *               format: date-time
+ *               nullable: true
+ *               example: "2026-09-01T07:30:00.000Z"
  *
- *                         averageImpact:
- *                           type: number
- *                           example: 61
+ *         activities:
+ *           type: array
+ *           description: AI activity sorted from newest to oldest
+ *           items:
+ *             type: object
+ *             properties:
  *
- *                         totalCost:
- *                           type: number
- *                           example: 93000
+ *               id:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "4e5b3d6c-3a77-4c3d-8c12-12f5f0d4a111"
  *
- *                         score:
- *                           type: number
- *                           example: 67
+ *               conversationId:
+ *                 type: string
+ *                 format: uuid
+ *                 example: "4e5b3d6c-3a77-4c3d-8c12-12f5f0d4a111"
  *
- *                         level:
- *                           type: string
- *                           enum:
- *                             - low
- *                             - medium
- *                             - high
- *                             - critical
- *                           example: high
+ *               projectId:
+ *                 type: string
+ *                 format: uuid
+ *                 nullable: true
+ *                 example: "f3c7d3b2-4f8e-4e8a-9f0b-88f7c12a9001"
  *
- *                     distributions:
- *                       type: object
- *                       properties:
- *                         byPriority:
- *                           type: object
- *                           properties:
- *                             low:
- *                               type: integer
- *                             medium:
- *                               type: integer
- *                             high:
- *                               type: integer
- *                             critical:
- *                               type: integer
+ *               projectName:
+ *                 type: string
+ *                 example: "Payment Platform"
  *
- *                         byStatus:
- *                           type: object
- *                           properties:
- *                             identified:
- *                               type: integer
- *                             planned:
- *                               type: integer
- *                             in_progress:
- *                               type: integer
- *                             resolved:
- *                               type: integer
- *                             ignored:
- *                               type: integer
+ *               projectStatus:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "in_progress"
  *
- *                     projects:
- *                       type: array
- *                       description: Tech debt statistics grouped by project
- *                       items:
- *                         type: object
- *                         properties:
- *                           projectId:
- *                             type: string
- *                             format: uuid
+ *               type:
+ *                 type: string
+ *                 enum:
+ *                   - ask_question
+ *                   - analyze_project
+ *                   - summarize_text
+ *                   - generate_report
+ *                   - suggest_next_actions
+ *                   - analyze_trends
+ *                 example: analyze_project
  *
- *                           projectName:
- *                             type: string
+ *               title:
+ *                 type: string
+ *                 example: Project Analysis
  *
- *                           total:
- *                             type: integer
+ *               question:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "[analyze_project] Analyze the current project risks"
  *
- *                           unresolved:
- *                             type: integer
+ *               answer:
+ *                 type: string
+ *                 nullable: true
+ *                 example: "[usage tracking]"
  *
- *                           resolved:
- *                             type: integer
+ *               metadata:
+ *                 type: object
+ *                 additionalProperties: true
  *
- *                           critical:
- *                             type: integer
+ *               createdAt:
+ *                 type: string
+ *                 format: date-time
+ *                 example: "2026-09-01T07:30:00.000Z"
  *
- *                           high:
- *                             type: integer
+ *         pagination:
+ *           type: object
+ *           properties:
  *
- *                           medium:
- *                             type: integer
+ *             page:
+ *               type: integer
+ *               example: 1
  *
- *                           low:
- *                             type: integer
+ *             limit:
+ *               type: integer
+ *               example: 20
  *
- *                           estimatedEffort:
- *                             type: number
+ *             total:
+ *               type: integer
+ *               example: 124
  *
- *                     highestImpactItems:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           id:
- *                             type: string
- *                             format: uuid
+ *             totalPages:
+ *               type: integer
+ *               example: 7
  *
- *                           projectId:
- *                             type: string
- *                             format: uuid
+ *             hasNextPage:
+ *               type: boolean
+ *               example: true
  *
- *                           projectName:
- *                             type: string
+ *             hasPreviousPage:
+ *               type: boolean
+ *               example: false
  *
- *                           title:
- *                             type: string
+ *         filters:
+ *           type: object
+ *           properties:
  *
- *                           priority:
- *                             type: string
+ *             fromDate:
+ *               type: string
+ *               format: date-time
+ *               nullable: true
  *
- *                           status:
- *                             type: string
+ *             toDate:
+ *               type: string
+ *               format: date-time
+ *               nullable: true
  *
- *                           impact:
- *                             type: object
+ *             type:
+ *               type: string
+ *               nullable: true
  *
- *                     latest:
- *                       type: object
- *                       properties:
- *                         items:
- *                           type: array
- *                           description: Latest tech debt records sorted by updated_at descending
- *                           items:
- *                             type: object
- *                             properties:
- *                               id:
- *                                 type: string
- *                                 format: uuid
- *
- *                               projectId:
- *                                 type: string
- *                                 format: uuid
- *
- *                               project:
- *                                 type: object
- *
- *                               title:
- *                                 type: string
- *
- *                               description:
- *                                 type: string
- *
- *                               priority:
- *                                 type: string
- *
- *                               status:
- *                                 type: string
- *
- *                               estimatedEffortHours:
- *                                 type: number
- *
- *                               impactScore:
- *                                 type: number
- *
- *                               impactLevel:
- *                                 type: string
- *
- *                               createdAt:
- *                                 type: string
- *                                 format: date-time
- *
- *                               updatedAt:
- *                                 type: string
- *                                 format: date-time
- *
- *                         pagination:
- *                           type: object
- *                           properties:
- *                             page:
- *                               type: integer
- *                             limit:
- *                               type: integer
- *                             total:
- *                               type: integer
- *                             totalPages:
- *                               type: integer
- *
- *                     lastUpdated:
- *                       type: string
- *                       format: date-time
- *
- *       401:
- *         description: Unauthorized
- *
- *       500:
- *         description: Internal server error
+ *             projectId:
+ *               type: string
+ *               format: uuid
+ *               nullable: true
  */

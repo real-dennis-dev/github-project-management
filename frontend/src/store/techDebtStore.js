@@ -24,6 +24,9 @@ const initialState = {
     sortBy: "created_at",
     sortOrder: "DESC",
   },
+  globalStats: null,
+  globalStatsLoading: false,
+  globalStatsError: null,
 };
 
 export const useTechDebtStore = create(
