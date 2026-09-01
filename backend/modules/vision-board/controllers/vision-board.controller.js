@@ -413,6 +413,53 @@ class VisionBoardController {
       return ResponseUtils.sendError(res, error.message, 500);
     }
   }
+  /**
+   * Get Vision Board dashboard
+   *
+   * Aggregates vision goals and project statistics
+   * across the entire workspace.
+   *
+   * IMPORTANT:
+   * This endpoint does not accept a project ID.
+   *
+   * @param {Object} req
+   * @param {Object} res
+   * @returns {Promise<Object>}
+   */
+  async getDashboard(req, res) {
+    try {
+      /*
+       * Validate query parameters.
+       */
+      const { error, value } = visionSchemas.getDashboard.validate(req.query, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
+      if (error) {
+        return ResponseUtils.sendValidationError(res, error.details);
+      }
+
+      /*
+       * Get aggregated dashboard data.
+       */
+      const dashboard = await VisionBoardService.getDashboard(value);
+
+      return ResponseUtils.sendSuccess(
+        res,
+        dashboard,
+        "Vision board dashboard retrieved successfully"
+      );
+    } catch (error) {
+      logger.error("Error in getDashboard:", error);
+
+      return ResponseUtils.sendError(
+        res,
+        error.message || "Failed to retrieve vision board dashboard",
+        500
+      );
+    }
+  }
 }
 
 const visionBoardController = new VisionBoardController();

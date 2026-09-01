@@ -34,12 +34,29 @@ const visionSchemas = {
   // Vision Goals Query Params
   getGoals: Joi.object({
     status: Joi.string().valid("draft", "active", "completed", "archived"),
+
     category: Joi.string(),
+
     page: Joi.number().integer().min(1).default(1),
+
     limit: Joi.number().integer().min(1).max(100).default(20),
+
     sortBy: Joi.string()
       .valid("created_at", "priority", "goal", "status")
       .default("priority"),
+
+    sortOrder: Joi.string().valid("ASC", "DESC").default("DESC"),
+  }),
+
+  // ============================================
+  // VISION BOARD DASHBOARD
+  // ============================================
+
+  getDashboard: Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+
+    limit: Joi.number().integer().min(1).max(100).default(20),
+
     sortOrder: Joi.string().valid("ASC", "DESC").default("DESC"),
   }),
 };

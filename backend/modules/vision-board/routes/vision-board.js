@@ -29,7 +29,66 @@ const { visionSchemas } = require("../validations/vision-board.validation");
 // ============================================
 // VISION BOARD ROUTES
 // ============================================
-
+/**
+ * @swagger
+ * /api/vision-board/dashboard:
+ *   get:
+ *     summary: Get Vision Board dashboard
+ *     description: |
+ *       Returns aggregated Vision Board statistics and recent
+ *       vision goals across all projects. This endpoint does
+ *       not require or accept a project ID.
+ *     tags: [Vision Board]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Dashboard page number
+ *
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of dashboard items to return
+ *
+ *       - in: query
+ *         name: sortOrder
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [ASC, DESC]
+ *           default: DESC
+ *         description: Sort dashboard items by latest activity
+ *
+ *     responses:
+ *       200:
+ *         description: Vision Board dashboard retrieved successfully
+ *
+ *       400:
+ *         description: Invalid query parameters
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/vision-board/dashboard",
+  authenticate,
+  validateQuery(visionSchemas.getDashboard),
+  VisionBoardController.getDashboard.bind(VisionBoardController)
+);
 /**
  * @swagger
  * /:

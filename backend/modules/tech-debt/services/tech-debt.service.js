@@ -628,6 +628,378 @@ class TechDebtService {
       throw error;
     }
   }
+  /**
+   * Gets global tech debt statistics for the dashboard.
+   *
+   * Unlike getTechDebtStatistics(), this method does NOT accept
+   * a project ID. It aggregates tech debt across all projects.
+   *
+   * @param {Object} options
+   * @param {number} options.page
+   * @param {number} options.limit
+   * @returns {Promise<Object>}
+   */
+  async getGlobalTechDebtStats(options = {}) {
+    try {
+      const { page = 1, limit = 20 } = options;
+
+      const cacheKey = `tech_debt:global:stats:${page}:${limit}`;
+
+      // -----------------------------------------
+      // Cache
+      // -----------------------------------------
+
+      const cached = await CacheUtils.getCache(cacheKey);
+
+      if (cached) {
+        return cached;
+      }
+
+      // -----------------------------------------
+      // Fetch dashboard data
+      // -----------------------------------------
+
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+
+      const { data, error, count } = await supabase
+        .from("tech_debt")
+        .select(
+          `
+        *,
+        projects (
+          id,
+          name
+        )
+      `,
+          {
+            count: "exact",
+          }
+        )
+        .order("updated_at", {
+          ascending: false,
+        })
+        .range(from, to);
+
+      if (error) {
+        logger.error("Error fetching global tech debt statistics:", error);
+
+        throw new Error("Failed to fetch global tech debt statistics");
+      }
+
+      // -----------------------------------------
+      // Get ALL records for aggregate statistics
+      // -----------------------------------------
+
+      const { data: allTechDebt, error: aggregateError } = await supabase.from(
+        "tech_debt"
+      ).select(`
+        *,
+        projects (
+          id,
+          name
+        )
+      `);
+
+      if (aggregateError) {
+        logger.error(
+          "Error fetching tech debt aggregate statistics:",
+          aggregateError
+        );
+
+        throw new Error("Failed to calculate global tech debt statistics");
+      }
+
+      const items = allTechDebt || [];
+
+      // -----------------------------------------
+      // Core metrics
+      // -----------------------------------------
+
+      const metrics = TechDebtUtils.calculateMetrics(items);
+
+      // -----------------------------------------
+      // Priority distribution
+      // -----------------------------------------
+
+      const priorityDistribution = {
+        low: metrics.byPriority.low || 0,
+        medium: metrics.byPriority.medium || 0,
+        high: metrics.byPriority.high || 0,
+        critical: metrics.byPriority.critical || 0,
+      };
+
+      // -----------------------------------------
+      // Status distribution
+      // -----------------------------------------
+
+      const statusDistribution = {
+        identified: metrics.byStatus.identified || 0,
+        planned: metrics.byStatus.planned || 0,
+        in_progress: metrics.byStatus.in_progress || 0,
+        resolved: metrics.byStatus.resolved || 0,
+        ignored: metrics.byStatus.ignored || 0,
+      };
+
+      // -----------------------------------------
+      // Calculate total business cost
+      // -----------------------------------------
+
+      const totalCost = items.reduce((sum, item) => {
+        const cost = TechDebtUtils.calculateBusinessCost(item);
+
+        return sum + cost.totalCost;
+      }, 0);
+
+      // -----------------------------------------
+      // Calculate direct / indirect cost
+      // -----------------------------------------
+
+      const costBreakdown = items.reduce(
+        (result, item) => {
+          const cost = TechDebtUtils.calculateBusinessCost(item);
+
+          result.directCost += cost.directCost;
+          result.indirectCost += cost.indirectCost;
+          result.totalCost += cost.totalCost;
+
+          return result;
+        },
+        {
+          directCost: 0,
+          indirectCost: 0,
+          totalCost: 0,
+        }
+      );
+
+      // -----------------------------------------
+      // Project statistics
+      // -----------------------------------------
+
+      const projectMap = new Map();
+
+      items.forEach((item) => {
+        const projectId = item.project_id;
+
+        if (!projectId) {
+          return;
+        }
+
+        const projectName = item.projects?.name || "Unknown Project";
+
+        if (!projectMap.has(projectId)) {
+          projectMap.set(projectId, {
+            projectId,
+            projectName,
+            total: 0,
+            unresolved: 0,
+            resolved: 0,
+            critical: 0,
+            high: 0,
+            medium: 0,
+            low: 0,
+            estimatedEffort: 0,
+          });
+        }
+
+        const projectStats = projectMap.get(projectId);
+
+        projectStats.total += 1;
+
+        if (item.status === "resolved") {
+          projectStats.resolved += 1;
+        } else {
+          projectStats.unresolved += 1;
+        }
+
+        if (item.priority === "critical") {
+          projectStats.critical += 1;
+        }
+
+        if (item.priority === "high") {
+          projectStats.high += 1;
+        }
+
+        if (item.priority === "medium") {
+          projectStats.medium += 1;
+        }
+
+        if (item.priority === "low") {
+          projectStats.low += 1;
+        }
+
+        projectStats.estimatedEffort += item.estimated_effort_hours || 0;
+      });
+
+      const projectStatistics = Array.from(projectMap.values()).sort((a, b) => {
+        return b.total - a.total;
+      });
+
+      // -----------------------------------------
+      // Latest items
+      // -----------------------------------------
+
+      const latestItems = (data || []).map((item) => ({
+        id: item.id,
+        projectId: item.project_id,
+
+        project: item.projects
+          ? {
+              id: item.projects.id,
+              name: item.projects.name,
+            }
+          : null,
+
+        title: item.title,
+        description: item.description,
+        reason: item.reason,
+        impact: item.impact,
+
+        priority: item.priority,
+        status: item.status,
+
+        estimatedEffortHours: item.estimated_effort_hours || 0,
+
+        impactScore: TechDebtUtils.calculateDebtImpact(item).score,
+
+        impactLevel: TechDebtUtils.calculateDebtImpact(item).level,
+
+        refactoringSuggestion: TechDebtUtils.suggestRefactoringPriority(item),
+
+        createdAt: item.created_at,
+        updatedAt: item.updated_at,
+      }));
+
+      // -----------------------------------------
+      // Global score
+      // -----------------------------------------
+
+      let globalScore = 0;
+
+      if (items.length > 0) {
+        const criticalCount = priorityDistribution.critical;
+
+        const highCount = priorityDistribution.high;
+
+        const mediumCount = priorityDistribution.medium;
+
+        const lowCount = priorityDistribution.low;
+
+        const priorityScore =
+          (criticalCount * 40 +
+            highCount * 30 +
+            mediumCount * 20 +
+            lowCount * 10) /
+          items.length;
+
+        const resolutionScore = metrics.resolutionRate;
+
+        const effortScore = Math.min((metrics.totalEffort / 100) * 20, 20);
+
+        globalScore = Math.min(
+          Math.round(priorityScore + resolutionScore + effortScore),
+          100
+        );
+      }
+
+      // -----------------------------------------
+      // Global score level
+      // -----------------------------------------
+
+      let globalLevel = "low";
+
+      if (globalScore > 75) {
+        globalLevel = "critical";
+      } else if (globalScore > 50) {
+        globalLevel = "high";
+      } else if (globalScore > 25) {
+        globalLevel = "medium";
+      }
+
+      // -----------------------------------------
+      // Highest-impact items
+      // -----------------------------------------
+
+      const highestImpactItems = items
+        .map((item) => ({
+          id: item.id,
+          projectId: item.project_id,
+          projectName: item.projects?.name || "Unknown Project",
+          title: item.title,
+          priority: item.priority,
+          status: item.status,
+          impact: TechDebtUtils.calculateDebtImpact(item),
+        }))
+        .sort((a, b) => {
+          return b.impact.score - a.impact.score;
+        })
+        .slice(0, 10);
+
+      // -----------------------------------------
+      // Final dashboard response
+      // -----------------------------------------
+
+      const result = {
+        stats: {
+          totalItems: metrics.total,
+
+          totalProjects: projectStatistics.length,
+
+          unresolvedItems: metrics.unresolved,
+
+          resolvedItems: metrics.byStatus.resolved || 0,
+
+          resolutionRate: metrics.resolutionRate,
+
+          estimatedEffortHours: metrics.totalEffort,
+
+          averageImpact: metrics.averageImpact,
+
+          totalCost,
+
+          costBreakdown,
+
+          score: globalScore,
+
+          level: globalLevel,
+        },
+
+        distributions: {
+          byPriority: priorityDistribution,
+          byStatus: statusDistribution,
+        },
+
+        projects: projectStatistics,
+
+        highestImpactItems,
+
+        latest: {
+          items: latestItems,
+
+          pagination: {
+            page,
+            limit,
+            total: count || 0,
+            totalPages: Math.ceil((count || 0) / limit),
+          },
+        },
+
+        lastUpdated: new Date().toISOString(),
+      };
+
+      // -----------------------------------------
+      // Cache
+      // -----------------------------------------
+
+      await CacheUtils.setCache(cacheKey, result, 300);
+
+      return result;
+    } catch (error) {
+      logger.error("TechDebtService.getGlobalTechDebtStats error:", error);
+
+      throw error;
+    }
+  }
 }
 
 const techDebtService = new TechDebtService();

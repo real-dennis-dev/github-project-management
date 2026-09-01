@@ -1,4 +1,5 @@
 const ExpenseService = require("../services/expense.service");
+const ExpenseDashboardService = require("../services/dashboard.service");
 const ExpenseUtils = require("../utils/expense.utils");
 const { expenseSchemas } = require("../validations/expense.validation");
 const ResponseUtils = require("../../../common/utils/response.utils");
@@ -358,6 +359,62 @@ class ExpenseController {
     } catch (error) {
       logger.error("Error in getExpenseStatistics:", error);
       return ResponseUtils.sendError(res, error.message, 500);
+    }
+  }
+  /**
+   * Get expenses dashboard across all projects
+   *
+   * This endpoint intentionally does not accept projectId.
+   *
+   * @param {Object} req - Express request
+   * @param {Object} res - Express response
+   * @returns {Promise<Object>} Dashboard response
+   */
+  async getExpenseDashboard(req, res) {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return ResponseUtils.sendUnauthorized(res, "User not authenticated");
+      }
+
+      /*
+       * Validate dashboard query parameters.
+       */
+      const { error, value } = expenseSchemas.getExpenseDashboard.validate(
+        req.query,
+        {
+          abortEarly: false,
+          stripUnknown: true,
+        }
+      );
+
+      if (error) {
+        return ResponseUtils.sendValidationError(res, error.details);
+      }
+
+      /*
+       * Get dashboard data.
+       *
+       * Notice:
+       * No projectId is passed.
+       */
+      const dashboard = await ExpenseService.getExpenseDashboard(userId, value);
+
+      return ResponseUtils.sendSuccess(
+        res,
+        dashboard,
+        "Expense dashboard retrieved successfully",
+        200
+      );
+    } catch (error) {
+      logger.error("Error in getExpenseDashboard:", error);
+
+      return ResponseUtils.sendError(
+        res,
+        error.message || "Failed to retrieve expense dashboard",
+        500
+      );
     }
   }
 }

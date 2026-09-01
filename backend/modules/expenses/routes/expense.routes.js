@@ -32,6 +32,117 @@ const { expenseSchemas } = require("../validations/expense.validation");
 
 /**
  * @swagger
+ * /api/expenses/dashboard:
+ *   get:
+ *     summary: Get expenses dashboard across all projects
+ *     description: |
+ *       Returns aggregated expense statistics and the latest
+ *       expenses across all projects accessible to the authenticated
+ *       user. This endpoint does not require or accept a project ID.
+ *     tags: [Expenses]
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - hosting
+ *             - database
+ *             - domain
+ *             - api
+ *             - software
+ *             - hardware
+ *             - marketing
+ *             - other
+ *         description: Filter dashboard expenses by category
+ *
+ *       - in: query
+ *         name: fromDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Only include expenses from this date
+ *
+ *       - in: query
+ *         name: toDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Only include expenses up to this date
+ *
+ *       - in: query
+ *         name: minAmount
+ *         schema:
+ *           type: number
+ *           minimum: 0
+ *         description: Minimum expense amount
+ *
+ *       - in: query
+ *         name: maxAmount
+ *         schema:
+ *           type: number
+ *           minimum: 0
+ *         description: Maximum expense amount
+ *
+ *       - in: query
+ *         name: vendor
+ *         schema:
+ *           type: string
+ *         description: Filter expenses by vendor
+ *
+ *       - in: query
+ *         name: recurring
+ *         schema:
+ *           type: boolean
+ *         description: Filter recurring or non-recurring expenses
+ *
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for latest expenses
+ *
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *         description: Number of latest expenses to return
+ *
+ *     responses:
+ *       200:
+ *         description: Expense dashboard retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ExpenseDashboardResponse'
+ *
+ *       400:
+ *         description: Invalid query parameters
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       500:
+ *         description: Internal server error
+ */
+
+router.get(
+  "/expenses/dashboard",
+  authenticate,
+  validateQuery(expenseSchemas.getExpenseDashboard),
+  ExpenseController.getExpenseDashboard.bind(ExpenseController)
+);
+
+/**
+ * @swagger
  * /api/projects/{projectId}/expenses:
  *   get:
  *     summary: Get all expenses for a project

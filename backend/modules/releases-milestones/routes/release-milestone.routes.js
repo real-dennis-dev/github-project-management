@@ -4,7 +4,8 @@ const router = express.Router();
 // Import controllers
 const ReleaseController = require("../controllers/release.controller");
 const MilestoneController = require("../controllers/milestone.controller");
-
+// Dashboard controller
+const ReleasesMilestonesDashboardController = require("../controllers/releases-milestones-dashboard.controller");
 // Import middleware
 const {
   authenticate,
@@ -695,4 +696,69 @@ router.post(
   MilestoneController.bulkUpdateProgress.bind(MilestoneController)
 );
 
+// ============================================
+// RELEASES & MILESTONES DASHBOARD
+// ============================================
+
+/**
+ * @swagger
+ * /api/releases-milestones/dashboard:
+ *   get:
+ *     summary: Get global releases and milestones dashboard
+ *     description: |
+ *       Returns aggregated statistics and a combined,
+ *       chronologically sorted list of releases and milestones
+ *       across all projects.
+ *
+ *       This endpoint does not accept a projectId.
+ *
+ *     tags:
+ *       - Releases & Milestones Dashboard
+ *
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Page number
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Number of dashboard items to return
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *
+ *     responses:
+ *       200:
+ *         description: Dashboard retrieved successfully
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/releases-milestones/dashboard",
+
+  authenticate,
+
+  rateLimiter(),
+
+  validateQuery(milestoneSchemas.getReleasesMilestonesDashboard),
+
+  ReleasesMilestonesDashboardController.getDashboard.bind(
+    ReleasesMilestonesDashboardController
+  )
+);
 module.exports = router;

@@ -371,6 +371,48 @@ class JournalController {
       return ResponseUtils.sendError(res, error.message, 500);
     }
   }
+  /**
+   * Get journal dashboard statistics across all projects.
+   *
+   * This endpoint intentionally does not accept projectId.
+   * The authenticated user's ID determines the projects.
+   */
+  async getDashboardStats(req, res) {
+    try {
+      const userId = req.user?.id;
+
+      if (!userId) {
+        return ResponseUtils.sendUnauthorized(res, "User not authenticated");
+      }
+
+      /*
+       * Validate query parameters
+       */
+      const { error, value } = journalSchemas.getDashboardStats.validate(
+        req.query
+      );
+
+      if (error) {
+        return ResponseUtils.sendValidationError(res, error.details);
+      }
+
+      const result = await JournalService.getDashboardStats(userId, value);
+
+      return ResponseUtils.sendSuccess(
+        res,
+        result,
+        "Journal dashboard statistics retrieved successfully"
+      );
+    } catch (error) {
+      logger.error("Error in getDashboardStats:", error);
+
+      return ResponseUtils.sendError(
+        res,
+        error.message || "Failed to retrieve journal dashboard statistics",
+        500
+      );
+    }
+  }
 }
 
 const journalController = new JournalController();

@@ -29,7 +29,75 @@ const { journalSchemas } = require("../validations/journal.validation");
 // ============================================
 // JOURNAL ROUTES
 // ============================================
-
+/**
+ * @swagger
+ * /api/daily-journal/stats:
+ *   get:
+ *     summary: Get journal dashboard statistics across all projects
+ *     description: >
+ *       Returns aggregated daily journal statistics across all projects
+ *       belonging to the authenticated user. The endpoint does not require
+ *       or accept a projectId. Project-level statistics are returned as a
+ *       combined list sorted by latest journal activity.
+ *     tags: [Journal]
+ *     security:
+ *       - bearerAuth: []
+ *
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Page number for project statistics
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Number of projects to return
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *
+ *       - in: query
+ *         name: fromDate
+ *         required: false
+ *         description: Only include journal entries from this date
+ *         schema:
+ *           type: string
+ *           format: date
+ *
+ *       - in: query
+ *         name: toDate
+ *         required: false
+ *         description: Only include journal entries up to this date
+ *         schema:
+ *           type: string
+ *           format: date
+ *
+ *     responses:
+ *       200:
+ *         description: Journal dashboard statistics retrieved successfully
+ *
+ *       400:
+ *         description: Invalid query parameters
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/daily-journal/stats",
+  authenticate,
+  validateQuery(journalSchemas.getDashboardStats),
+  JournalController.getDashboardStats.bind(JournalController)
+);
 /**
  * @swagger
  * /api/projects/{projectId}/journal:

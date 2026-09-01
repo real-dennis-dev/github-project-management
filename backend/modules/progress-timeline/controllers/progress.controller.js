@@ -261,6 +261,33 @@ class ProgressController {
       next(error);
     }
   }
+  /**
+   * GET /api/progress-timeline/stats
+   * Dashboard endpoint – stats across ALL projects
+   */
+  static async getProgressTimelineStats(req, res, next) {
+    try {
+      const filters = req.query;
+
+      const result = await ProgressService.getProgressTimelineStats(filters);
+
+      if (!result.success) {
+        return ResponseUtils.sendError(
+          res,
+          result.message || "Failed to fetch stats",
+          400
+        );
+      }
+
+      return ResponseUtils.sendSuccess(
+        res,
+        result.data,
+        "Progress timeline dashboard stats retrieved successfully"
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 const progressController = new ProgressController();

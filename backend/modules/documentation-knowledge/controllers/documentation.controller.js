@@ -2,6 +2,7 @@ const documentationService = require("../services/documentation.service");
 const responseUtils = require("../../../common/utils/response.utils");
 const logger = require("../../../common/config/logger");
 const documentationSchemas = require("../validations/documentation.schema");
+const documentationKnowledgeStatsService = require("../services/documentation-knowledge-stats.service.js");
 
 class DocumentationController {
   /**
@@ -179,6 +180,36 @@ class DocumentationController {
       );
     } catch (error) {
       logger.error("Error in searchDocumentation:", error);
+      return responseUtils.sendError(res, error.message, 500);
+    }
+  }
+  /**
+   * Dashboard: aggregated stats + combined latest items (no projectId)
+   */
+  async getDocumentationKnowledgeStats(req, res) {
+    try {
+      const { limit, offset, sortBy, sortOrder } = req.query;
+
+      // Validation is done by middleware / schema
+      const result = await documentationKnowledgeStatsService.getStats({
+        limit: limit ? parseInt(limit, 10) : 20,
+        offset: offset ? parseInt(offset, 10) : 0,
+        sortBy,
+        sortOrder,
+      });
+
+      return responseUtils.sendSuccess(
+        res,
+        {
+          stats: result.stats,
+          items: result.items, // clickable list for the dashboard
+        },
+        "Documentation & Knowledge stats retrieved successfully",
+        200,
+        { pagination: result.pagination }
+      );
+    } catch (error) {
+      logger.error("Error in getDocumentationKnowledgeStats:", error);
       return responseUtils.sendError(res, error.message, 500);
     }
   }

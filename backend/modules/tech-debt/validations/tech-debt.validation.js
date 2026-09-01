@@ -62,6 +62,18 @@ const techDebtSchemas = {
       .default("created_at"),
     sortOrder: Joi.string().valid("ASC", "DESC").default("DESC"),
   }),
+  /**
+   * Global Tech Debt Dashboard Statistics
+   *
+   * IMPORTANT:
+   * No project_id/projectId is accepted here.
+   * This endpoint aggregates across all projects.
+   */
+  getTechDebtStats: Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+
+    limit: Joi.number().integer().min(1).max(100).default(20),
+  }),
 };
 
 module.exports = {

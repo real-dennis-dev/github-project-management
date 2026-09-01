@@ -408,5 +408,48 @@ router.get(
   authenticate,
   TechDebtController.getRefactoringSuggestions.bind(TechDebtController)
 );
-
+/**
+ * @swagger
+ * /api/tech-debt/stats:
+ *   get:
+ *     summary: Get global technical debt dashboard statistics
+ *     description: >
+ *       Returns aggregated technical debt statistics across all projects.
+ *       This endpoint does not require or accept a project ID.
+ *     tags:
+ *       - TechDebt
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         description: Page of latest tech debt items
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         description: Number of latest tech debt items to return
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Global tech debt dashboard statistics
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/tech-debt/stats",
+  authenticate,
+  validateQuery(techDebtSchemas.getTechDebtStats),
+  TechDebtController.getTechDebtStats.bind(TechDebtController)
+);
 module.exports = router;

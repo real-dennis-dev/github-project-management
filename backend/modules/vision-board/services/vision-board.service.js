@@ -544,6 +544,458 @@ class VisionBoardService {
       throw error;
     }
   }
+  /**
+   * Gets aggregated Vision Board dashboard data.
+   *
+   * This endpoint intentionally does NOT accept a project ID.
+   *
+   * It aggregates:
+   * - Vision goals
+   * - Linked projects
+   * - Project completion
+   * - Goal status
+   * - Goal priority
+   * - Goal progress
+   *
+   * @param {Object} options
+   * @returns {Promise<Object>}
+   */
+  async getDashboard(options = {}) {
+    try {
+      const { page = 1, limit = 20, sortOrder = "DESC" } = options;
+
+      /*
+       * ============================================================
+       * 1. Fetch all vision goals
+       * ============================================================
+       */
+
+      const { data: goals, error: goalsError } = await supabase.from(
+        "vision_board"
+      ).select(`
+        *,
+        vision_projects (
+          project_id,
+          projects (
+            id,
+            name,
+            description,
+            status,
+            completion_percentage,
+            priority,
+            start_date,
+            target_completion_date,
+            created_at,
+            updated_at
+          )
+        )
+      `);
+
+      if (goalsError) {
+        logger.error("Error fetching dashboard vision goals:", goalsError);
+
+        throw new Error("Failed to fetch vision board dashboard");
+      }
+
+      const visionGoals = goals || [];
+
+      /*
+       * ============================================================
+       * 2. Collect all projects
+       *
+       * A project can theoretically be linked to multiple
+       * vision goals, therefore we deduplicate by project ID.
+       * ============================================================
+       */
+
+      const projectsMap = new Map();
+
+      visionGoals.forEach((goal) => {
+        const links = goal.vision_projects || [];
+
+        links.forEach((link) => {
+          if (link.projects && link.projects.id) {
+            projectsMap.set(link.projects.id, link.projects);
+          }
+        });
+      });
+
+      const linkedProjects = Array.from(projectsMap.values());
+
+      /*
+       * ============================================================
+       * 3. Project statistics
+       * ============================================================
+       */
+
+      const projectStats = {
+        total: linkedProjects.length,
+
+        completed: 0,
+
+        in_progress: 0,
+
+        not_started: 0,
+
+        average_completion: 0,
+      };
+
+      let totalCompletion = 0;
+
+      linkedProjects.forEach((project) => {
+        const completion = Number(project.completion_percentage || 0);
+
+        totalCompletion += completion;
+
+        if (project.status === "completed" || completion >= 100) {
+          projectStats.completed++;
+        } else if (project.status === "in_progress" || completion > 0) {
+          projectStats.in_progress++;
+        } else {
+          projectStats.not_started++;
+        }
+      });
+
+      if (linkedProjects.length > 0) {
+        projectStats.average_completion = Math.round(
+          totalCompletion / linkedProjects.length
+        );
+      }
+
+      /*
+       * ============================================================
+       * 4. Goal statistics
+       * ============================================================
+       */
+
+      const goalStats = {
+        total: visionGoals.length,
+
+        draft: 0,
+
+        active: 0,
+
+        completed: 0,
+
+        archived: 0,
+
+        average_priority: 0,
+
+        average_progress: 0,
+      };
+
+      let totalPriority = 0;
+      let totalProgress = 0;
+
+      visionGoals.forEach((goal) => {
+        const status = goal.status || "draft";
+
+        if (Object.prototype.hasOwnProperty.call(goalStats, status)) {
+          goalStats[status]++;
+        }
+
+        totalPriority += Number(goal.priority || 0);
+
+        /*
+         * Progress is calculated from linked projects
+         * instead of trusting a stored progress field.
+         */
+
+        const links = goal.vision_projects || [];
+
+        const projects = links.map((link) => link.projects).filter(Boolean);
+
+        const progressData = VisionUtils.calculateGoalProgress(projects);
+
+        totalProgress += progressData.progress;
+      });
+
+      if (visionGoals.length > 0) {
+        goalStats.average_priority =
+          Math.round((totalPriority / visionGoals.length) * 10) / 10;
+
+        goalStats.average_progress = Math.round(
+          totalProgress / visionGoals.length
+        );
+      }
+
+      /*
+       * ============================================================
+       * 5. Calculate ALL projects in the system
+       *
+       * This is important because the dashboard is across
+       * all projects, not just projects linked to a goal.
+       * ============================================================
+       */
+
+      const { data: allProjects, error: allProjectsError } =
+        await supabase.from("projects").select(`
+        id,
+        name,
+        status,
+        completion_percentage,
+        priority,
+        created_at,
+        updated_at
+      `);
+
+      if (allProjectsError) {
+        logger.error(
+          "Error fetching all projects for dashboard:",
+          allProjectsError
+        );
+
+        throw new Error("Failed to fetch project dashboard statistics");
+      }
+
+      const projects = allProjects || [];
+
+      /*
+       * ============================================================
+       * 6. Statistics across ALL projects
+       * ============================================================
+       */
+
+      const allProjectStats = {
+        total: projects.length,
+
+        completed: 0,
+
+        in_progress: 0,
+
+        not_started: 0,
+
+        average_completion: 0,
+      };
+
+      let allProjectCompletion = 0;
+
+      projects.forEach((project) => {
+        const completion = Number(project.completion_percentage || 0);
+
+        allProjectCompletion += completion;
+
+        if (project.status === "completed" || completion >= 100) {
+          allProjectStats.completed++;
+        } else if (project.status === "in_progress" || completion > 0) {
+          allProjectStats.in_progress++;
+        } else {
+          allProjectStats.not_started++;
+        }
+      });
+
+      if (projects.length > 0) {
+        allProjectStats.average_completion = Math.round(
+          allProjectCompletion / projects.length
+        );
+      }
+
+      /*
+       * ============================================================
+       * 7. Find unlinked projects
+       * ============================================================
+       */
+
+      const linkedProjectIds = new Set(
+        linkedProjects.map((project) => project.id)
+      );
+
+      const unlinkedProjects = projects.filter(
+        (project) => !linkedProjectIds.has(project.id)
+      );
+
+      /*
+       * ============================================================
+       * 8. Build dashboard items
+       *
+       * Each goal becomes one dashboard item.
+       *
+       * These are intentionally lightweight because the UI
+       * can call GET /vision-board/:id when the user clicks.
+       * ============================================================
+       */
+
+      let items = visionGoals.map((goal) => {
+        const links = goal.vision_projects || [];
+
+        const goalProjects = links.map((link) => link.projects).filter(Boolean);
+
+        const progressData = VisionUtils.calculateGoalProgress(goalProjects);
+
+        /*
+         * Determine the latest activity associated
+         * with this vision goal.
+         */
+
+        const dates = [
+          goal.created_at,
+          goal.updated_at,
+
+          ...goalProjects.flatMap((project) => [
+            project.created_at,
+            project.updated_at,
+          ]),
+        ]
+          .filter(Boolean)
+          .map((date) => new Date(date))
+          .filter((date) => !isNaN(date.getTime()));
+
+        const latestActivity =
+          dates.length > 0
+            ? new Date(Math.max(...dates.map((date) => date.getTime())))
+            : null;
+
+        return {
+          id: goal.id,
+
+          type: "vision_goal",
+
+          title: goal.goal,
+
+          description: goal.description || null,
+
+          category: goal.category || "General",
+
+          status: goal.status || "draft",
+
+          priority: Number(goal.priority || 0),
+
+          priority_label: VisionUtils.getPriorityLabel(
+            Number(goal.priority || 0)
+          ),
+
+          progress: progressData.progress,
+
+          progress_status: progressData.status,
+
+          project_count: goalProjects.length,
+
+          completed_projects: progressData.completedProjects,
+
+          in_progress_projects: progressData.inProgressProjects,
+
+          not_started_projects: progressData.notStartedProjects,
+
+          target_timeline: goal.target_timeline || null,
+
+          created_at: goal.created_at || null,
+
+          updated_at: goal.updated_at || null,
+
+          latest_activity: latestActivity ? latestActivity.toISOString() : null,
+        };
+      });
+
+      /*
+       * ============================================================
+       * 9. Sort dashboard items by latest activity
+       * ============================================================
+       */
+
+      items.sort((a, b) => {
+        const dateA = a.latest_activity
+          ? new Date(a.latest_activity).getTime()
+          : 0;
+
+        const dateB = b.latest_activity
+          ? new Date(b.latest_activity).getTime()
+          : 0;
+
+        return sortOrder === "ASC" ? dateA - dateB : dateB - dateA;
+      });
+
+      /*
+       * ============================================================
+       * 10. Pagination
+       * ============================================================
+       */
+
+      const totalItems = items.length;
+
+      const from = (page - 1) * limit;
+
+      const to = from + limit;
+
+      const paginatedItems = items.slice(from, to);
+
+      /*
+       * ============================================================
+       * 11. Overall progress
+       *
+       * Based on all projects in the system.
+       * ============================================================
+       */
+
+      const overallProgress = allProjectStats.average_completion;
+
+      /*
+       * ============================================================
+       * 12. Return dashboard
+       * ============================================================
+       */
+
+      return {
+        stats: {
+          /*
+           * Vision goals
+           */
+          total_goals: goalStats.total,
+
+          draft_goals: goalStats.draft,
+
+          active_goals: goalStats.active,
+
+          completed_goals: goalStats.completed,
+
+          archived_goals: goalStats.archived,
+
+          average_priority: goalStats.average_priority,
+
+          average_goal_progress: goalStats.average_progress,
+
+          /*
+           * Projects
+           */
+          total_projects: allProjectStats.total,
+
+          linked_projects: linkedProjects.length,
+
+          unlinked_projects: unlinkedProjects.length,
+
+          completed_projects: allProjectStats.completed,
+
+          in_progress_projects: allProjectStats.in_progress,
+
+          not_started_projects: allProjectStats.not_started,
+
+          average_project_completion: allProjectStats.average_completion,
+
+          /*
+           * Overall dashboard metric
+           */
+          overall_progress: overallProgress,
+        },
+
+        items: paginatedItems,
+
+        pagination: {
+          page,
+
+          limit,
+
+          total: totalItems,
+
+          totalPages: Math.ceil(totalItems / limit),
+        },
+
+        generated_at: new Date().toISOString(),
+      };
+    } catch (error) {
+      logger.error("VisionBoardService.getDashboard error:", error);
+
+      throw error;
+    }
+  }
 }
 
 const visionBoardService = new VisionBoardService();

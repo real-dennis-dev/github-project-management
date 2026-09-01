@@ -157,7 +157,7 @@ app.use("/api/github", githubIntegrationRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api", bugRoutes);
 app.use("/api", featureRoutes);
-app.use("/api/projects", projectRoutes);
+app.use("/api", projectRoutes);
 app.use("/api/releases", releaseMilestoneRoutes);
 app.use("/api", techDebtRoutes);
 app.use("/api/vision-board", visionBoardRoutes);

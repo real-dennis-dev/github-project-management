@@ -100,7 +100,68 @@ const riskSchemas = {
   }),
 };
 
+// Dashboard / Decision & Risk Statistics Validation
+const decisionRiskStatsSchema = Joi.object({
+  /**
+   * Optional project filter.
+   * If omitted, statistics are calculated across all projects
+   * accessible to the endpoint.
+   */
+  projectId: Joi.string().uuid(),
+
+  /**
+   * Filter decisions by impact.
+   */
+  decisionImpact: Joi.string().valid("low", "medium", "high", "critical"),
+
+  /**
+   * Filter risks by level.
+   */
+  riskLevel: Joi.string().valid("low", "medium", "high", "critical"),
+
+  /**
+   * Filter risks by status.
+   */
+  riskStatus: Joi.string().valid(
+    "identified",
+    "monitoring",
+    "mitigated",
+    "realized",
+    "closed"
+  ),
+
+  /**
+   * Start date.
+   */
+  fromDate: Joi.date().iso(),
+
+  /**
+   * End date.
+   */
+  toDate: Joi.date().iso(),
+
+  /**
+   * Number of months to return in trend data.
+   */
+  months: Joi.number().integer().min(1).max(24).default(12),
+})
+  .custom((value, helpers) => {
+    if (
+      value.fromDate &&
+      value.toDate &&
+      new Date(value.fromDate) > new Date(value.toDate)
+    ) {
+      return helpers.error("any.invalid");
+    }
+
+    return value;
+  })
+  .messages({
+    "any.invalid": "fromDate must be before or equal to toDate",
+  });
+
 module.exports = {
   decisionSchemas,
   riskSchemas,
+  decisionRiskStatsSchema,
 };

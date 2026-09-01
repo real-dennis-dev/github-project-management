@@ -121,4 +121,11 @@ router.delete(
   KnowledgeBaseController.deleteKnowledgeEntry
 );
 
+router.get(
+  "/documentation-knowledge/stats",
+  validateRequest(documentationSchemas.getDocumentationKnowledgeStats, "query"),
+  documentationMiddleware.logDocumentationAccess, // optional
+  documentationController.getDocumentationKnowledgeStats
+);
+
 module.exports = router;

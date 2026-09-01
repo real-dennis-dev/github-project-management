@@ -725,6 +725,220 @@ class ProgressService {
       throw error;
     }
   }
+  /**
+   * Dashboard: Global progress timeline stats across ALL projects
+   * Returns aggregated overview + list of project-level stats sorted by latest activity
+   */
+  static async getProgressTimelineStats(filters = {}) {
+    try {
+      const months = parseInt(filters.months) || 12;
+      const limit = parseInt(filters.limit) || 20;
+      const sortBy = filters.sort_by || "latest_activity";
+      const sortOrder = filters.sort_order || "desc";
+      const search = filters.search?.trim() || "";
+
+      // Date limit
+      const dateLimit = new Date();
+      dateLimit.setMonth(dateLimit.getMonth() - months);
+
+      // 1. Fetch all timeline entries (with project info)
+      let query = supabase
+        .from("progress_timeline")
+        .select(
+          `
+          id,
+          project_id,
+          month_year,
+          feature_name,
+          progress_percentage,
+          created_at,
+          updated_at,
+          projects!inner (
+            id,
+            name,
+            status,
+            completion_percentage
+          )
+        `
+        )
+        .gte("month_year", dateLimit.toISOString())
+        .order("updated_at", { ascending: false });
+
+      const { data: entries, error } = await query;
+
+      if (error) {
+        throw new Error(`Failed to fetch timeline data: ${error.message}`);
+      }
+
+      if (!entries || entries.length === 0) {
+        return {
+          success: true,
+          data: {
+            globalStats: {
+              totalProjects: 0,
+              totalEntries: 0,
+              totalFeatures: 0,
+              completedFeatures: 0,
+              overallAverageProgress: 0,
+              completionRate: 0,
+            },
+            projects: [],
+            chartData: { labels: [], datasets: [], features: [] },
+          },
+        };
+      }
+
+      // 2. Group by project
+      const projectMap = new Map();
+
+      entries.forEach((entry) => {
+        const projectId = entry.project_id;
+        const project = entry.projects;
+
+        if (!projectMap.has(projectId)) {
+          projectMap.set(projectId, {
+            project: {
+              id: project.id,
+              name: project.name,
+              status: project.status,
+              completion_percentage: project.completion_percentage,
+            },
+            entries: [],
+            latestUpdatedAt: null,
+          });
+        }
+
+        const group = projectMap.get(projectId);
+        group.entries.push(entry);
+
+        // Track latest activity
+        const updated = new Date(entry.updated_at);
+        if (!group.latestUpdatedAt || updated > group.latestUpdatedAt) {
+          group.latestUpdatedAt = updated;
+        }
+      });
+
+      // 3. Calculate per-project stats
+      let projectsStats = [];
+
+      for (const [projectId, group] of projectMap) {
+        const overall = ProgressUtils.calculateOverallProgress(group.entries);
+        const latestEntry = group.entries.reduce((latest, e) =>
+          new Date(e.updated_at) > new Date(latest.updated_at) ? e : latest
+        );
+
+        projectsStats.push({
+          project: group.project,
+          stats: {
+            overallProgress: overall.overall,
+            averageProgress: overall.average,
+            totalFeatures: overall.totalFeatures,
+            completedFeatures: overall.completedFeatures,
+            completionRate: overall.completionRate,
+            totalEntries: group.entries.length,
+          },
+          latestActivity: {
+            date: group.latestUpdatedAt,
+            feature: latestEntry.feature_name,
+            progress: latestEntry.progress_percentage,
+            month_year: latestEntry.month_year,
+          },
+          // Optional: small preview of recent entries
+          recentEntries: group.entries
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+            .slice(0, 3)
+            .map((e) => ({
+              id: e.id,
+              feature_name: e.feature_name,
+              progress_percentage: e.progress_percentage,
+              month_year: e.month_year,
+              status: ProgressUtils.getProgressStatus(e.progress_percentage),
+            })),
+        });
+      }
+
+      // 4. Apply search filter (project name)
+      if (search) {
+        projectsStats = projectsStats.filter((p) =>
+          p.project.name.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      // 5. Sort
+      projectsStats.sort((a, b) => {
+        let valA, valB;
+
+        switch (sortBy) {
+          case "overall_progress":
+            valA = a.stats.overallProgress;
+            valB = b.stats.overallProgress;
+            break;
+          case "total_features":
+            valA = a.stats.totalFeatures;
+            valB = b.stats.totalFeatures;
+            break;
+          case "completed_features":
+            valA = a.stats.completedFeatures;
+            valB = b.stats.completedFeatures;
+            break;
+          case "project_name":
+            valA = a.project.name.toLowerCase();
+            valB = b.project.name.toLowerCase();
+            break;
+          case "latest_activity":
+          default:
+            valA = a.latestActivity.date;
+            valB = b.latestActivity.date;
+            break;
+        }
+
+        if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+        if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+        return 0;
+      });
+
+      // Limit results
+      const limitedProjects = projectsStats.slice(0, limit);
+
+      // 6. Global aggregated stats
+      const allEntries = entries;
+      const globalOverall = ProgressUtils.calculateOverallProgress(allEntries);
+
+      const globalStats = {
+        totalProjects: projectMap.size,
+        totalEntries: allEntries.length,
+        totalFeatures: globalOverall.totalFeatures,
+        completedFeatures: globalOverall.completedFeatures,
+        overallAverageProgress: globalOverall.overall,
+        completionRate: globalOverall.completionRate,
+        dateRange: {
+          from: dateLimit.toISOString().split("T")[0],
+          to: new Date().toISOString().split("T")[0],
+        },
+      };
+
+      // Optional chart data across everything
+      const chartData = ProgressUtils.generateTimelineChart(allEntries);
+
+      return {
+        success: true,
+        data: {
+          globalStats,
+          projects: limitedProjects, // sorted list – user can click one for details
+          chartData,
+          meta: {
+            totalProjectsMatched: projectsStats.length,
+            returned: limitedProjects.length,
+            sort_by: sortBy,
+            sort_order: sortOrder,
+          },
+        },
+      };
+    } catch (error) {
+      console.error("Error in getProgressTimelineStats:", error);
+      throw error;
+    }
+  }
 }
 
 const progressService = new ProgressService();

@@ -47,6 +47,21 @@ const ProgressValidation = {
     month: Joi.date().iso().required(),
     feature_name: Joi.string(),
   }),
+  dashboardStatsQuery: Joi.object({
+    months: Joi.number().integer().min(1).max(60).default(12),
+    limit: Joi.number().integer().min(1).max(100).default(20),
+    sort_by: Joi.string()
+      .valid(
+        "latest_activity",
+        "overall_progress",
+        "total_features",
+        "completed_features",
+        "project_name"
+      )
+      .default("latest_activity"),
+    sort_order: Joi.string().valid("asc", "desc").default("desc"),
+    search: Joi.string().allow("").max(100),
+  }),
 };
 module.exports = {
   ProgressValidation,

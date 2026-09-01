@@ -45,6 +45,22 @@ const journalSchemas = {
   getJournalByDate: Joi.object({
     date: Joi.date().required(),
   }),
+
+  /**
+   * Dashboard statistics query validation
+   *
+   * No project_id is accepted here.
+   * The authenticated user's projects are used automatically.
+   */
+  getDashboardStats: Joi.object({
+    page: Joi.number().integer().min(1).default(1),
+
+    limit: Joi.number().integer().min(1).max(100).default(20),
+
+    fromDate: Joi.date().optional(),
+
+    toDate: Joi.date().optional(),
+  }),
 };
 
 module.exports = {

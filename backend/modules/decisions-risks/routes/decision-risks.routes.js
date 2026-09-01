@@ -4,7 +4,7 @@ const router = express.Router();
 // Import controllers
 const DecisionController = require("../controllers/decision.controller");
 const RiskController = require("../controllers/risk.controller");
-
+const DecisionRiskStatsController = require("../controllers/decision-risk-stats.controller");
 // Import middleware
 const {
   authenticate,
@@ -27,6 +27,7 @@ const {
 const {
   decisionSchemas,
   riskSchemas,
+  decisionRiskStatsSchema,
 } = require("../validations/decisions-risks.validation");
 
 // ============================================
@@ -573,6 +574,133 @@ router.get(
   "/projects/:projectId/risks/matrix",
   authenticate,
   RiskController.getRiskMatrix.bind(RiskController)
+);
+
+// --------------------------------------------------
+// DECISION & RISK DASHBOARD
+// --------------------------------------------------
+
+/**
+ * @swagger
+ * /api/decisions-risks/stats:
+ *   get:
+ *     summary: Get decisions and risks dashboard statistics
+ *     description: >
+ *       Returns aggregated decision and risk statistics across
+ *       all projects available to the authenticated user.
+ *     tags:
+ *       - Decisions & Risks Dashboard
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: projectId
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Optional project filter
+ *
+ *       - in: query
+ *         name: decisionImpact
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - low
+ *             - medium
+ *             - high
+ *             - critical
+ *         description: Filter decisions by impact
+ *
+ *       - in: query
+ *         name: riskLevel
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - low
+ *             - medium
+ *             - high
+ *             - critical
+ *         description: Filter risks by risk level
+ *
+ *       - in: query
+ *         name: riskStatus
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum:
+ *             - identified
+ *             - monitoring
+ *             - mitigated
+ *             - realized
+ *             - closed
+ *         description: Filter risks by status
+ *
+ *       - in: query
+ *         name: fromDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: Start date for dashboard statistics
+ *
+ *       - in: query
+ *         name: toDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date-time
+ *         description: End date for dashboard statistics
+ *
+ *       - in: query
+ *         name: months
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 24
+ *           default: 12
+ *         description: Number of months to return in trend data
+ *
+ *     responses:
+ *       200:
+ *         description: Decision and risk dashboard statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Decision and risk statistics retrieved successfully
+ *                 data:
+ *                   $ref: '#/components/schemas/DecisionRiskDashboardStats'
+ *
+ *       400:
+ *         description: Validation error
+ *
+ *       401:
+ *         description: Unauthorized
+ *
+ *       403:
+ *         description: Forbidden
+ *
+ *       500:
+ *         description: Internal server error
+ */
+router.get(
+  "/decisions-risks/stats",
+  authenticate,
+  rateLimiter(),
+  validateQuery(decisionRiskStatsSchema),
+  DecisionRiskStatsController.getDecisionRiskStats.bind(
+    DecisionRiskStatsController
+  )
 );
 
 module.exports = router;

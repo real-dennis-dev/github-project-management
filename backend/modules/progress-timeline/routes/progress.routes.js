@@ -116,5 +116,14 @@ router.get(
   SecurityMiddleware.rateLimiter(),
   ProgressController.generateProgressReport
 );
+/**
+ * GET /api/progress-timeline/stats
+ * Global dashboard stats across all projects
+ */
+router.get(
+  "/progress-timeline/stats",
+  ProgressMiddleware.validateDashboardStatsQuery,
+  ProgressController.getProgressTimelineStats
+);
 
 module.exports = router;

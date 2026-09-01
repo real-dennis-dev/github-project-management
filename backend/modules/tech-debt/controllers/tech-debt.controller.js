@@ -371,6 +371,40 @@ class TechDebtController {
       return ResponseUtils.sendError(res, error.message, 500);
     }
   }
+  /**
+   * Get global tech debt statistics
+   *
+   * This endpoint aggregates technical debt across
+   * all projects. It does NOT accept projectId.
+   *
+   * @param {Object} req - Express request
+   * @param {Object} res - Express response
+   * @returns {Promise<Object>} Dashboard statistics
+   */
+  async getTechDebtStats(req, res) {
+    try {
+      const { error, value } = techDebtSchemas.getTechDebtStats.validate(
+        req.query
+      );
+
+      if (error) {
+        return ResponseUtils.sendValidationError(res, error.details);
+      }
+
+      const statistics = await TechDebtService.getGlobalTechDebtStats(value);
+
+      return ResponseUtils.sendSuccess(
+        res,
+        statistics,
+        "Global tech debt statistics retrieved successfully",
+        200
+      );
+    } catch (error) {
+      logger.error("Error in getTechDebtStats:", error);
+
+      return ResponseUtils.sendError(res, error.message, 500);
+    }
+  }
 }
 
 const techDebtController = new TechDebtController();

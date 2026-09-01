@@ -1,4 +1,5 @@
 // ErrorState.jsx
+import { Button } from "./Button";
 export const ErrorState = ({
   title = "Something went wrong",
   description = "An error occurred while loading this content.",

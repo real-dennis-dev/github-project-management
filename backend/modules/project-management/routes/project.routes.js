@@ -86,7 +86,7 @@ const statusSchema = Joi.object({
  *         description: List of projects
  */
 router.get(
-  "/",
+  "/projects",
   AuthMiddleware.authenticate,
   DataMiddleware.pagination,
   DataMiddleware.filterParser,
@@ -136,7 +136,7 @@ router.get(
  *         description: Project created
  */
 router.post(
-  "/",
+  "/projects",
   AuthMiddleware.authenticate,
   ValidationMiddleware.validateRequest(projectSchema),
   projectMiddleware.sanitizeProjectData,
@@ -163,7 +163,7 @@ router.post(
  *         description: Project not found
  */
 router.get(
-  "/:id",
+  "/projects:id",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectById
@@ -187,7 +187,7 @@ router.get(
  *         description: Project updated
  */
 router.put(
-  "/:id",
+  "/projects:id",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
@@ -214,7 +214,7 @@ router.put(
  *         description: Status updated
  */
 router.patch(
-  "/:id/status",
+  "/projects:id/status",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
@@ -240,7 +240,7 @@ router.patch(
  *         description: Project deleted
  */
 router.delete(
-  "/:id",
+  "/projects:id",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectMiddleware.checkProjectAccess,
@@ -265,7 +265,7 @@ router.delete(
  *         description: Project analytics
  */
 router.get(
-  "/:id/stats",
+  "/projects:id/stats",
   AuthMiddleware.authenticate,
   projectMiddleware.validateProjectId,
   projectController.getProjectAnalytics
