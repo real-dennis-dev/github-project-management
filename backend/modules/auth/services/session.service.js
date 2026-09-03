@@ -142,26 +142,23 @@ class SessionService {
       // Generate new tokens
       const tokens = TokenUtils.generateTokens(result.user);
 
-      // Update refresh token in database
-      await SessionModel.deleteSession(result.session.id);
+      // Extend session by 7 days from now
+      const newExpiresAt = new Date(
+        Date.now() + 7 * 24 * 60 * 60 * 1000
+      ).toISOString();
 
       // Create new session with new refresh token
-      const newSession = await this.createSession({
-        userId: result.user.id,
-        refreshToken: tokens.refreshToken,
-        deviceName: result.session.device_name,
-        ipAddress: result.session.ip_address,
-        userAgent: result.session.user_agent,
-        expiresIn: TokenUtils.getTokenExpirySeconds(
-          process.env.JWT_REFRESH_EXPIRY || "7d"
-        ),
+      await SessionModel.updateSession(result.session.id, {
+        refresh_token: tokens.refreshToken,
+        last_active: new Date().toISOString(),
+        expires_at: newExpiresAt,
       });
 
       return {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         expiresIn: tokens.expiresIn,
-        sessionId: newSession.id,
+        sessionId: result.session.id,
       };
     } catch (error) {
       logger.error("Error refreshing access token:", error);

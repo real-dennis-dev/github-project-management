@@ -1,51 +1,46 @@
-// src/hooks/useAllReleases.js
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAllReleasesStore } from "../store/allReleasesStore";
-import allReleasesService from "../services/allReleasesService";
+import releasesService from "../services/releasesService";
 
-export const useAllReleases = () => {
+export const useAllReleases = (initialParams = {}) => {
   const queryClient = useQueryClient();
   const store = useAllReleasesStore();
+  const [params, setParams] = useState(initialParams);
 
   const ALL_RELEASES_KEYS = {
-    dashboard: (params) => ["allReleases", "dashboard", params],
+    dashboard: (queryParams) => ["allReleases", "dashboard", queryParams],
   };
 
-  // ============ Query ============
+  // ============ Top-Level Query ============
 
-  const getDashboardQuery = (params = {}) => {
-    return useQuery({
-      queryKey: ALL_RELEASES_KEYS.dashboard(params),
-      queryFn: () => allReleasesService.getDashboard(params),
-      enabled: true,
-      onSuccess: (response) => {
+  const query = useQuery({
+    queryKey: ALL_RELEASES_KEYS.dashboard(params),
+    queryFn: async () => {
+      store.clearError();
+      store.setLoading(true);
+      try {
+        const response = await releasesService.getDashboard(params);
         if (response.success) {
           store.setDashboardData(response.data);
         }
-      },
-      onError: (error) => {
-        store.setError(error.message || "Failed to fetch dashboard data");
-      },
-    });
-  };
+        return response;
+      } catch (err) {
+        store.setError(err.message || "Failed to fetch dashboard data");
+        throw err;
+      } finally {
+        store.setLoading(false);
+      }
+    },
+    enabled: true,
+  });
 
-  // ============ API Methods ============
-
-  const getDashboard = (params = {}) => {
-    store.clearError();
-    store.setLoading(true);
-    const query = getDashboardQuery(params);
-    // Handle loading state - use query's isLoading
-    return query;
-  };
+  // ============ Actions ============
 
   const refetch = () => {
     store.clearError();
-    queryClient.invalidateQueries({ queryKey: ["allReleases"] });
-    return queryClient.refetchQueries({ queryKey: ["allReleases"] });
+    return queryClient.invalidateQueries({ queryKey: ["allReleases"] });
   };
-
-  // ============ Store Actions ============
 
   const clearError = () => store.clearError();
   const reset = () => store.reset();
@@ -56,17 +51,15 @@ export const useAllReleases = () => {
     statistics: store.statistics,
     items: store.items,
     pagination: store.pagination,
-    isLoading: store.isLoading,
+    isLoading: query.isLoading || store.isLoading,
+    isFetching: query.isFetching,
     error: store.error,
     lastUpdated: store.lastUpdated,
     filters: store.filters,
 
-    // Query
-    getDashboard,
+    // Methods
+    setParams, // Pass new params to trigger auto-refetch via queryKey
     refetch,
-
-    // Query status (from the latest query)
-    isFetching: getDashboardQuery({}).isFetching,
 
     // Store actions
     clearError,

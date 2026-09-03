@@ -158,7 +158,7 @@ app.use("/api", progressRoutes);
 app.use("/api", bugRoutes);
 app.use("/api", featureRoutes);
 app.use("/api", projectRoutes);
-app.use("/api/releases", releaseMilestoneRoutes);
+app.use("/api", releaseMilestoneRoutes);
 app.use("/api", techDebtRoutes);
 app.use("/api/vision-board", visionBoardRoutes);
 

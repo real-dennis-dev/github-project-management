@@ -20,9 +20,6 @@ class ReleasesMilestonesDashboardController {
     try {
       const queryParams = req.query;
 
-      /*
-       * Validate query parameters.
-       */
       const { error, value } =
         milestoneSchemas.getReleasesMilestonesDashboard.validate(queryParams);
 
@@ -34,14 +31,9 @@ class ReleasesMilestonesDashboardController {
 
       return ResponseUtils.sendSuccess(
         res,
-        dashboard.items,
+        dashboard,
         "Releases and milestones dashboard retrieved successfully",
-        200,
-        {
-          statistics: dashboard.statistics,
-
-          pagination: dashboard.pagination,
-        }
+        200
       );
     } catch (error) {
       logger.error("Error in getReleasesMilestonesDashboard:", error);

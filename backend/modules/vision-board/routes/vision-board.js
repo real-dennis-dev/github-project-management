@@ -31,7 +31,7 @@ const { visionSchemas } = require("../validations/vision-board.validation");
 // ============================================
 /**
  * @swagger
- * /api/vision-board/dashboard:
+ * /api/dashboard:
  *   get:
  *     summary: Get Vision Board dashboard
  *     description: |
@@ -84,7 +84,7 @@ const { visionSchemas } = require("../validations/vision-board.validation");
  *         description: Internal server error
  */
 router.get(
-  "/vision-board/dashboard",
+  "/dashboard",
   authenticate,
   validateQuery(visionSchemas.getDashboard),
   VisionBoardController.getDashboard.bind(VisionBoardController)

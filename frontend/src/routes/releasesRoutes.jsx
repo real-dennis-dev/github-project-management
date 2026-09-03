@@ -1,108 +1,71 @@
 // src/routes/releasesRoutes.jsx
-import React, { Suspense } from "react";
-import { LoadingSpinner } from "../components/common";
+import React from "react";
 
-// Lazy-loaded components
-const ReleasesDashboard = React.lazy(() =>
-  import("../components/releases/ReleasesDashboard")
-);
-const ReleaseList = React.lazy(() =>
-  import("../components/releases/ReleaseList")
-);
-const ReleaseForm = React.lazy(() =>
-  import("../components/releases/ReleaseForm")
-);
-const ReleaseDetail = React.lazy(() =>
-  import("../components/releases/ReleaseDetail")
-);
-const ReleaseStats = React.lazy(() =>
-  import("../components/releases/ReleaseStats")
-);
-const MilestoneList = React.lazy(() =>
-  import("../components/releases/MilestoneList")
-);
-const MilestoneForm = React.lazy(() =>
-  import("../components/releases/MilestoneForm")
-);
-const MilestoneDetail = React.lazy(() =>
-  import("../components/releases/MilestoneDetail")
-);
-const MilestoneStats = React.lazy(() =>
-  import("../components/releases/MilestoneStats")
-);
-const BulkUpdateProgress = React.lazy(() =>
-  import("../components/releases/BulkUpdateProgress")
-);
-
-const LoadingFallback = () => (
-  <div className="flex justify-center items-center min-h-[400px]">
-    <LoadingSpinner size="lg" />
-  </div>
-);
-
-// Proper HOC that returns a component
-const withSuspense = (LazyComponent, extraProps = {}) => {
-  const Wrapped = (props) => (
-    <Suspense fallback={<LoadingFallback />}>
-      <LazyComponent {...extraProps} {...props} />
-    </Suspense>
-  );
-  return <Wrapped />;
-};
+// Direct imports
+import ReleasesDashboard from "../components/releases/ReleasesDashboard";
+import ReleaseList from "../components/releases/ReleaseList";
+import ReleaseForm from "../components/releases/ReleaseForm";
+import ReleaseDetail from "../components/releases/ReleaseDetail";
+import ReleaseStats from "../components/releases/ReleaseStats";
+import MilestoneList from "../components/releases/MilestoneList";
+import MilestoneForm from "../components/releases/MilestoneForm";
+import MilestoneDetail from "../components/releases/MilestoneDetail";
+import MilestoneStats from "../components/releases/MilestoneStats";
+import BulkUpdateProgress from "../components/releases/BulkUpdateProgress";
 
 const releasesRoutes = [
   // Top-level dashboard
   {
     path: "/releases-milestones",
-    element: withSuspense(ReleasesDashboard),
+    element: <ReleasesDashboard />,
   },
 
   // ========== Project-scoped routes ==========
   {
     path: "projects/:projectId/releases",
-    element: withSuspense(ReleaseList),
+    element: <ReleaseList />,
   },
   {
     path: "projects/:projectId/releases/create",
-    element: withSuspense(ReleaseForm),
+    element: <ReleaseForm />,
   },
   {
     path: "projects/:projectId/releases/stats",
-    element: withSuspense(ReleaseStats),
+    element: <ReleaseStats />,
   },
   {
     path: "projects/:projectId/milestones",
-    element: withSuspense(MilestoneList),
+    element: <MilestoneList />,
   },
   {
     path: "projects/:projectId/milestones/create",
-    element: withSuspense(MilestoneForm),
+    element: <MilestoneForm />,
   },
   {
     path: "projects/:projectId/milestones/stats",
-    element: withSuspense(MilestoneStats),
+    element: <MilestoneStats />,
   },
   {
     path: "projects/:projectId/milestones/bulk-update",
-    element: withSuspense(BulkUpdateProgress),
+    element: <BulkUpdateProgress />,
   },
 
   // ========== By ID routes ==========
   {
     path: "releases/:id",
-    element: withSuspense(ReleaseDetail),
+    element: <ReleaseDetail />,
   },
   {
     path: "releases/:id/edit",
-    element: withSuspense(ReleaseForm, { editMode: true }),
+    element: <ReleaseForm editMode={true} />,
   },
   {
     path: "milestones/:id",
-    element: withSuspense(MilestoneDetail),
+    element: <MilestoneDetail />,
   },
   {
     path: "milestones/:id/edit",
-    element: withSuspense(MilestoneForm, { editMode: true }),
+    element: <MilestoneForm editMode={true} />,
   },
 ];
 

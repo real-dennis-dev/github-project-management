@@ -1,6 +1,6 @@
 // src/components/vision/VisionBoardDashboard.jsx
-import React, { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useVision } from "../../hooks/useVision";
 import { useToast } from "../../hooks/useToast";
 import {
@@ -11,7 +11,6 @@ import {
   Modal,
   SearchBar,
   Select,
-  ProgressBar,
 } from "../common";
 import VisionStatistics from "./VisionStatistics";
 import VisionGoalCard from "./VisionGoalCard";
@@ -19,65 +18,28 @@ import VisionGoalForm from "./VisionGoalForm";
 import VisionCategoryFilter from "./VisionCategoryFilter";
 import {
   Plus,
+  Archive,
   Eye,
   LayoutGrid,
   List,
-  Filter,
-  X,
-  Check,
   ChevronDown,
   ChevronUp,
-  TrendingUp,
   Target,
   Clock,
   CheckCircle,
   FileText,
-  BarChart3,
   Download,
   Trash2,
-  Edit,
-  MoreVertical,
-  AlertCircle,
-  Calendar,
-  Link as LinkIcon,
-  FolderKanban,
-  Activity,
+  X,
 } from "lucide-react";
 
 const VisionBoardDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const {
-    goals,
-    statistics,
-    categories,
-    options,
-    isLoading,
-    error,
-    clearError,
-    pagination,
-    filters,
-    viewMode,
-    selectedGoalIds,
-    isGoalsLoading,
-    isStatisticsLoading,
-    getGoals,
-    getStatistics,
-    getCategories,
-    getOptions,
-    getDashboard,
-    setFilters,
-    setViewMode,
-    toggleGoalSelection,
-    clearSelection,
-    deleteGoal,
-    bulkDeleteGoals,
-    bulkUpdateStatus,
-    exportGoals,
-  } = useVision();
 
+  // Local UI state
+  const [filters, setFilters] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showBulkActions, setShowBulkActions] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportFormat, setExportFormat] = useState("json");
   const [searchTerm, setSearchTerm] = useState("");
@@ -87,37 +49,45 @@ const VisionBoardDashboard = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [isExporting, setIsExporting] = useState(false);
 
-  // Load initial data
-  useEffect(() => {
-    const loadDashboard = async () => {
-      await getDashboard();
-    };
-    loadDashboard();
-  }, []);
+  // Single source of truth – everything is driven by these params
+  const goalsParams = {
+    ...filters,
+    page,
+    limit: 12,
+    sortBy,
+    sortOrder,
+    ...(selectedStatus !== "all" ? { status: selectedStatus } : {}),
+    ...(searchTerm ? { search: searchTerm } : {}),
+  };
 
-  // Load goals when filters change
-  useEffect(() => {
-    const params = {
-      ...filters,
-      page,
-      limit: 12,
-      sortBy,
-      sortOrder,
-    };
-    if (selectedStatus !== "all") {
-      params.status = selectedStatus;
-    }
-    getGoals(params);
-  }, [page, filters, sortBy, sortOrder, selectedStatus]);
+  const {
+    goals,
+    statistics,
+    isLoading,
+    isGoalsLoading,
+    error,
+    clearError,
+    pagination,
+    viewMode,
+    selectedGoalIds,
+    setViewMode,
+    toggleGoalSelection,
+    clearSelection,
+    setSelectedGoalIds,
+    deleteGoal,
+    bulkDeleteGoals,
+    bulkUpdateStatus,
+    createGoal,
+  } = useVision({
+    enableGoals: true,
+    enableStatistics: true,
+    enableCategories: true,
+    enableOptions: true,
+    enableDashboard: true,
+    goalsParams,
+  });
 
-  // Refresh statistics periodically
-  useEffect(() => {
-    const interval = setInterval(() => {
-      getStatistics();
-    }, 30000); // Every 30 seconds
-    return () => clearInterval(interval);
-  }, []);
-
+  // ---------- Handlers (no side-effect hooks) ----------
   const handleFilterChange = (newFilters) => {
     setFilters(newFilters);
     setPage(1);
@@ -125,13 +95,12 @@ const VisionBoardDashboard = () => {
 
   const handleSearch = (value) => {
     setSearchTerm(value);
-    setFilters({ ...filters, search: value || undefined });
     setPage(1);
   };
 
   const handleSortChange = (field) => {
     if (sortBy === field) {
-      setSortOrder(sortOrder === "DESC" ? "ASC" : "DESC");
+      setSortOrder((prev) => (prev === "DESC" ? "ASC" : "DESC"));
     } else {
       setSortBy(field);
       setSortOrder("DESC");
@@ -143,15 +112,18 @@ const VisionBoardDashboard = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleGoalCreated = () => {
-    setShowCreateModal(false);
-    getGoals({ ...filters, page, limit: 12 });
-    getStatistics();
-    toast.success("Vision goal created successfully");
+  const handleGoalCreated = async (data) => {
+    try {
+      await createGoal(data);
+      setShowCreateModal(false);
+      toast.success("Vision goal created successfully");
+    } catch (err) {
+      toast.error(err.message || "Failed to create goal");
+    }
   };
 
   const handleBulkStatusUpdate = async (status) => {
-    if (selectedGoalIds.length === 0) return;
+    if (!status || selectedGoalIds.length === 0) return;
     try {
       await bulkUpdateStatus(selectedGoalIds, status);
       toast.success(`Updated ${selectedGoalIds.length} goals to ${status}`);
@@ -164,29 +136,31 @@ const VisionBoardDashboard = () => {
   const handleBulkDelete = async () => {
     if (selectedGoalIds.length === 0) return;
     if (
-      window.confirm(
+      !window.confirm(
         `Are you sure you want to delete ${selectedGoalIds.length} selected goals?`
       )
     ) {
-      try {
-        await bulkDeleteGoals(selectedGoalIds);
-        toast.success(`Deleted ${selectedGoalIds.length} goals`);
-        clearSelection();
-      } catch (err) {
-        toast.error(err.message || "Failed to delete selected goals");
-      }
+      return;
+    }
+    try {
+      await bulkDeleteGoals(selectedGoalIds);
+      toast.success(`Deleted ${selectedGoalIds.length} goals`);
+      clearSelection();
+    } catch (err) {
+      toast.error(err.message || "Failed to delete selected goals");
     }
   };
 
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      const result = await exportGoals(exportFormat, {
+      // Adjust to your actual export service method
+      const result = await visionService.exportGoals?.(exportFormat, {
         ...filters,
         status: selectedStatus !== "all" ? selectedStatus : undefined,
       });
-      // Handle download
-      const blob = new Blob([JSON.stringify(result.data, null, 2)], {
+
+      const blob = new Blob([JSON.stringify(result?.data ?? result, null, 2)], {
         type: "application/json",
       });
       const url = window.URL.createObjectURL(blob);
@@ -199,6 +173,7 @@ const VisionBoardDashboard = () => {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+
       toast.success("Goals exported successfully");
       setShowExportModal(false);
     } catch (err) {
@@ -249,6 +224,7 @@ const VisionBoardDashboard = () => {
     },
   ];
 
+  // ---------- Render ----------
   if (isLoading && !goals.length) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
@@ -313,7 +289,10 @@ const VisionBoardDashboard = () => {
           return (
             <button
               key={tab.value}
-              onClick={() => setSelectedStatus(tab.value)}
+              onClick={() => {
+                setSelectedStatus(tab.value);
+                setPage(1);
+              }}
               className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
                 isActive
                   ? "bg-primary-500 text-white"
@@ -345,7 +324,6 @@ const VisionBoardDashboard = () => {
           />
         </div>
         <div className="flex items-center space-x-2">
-          {/* View Mode Toggle */}
           <div className="flex border border-neutral-300 rounded-lg overflow-hidden">
             <button
               onClick={() => setViewMode("grid")}
@@ -371,7 +349,6 @@ const VisionBoardDashboard = () => {
             </button>
           </div>
 
-          {/* Sort Options */}
           <Select
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
@@ -387,7 +364,9 @@ const VisionBoardDashboard = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setSortOrder(sortOrder === "DESC" ? "ASC" : "DESC")}
+            onClick={() =>
+              setSortOrder((prev) => (prev === "DESC" ? "ASC" : "DESC"))
+            }
             title={sortOrder === "DESC" ? "Descending" : "Ascending"}
           >
             {sortOrder === "DESC" ? (
@@ -401,7 +380,7 @@ const VisionBoardDashboard = () => {
 
       <VisionCategoryFilter onFilterChange={handleFilterChange} />
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions */}
       {selectedGoalIds.length > 0 && (
         <div className="flex flex-wrap items-center gap-3 p-3 bg-primary-50 border border-primary-200 rounded-lg">
           <span className="text-sm font-medium text-primary-700">
@@ -417,7 +396,6 @@ const VisionBoardDashboard = () => {
           <Select
             value=""
             onChange={(e) => handleBulkStatusUpdate(e.target.value)}
-            placeholder="Update Status"
             className="w-40"
             size="sm"
           >
@@ -442,7 +420,7 @@ const VisionBoardDashboard = () => {
         </div>
       )}
 
-      {/* Goals Grid/List */}
+      {/* Goals */}
       {isGoalsLoading && goals.length === 0 ? (
         <div className="flex justify-center py-12">
           <LoadingSpinner size="lg" />
@@ -481,7 +459,6 @@ const VisionBoardDashboard = () => {
             ))}
           </div>
 
-          {/* Pagination */}
           {pagination.pages > 1 && (
             <div className="flex items-center justify-between pt-4 border-t border-neutral-300">
               <div className="text-sm text-neutral-500">
@@ -515,7 +492,7 @@ const VisionBoardDashboard = () => {
         </>
       )}
 
-      {/* Create Goal Modal */}
+      {/* Create Modal */}
       <Modal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
