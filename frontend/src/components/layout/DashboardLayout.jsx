@@ -13,6 +13,7 @@ import {
   faCog,
   faChartLine,
   faBrain,
+  faFileLines,
   faShieldHalved,
   faEye,
   faCreditCard,
@@ -24,6 +25,7 @@ import { FaGithub } from "react-icons/fa";
 
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+
 import { useAuth } from "../../hooks/useAuth"; // adjust path if needed
 
 const DashboardLayout = () => {
@@ -71,6 +73,11 @@ const DashboardLayout = () => {
       to: "/decisions-risks",
       label: "Decisions & Risks",
       icon: faShieldHalved,
+    },
+    {
+      to: "/documentation-knowledge",
+      label: "Documentation Knowledge",
+      icon: faFileLines,
     },
     {
       to: "/tech-debt",

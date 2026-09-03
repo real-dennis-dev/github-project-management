@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/auth";
 import aiRoutes from "./routes/aiRoutes";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import { decisionsRisksRoutes } from "./components/decision-risks";
+import documentationKnowledgeRoutes from "./routes/documentationKnowledgeRoutes";
 import journalRoutes from "./routes/journalRoutes";
 import expenseRoutes from "./routes/expenseRoutes";
 import githubRoutes from "./routes/githubRoutes";
@@ -122,6 +123,14 @@ const App = () => {
         {techDebtRoutes.map((route, index) => (
           <Route
             key={`td-${index}`}
+            path={route.path}
+            element={route.element}
+          />
+        ))}
+        {/* Render documentation knowledge routes */}
+        {documentationKnowledgeRoutes.map((route, index) => (
+          <Route
+            key={`dk-${index}`}
             path={route.path}
             element={route.element}
           />

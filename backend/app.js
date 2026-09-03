@@ -147,7 +147,7 @@ app.use("/api/auth", authRoutes);
 // Personal Management
 app.use("/api", dailyJournalRoutes);
 app.use("/api", decisionRisksRoutes);
-app.use("/api/documentation", documentationRoutes);
+app.use("/api", documentationRoutes);
 app.use("/api", expensesRoutes);
 
 // Integrations

@@ -18,7 +18,7 @@ export { DropdownItem } from "./DropdownItem";
 export { Pagination } from "./Pagination";
 export { Table } from "./Table";
 export { default as Card } from "./Card";
-export { SearchBar } from "./SearchBar";
+export { default as SearchBar } from "./SearchBar";
 // src/components/common/index.js
 export { default as Tabs } from "./Tabs";
 export { default as Tab } from "./Tab";
